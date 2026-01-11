@@ -1,0 +1,456 @@
+.app {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.subtitle {
+  margin: 8px 0 0 0;
+  opacity: 0.8;
+}
+
+.panel {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.panelTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.panelTitle {
+  font-weight: 650;
+}
+
+.panelBody {
+  padding: 14px;
+}
+
+.subtitle2 {
+  margin-top: 4px;
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.headerRight {
+  flex: 0 0 auto;
+}
+
+.headerActions {
+  margin-top: 14px;
+}
+
+.headerCube {
+  width: 180px;
+  height: 120px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.button {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 9px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.button.secondary {
+  background: transparent;
+}
+
+.button.secondary:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field {
+  display: block;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 650;
+  margin-bottom: 6px;
+}
+
+.hint {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.15);
+  color: inherit;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.16);
+  margin: 14px 0;
+}
+
+.rowBetween {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rowGap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.exerciseList {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.exerciseRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.exerciseIndex {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  opacity: 0.8;
+  font-size: 12px;
+}
+
+.exerciseFields {
+  display: grid;
+  gap: 8px;
+}
+
+.iconButton {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.iconButton:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.routineList {
+  display: grid;
+  gap: 10px;
+}
+
+.routineCard {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.routineName {
+  font-weight: 700;
+}
+
+.routineActions {
+  display: flex;
+  gap: 10px;
+}
+
+.completionList {
+  display: grid;
+  gap: 10px;
+}
+
+.completionRow {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.completionRowButton {
+  text-align: left;
+  width: 100%;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.completionRowButton:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.completionRowButton:active {
+  transform: scale(0.99);
+}
+
+.completionBullet {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  flex: 0 0 auto;
+}
+
+.completionName {
+  font-weight: 700;
+}
+
+.empty {
+  opacity: 0.8;
+}
+
+.exerciseRunList {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.runStatus {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.runStatusRow {
+  align-items: center;
+}
+
+.runStatusTitle {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.runNextName {
+  font-weight: 650;
+}
+
+.runProgress {
+  width: 260px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.runProgressFill {
+  height: 100%;
+  width: 0;
+  background: rgba(255, 255, 255, 0.5);
+  transition: width 260ms ease;
+}
+
+.runDots {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.runDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  opacity: 0.75;
+}
+
+.runDotDone {
+  background: rgba(255, 255, 255, 0.35);
+  opacity: 1;
+}
+
+.runDotNext {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.runRow {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.runRow:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.runRowDone {
+  opacity: 0.65;
+}
+
+.runRowJustDone {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.06);
+  animation: run-pop 420ms ease;
+}
+
+.runRowTop {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.runCheckboxInput {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  accent-color: #646cff;
+}
+
+.runCheckboxInput:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+  outline-offset: 2px;
+}
+
+.runPanel .panelTitleRow {
+  padding: 14px 14px;
+}
+
+.runPanel .panelTitle {
+  font-size: 16px;
+}
+
+.runPanel .subtitle2 {
+  font-size: 15px;
+  opacity: 0.85;
+}
+
+.runStatusAllDone {
+  animation: run-pulse 900ms ease;
+}
+
+@keyframes run-pop {
+  0% {
+    transform: scale(1);
+  }
+  55% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes run-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.01);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.dot {
+  margin: 0 8px;
+  opacity: 0.6;
+}
+
+.imageStrip {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.imageThumb {
+  width: 160px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.canvasWrap {
+  height: 360px;
+}
+
+.canvasWrap canvas {
+  display: block;
+}

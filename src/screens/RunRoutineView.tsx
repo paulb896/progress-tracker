@@ -78,9 +78,6 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
           <div className="subtitle2">{routine.name}</div>
         </div>
         <div className="rowGap">
-          <button type="button" className="button" onClick={onComplete} disabled={!allDone}>
-            Complete routine
-          </button>
           <button type="button" className="button secondary" onClick={reset}>
             Reset
           </button>
@@ -91,7 +88,7 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
       </div>
 
       <div className="panelBody">
-        <div className={allDonePulse ? 'runStatus runStatusAllDone' : 'runStatus'}>
+        <div className={allDonePulse ? 'runStatus runStatusAllDone runSticky' : 'runStatus runSticky'}>
           <div className="rowBetween runStatusRow">
             <div>
               <div className="runStatusTitle">
@@ -108,15 +105,21 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
               </div>
             </div>
 
-            <div
-              className="runProgress"
-              role="progressbar"
-              aria-label="Routine progress"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(progress * 100)}
-            >
-              <div className="runProgressFill" style={{ width: `${Math.round(progress * 100)}%` }} />
+            <div className="runStickyRight">
+              <button type="button" className="button" onClick={onComplete} disabled={!allDone}>
+                Complete routine
+              </button>
+
+              <div
+                className="runProgress"
+                role="progressbar"
+                aria-label="Routine progress"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(progress * 100)}
+              >
+                <div className="runProgressFill" style={{ width: `${Math.round(progress * 100)}%` }} />
+              </div>
             </div>
           </div>
 

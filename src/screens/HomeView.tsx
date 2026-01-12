@@ -10,6 +10,7 @@ type HomeViewProps = {
   onRun: (routineId: string) => void
   onDelete: (routineId: string) => void
   onViewCompletion: (completionId: string) => void
+  onDeleteCompletion: (completionId: string) => void
   headerRight?: React.ReactNode
 }
 
@@ -21,6 +22,7 @@ export const HomeView = ({
   onRun,
   onDelete,
   onViewCompletion,
+  onDeleteCompletion,
   headerRight,
 }: HomeViewProps) => {
   return (
@@ -86,22 +88,44 @@ export const HomeView = ({
             {completions.length ? (
               <div className="completionList" role="list">
                 {completions.slice(0, 25).map((c) => (
-                  <button
+                  <div
                     key={c.id}
-                    type="button"
                     className="completionRow completionRowButton"
                     role="listitem"
                     onClick={() => onViewCompletion(c.id)}
+                    onKeyDown={(ev) => {
+                      if (ev.key === 'Enter' || ev.key === ' ') {
+                        ev.preventDefault()
+                        onViewCompletion(c.id)
+                      }
+                    }}
+                    tabIndex={0}
                     aria-label={`View completed routine: ${c.routineName}`}
                   >
-                    <div className="completionMain">
-                      <div className="completionName">{c.routineName}</div>
-                      <div className="hint">
-                        {c.exerciseCount} exercises <span className="dot">•</span>{' '}
-                        {new Date(c.completedAt).toLocaleString()}
+                    <div className="completionRowInner">
+                      <div className="completionMain">
+                        <div className="completionName">{c.routineName}</div>
+                        <div className="hint">
+                          {c.exerciseCount} exercises <span className="dot">•</span>{' '}
+                          {new Date(c.completedAt).toLocaleString()}
+                        </div>
+                      </div>
+
+                      <div className="completionRowActions">
+                        <button
+                          type="button"
+                          className="button secondary"
+                          onClick={(ev) => {
+                            ev.stopPropagation()
+                            const ok = window.confirm(`Delete this completed routine from history?`)
+                            if (ok) onDeleteCompletion(c.id)
+                          }}
+                        >
+                          Delete
+                        </button>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             ) : (

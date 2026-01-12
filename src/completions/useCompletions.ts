@@ -13,8 +13,13 @@ export const useCompletions = () => {
     setCompletions((prev) => [completion, ...prev].sort((a, b) => b.completedAt.localeCompare(a.completedAt)))
   }
 
+  const removeCompletion = (completionId: string) => {
+    setCompletions((prev) => prev.filter((c) => c.id !== completionId))
+  }
+
   return {
     completions,
     addCompletion,
+    removeCompletion,
   }
 }

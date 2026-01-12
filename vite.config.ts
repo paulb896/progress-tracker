@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const repoName = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? 'progress-tracker'
-  const isGitHubActions = !!process.env.GITHUB_ACTIONS
-  const base = mode === 'production' && isGitHubActions ? `/${repoName}/` : '/'
+  const baseFromEnv = process.env.VITE_BASE?.trim()
+  const base = baseFromEnv ? baseFromEnv : mode === 'production' ? `/${repoName}/` : '/'
 
   return {
     base,

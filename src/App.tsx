@@ -12,7 +12,7 @@ import { makeId } from './routines/id'
 function App() {
   const { route, navigate } = usePathRoute()
   const { routines, upsertRoutine, deleteRoutine } = useRoutines()
-  const { completions, addCompletion } = useCompletions()
+  const { completions, addCompletion, removeCompletion } = useCompletions()
 
   const routineForRun = route.name === 'run' ? routines.find((r) => r.id === route.routineId) ?? null : null
   const routineForEdit = route.name === 'edit' ? routines.find((r) => r.id === route.routineId) ?? null : null
@@ -30,6 +30,7 @@ function App() {
           onEdit={(routineId) => navigate({ name: 'edit', routineId })}
           onRun={(routineId) => navigate({ name: 'run', routineId })}
           onViewCompletion={(completionId) => navigate({ name: 'completed', completionId })}
+          onDeleteCompletion={(completionId) => removeCompletion(completionId)}
           onDelete={(routineId) => {
             deleteRoutine(routineId)
             navigate({ name: 'home' })
@@ -120,7 +121,14 @@ function App() {
       {route.name === 'completed' ? (
         <main className="content">
           {completionForView ? (
-            <CompletionDetailView completion={completionForView} onBack={() => navigate({ name: 'home' })} />
+            <CompletionDetailView
+              completion={completionForView}
+              onBack={() => navigate({ name: 'home' })}
+              onDelete={(completionId) => {
+                removeCompletion(completionId)
+                navigate({ name: 'home' })
+              }}
+            />
           ) : (
             <div className="panel">
               <div className="panelTitleRow">

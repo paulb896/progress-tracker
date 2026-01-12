@@ -4,9 +4,10 @@ import { resolveImageUrl } from '../app/resolveImageUrl'
 type CompletionDetailViewProps = {
   completion: RoutineCompletion
   onBack: () => void
+  onDelete: (completionId: string) => void
 }
 
-export const CompletionDetailView = ({ completion, onBack }: CompletionDetailViewProps) => {
+export const CompletionDetailView = ({ completion, onBack, onDelete }: CompletionDetailViewProps) => {
   const exercises = completion.exercises ?? []
 
   return (
@@ -16,9 +17,21 @@ export const CompletionDetailView = ({ completion, onBack }: CompletionDetailVie
           <div className="panelTitle">Completed routine</div>
           <div className="subtitle2">{completion.routineName}</div>
         </div>
-        <button type="button" className="button secondary" onClick={onBack}>
-          Back
-        </button>
+        <div className="rowGap">
+          <button
+            type="button"
+            className="button secondary"
+            onClick={() => {
+              const ok = window.confirm('Delete this completed routine from history?')
+              if (ok) onDelete(completion.id)
+            }}
+          >
+            Delete
+          </button>
+          <button type="button" className="button secondary" onClick={onBack}>
+            Back
+          </button>
+        </div>
       </div>
 
       <div className="panelBody">

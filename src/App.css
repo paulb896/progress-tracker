@@ -25,6 +25,18 @@
   overflow: hidden;
 }
 
+/* Many screens use a simple <div class="panelTitle">... without panelTitleRow.
+   Give it padding so the title text isn't flush to the panel border. */
+.panel > .panelTitle {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+/* Sticky headers won't work if a parent has overflow hidden. */
+.runPanel {
+  overflow: visible;
+}
+
 .panelTitleRow {
   display: flex;
   align-items: center;
@@ -339,6 +351,17 @@
   cursor: pointer;
 }
 
+.completionRowInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.completionRowActions {
+  flex: 0 0 auto;
+}
+
 .completionRowButton:hover {
   background: rgba(255, 255, 255, 0.06);
 }
@@ -376,6 +399,21 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+.runSticky {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #242424;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.runStickyRight {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
 .runStatusRow {
   align-items: center;
 }
@@ -405,6 +443,30 @@
   width: 0;
   background: rgba(255, 255, 255, 0.5);
   transition: width 260ms ease;
+}
+
+@media (prefers-color-scheme: light) {
+  .panel {
+    border-color: rgba(0, 0, 0, 0.14);
+  }
+
+  .panel > .panelTitle {
+    border-bottom-color: rgba(0, 0, 0, 0.14);
+  }
+
+  .runSticky {
+    background: #ffffff;
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .runProgress {
+    border-color: rgba(0, 0, 0, 0.18);
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  .runProgressFill {
+    background: rgba(0, 0, 0, 0.35);
+  }
 }
 
 .runDots {

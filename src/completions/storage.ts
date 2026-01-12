@@ -14,7 +14,13 @@ const isExercise = (v: unknown): boolean => {
   if (!v || typeof v !== 'object') return false
   const obj = v as Record<string, unknown>
   const imageUrls = obj.imageUrls
+  const sets = obj.sets
+  const reps = obj.reps
+  const weight = obj.weight
   return isString(obj.id) && isString(obj.name) && (imageUrls === undefined || isStringArray(imageUrls))
+    && (sets === undefined || isNumber(sets))
+    && (reps === undefined || isNumber(reps))
+    && (weight === undefined || isNumber(weight))
 }
 
 const isCompletion = (v: unknown): v is RoutineCompletion => {

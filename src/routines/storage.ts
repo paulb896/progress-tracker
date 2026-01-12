@@ -24,6 +24,11 @@ const isRoutine = (value: unknown): value is Routine => {
     const e = ex as Record<string, unknown>
     if (typeof e.id !== 'string') return false
     if (typeof e.name !== 'string') return false
+
+    if (typeof e.sets !== 'undefined' && typeof e.sets !== 'number') return false
+    if (typeof e.reps !== 'undefined' && typeof e.reps !== 'number') return false
+    if (typeof e.weight !== 'undefined' && typeof e.weight !== 'number') return false
+
     if (typeof e.imageUrls === 'undefined') continue
     if (!Array.isArray(e.imageUrls)) return false
     if (!e.imageUrls.every((u) => typeof u === 'string')) return false

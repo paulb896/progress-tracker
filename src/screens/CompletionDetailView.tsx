@@ -1,4 +1,5 @@
 import type { RoutineCompletion } from '../completions/types'
+import { resolveImageUrl } from '../app/resolveImageUrl'
 
 type CompletionDetailViewProps = {
   completion: RoutineCompletion
@@ -34,10 +35,27 @@ export const CompletionDetailView = ({ completion, onBack }: CompletionDetailVie
                   <span className="runName">{ex.name}</span>
                 </div>
 
+                {ex.sets || ex.reps || ex.weight ? (
+                  <div className="runMeta" aria-label="Sets, reps, weight">
+                    <div className="runMetaField">
+                      <span className="runMetaLabel">Sets</span>
+                      <span className="runMetaValue">{typeof ex.sets === 'number' ? ex.sets : '-'}</span>
+                    </div>
+                    <div className="runMetaField">
+                      <span className="runMetaLabel">Reps</span>
+                      <span className="runMetaValue">{typeof ex.reps === 'number' ? ex.reps : '-'}</span>
+                    </div>
+                    <div className="runMetaField">
+                      <span className="runMetaLabel">Weight</span>
+                      <span className="runMetaValue">{typeof ex.weight === 'number' ? ex.weight : '-'}</span>
+                    </div>
+                  </div>
+                ) : null}
+
                 {ex.imageUrls?.length ? (
                   <div className="imageStrip" aria-label="Exercise reference images">
                     {ex.imageUrls.map((url) => (
-                      <img key={url} className="imageThumb" src={url} alt={`${ex.name} reference`} loading="lazy" />
+                          <img key={url} className="imageThumb" src={resolveImageUrl(url)} alt={`${ex.name} reference`} loading="lazy" />
                     ))}
                   </div>
                 ) : null}

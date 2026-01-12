@@ -1,6 +1,6 @@
 import './App.css'
 import { ThreeDemo } from './ThreeDemo'
-import { useHashRoute } from './app/useHashRoute'
+import { usePathRoute } from './app/usePathRoute'
 import { HomeView } from './screens/HomeView'
 import { CreateRoutineView } from './screens/CreateRoutineView'
 import { RunRoutineView } from './screens/RunRoutineView'
@@ -10,7 +10,7 @@ import { useCompletions } from './completions/useCompletions'
 import { makeId } from './routines/id'
 
 function App() {
-  const { route, navigate } = useHashRoute()
+  const { route, navigate } = usePathRoute()
   const { routines, upsertRoutine, deleteRoutine } = useRoutines()
   const { completions, addCompletion } = useCompletions()
 
@@ -99,6 +99,7 @@ function App() {
                 })
                 navigate({ name: 'home' })
               }}
+              onUpdateRoutine={(nextRoutine) => upsertRoutine(nextRoutine)}
             />
           ) : (
             <div className="panel">

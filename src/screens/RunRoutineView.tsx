@@ -1,15 +1,33 @@
 import React from 'react'
 import type { Routine } from '../routines/types'
+import { resolveImageUrl } from '../app/resolveImageUrl'
 
 type RunRoutineViewProps = {
   routine: Routine
   onBack: () => void
   onComplete: () => void
+  onUpdateRoutine: (routine: Routine) => void
 }
 
 type DoneState = Record<string, boolean>
 
-export const RunRoutineView = ({ routine, onBack, onComplete }: RunRoutineViewProps) => {
+const normalizeOptionalIntFromInput = (raw: string): number | undefined => {
+  const trimmed = raw.trim()
+  if (!trimmed) return undefined
+  const n = Number(trimmed)
+  if (!Number.isFinite(n)) return undefined
+  const i = Math.trunc(n)
+  return i > 0 ? i : undefined
+}
+
+const normalizeOptionalNumberFromInput = (raw: string): number | undefined => {
+  const trimmed = raw.trim()
+  if (!trimmed) return undefined
+  const n = Number(trimmed)
+  return Number.isFinite(n) && n > 0 ? n : undefined
+}
+
+export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }: RunRoutineViewProps) => {
   const [doneByExerciseId, setDoneByExerciseId] = React.useState<DoneState>({})
   const [justCompletedExerciseId, setJustCompletedExerciseId] = React.useState<string | null>(null)
   const [allDonePulse, setAllDonePulse] = React.useState(false)
@@ -27,6 +45,14 @@ export const RunRoutineView = ({ routine, onBack, onComplete }: RunRoutineViewPr
   }
 
   const reset = () => setDoneByExerciseId({})
+
+  const updateExerciseMeta = React.useCallback(
+    (exerciseId: string, patch: Partial<{ sets: number | undefined; reps: number | undefined; weight: number | undefined }>) => {
+      const nextExercises = routine.exercises.map((ex) => (ex.id === exerciseId ? { ...ex, ...patch } : ex))
+      onUpdateRoutine({ ...routine, exercises: nextExercises })
+    },
+    [onUpdateRoutine, routine]
+  )
 
   const nextUndone = routine.exercises.find((ex) => !doneByExerciseId[ex.id]) ?? null
   const allDone = totalCount > 0 && doneCount === totalCount
@@ -128,10 +154,50 @@ export const RunRoutineView = ({ routine, onBack, onComplete }: RunRoutineViewPr
                   </span>
                 </label>
 
+                <div className="runMeta" aria-label="Sets, reps, weight">
+                  <label className="runMetaField">
+                    <span className="runMetaLabel">Sets</span>
+                    <input
+                      className="runMetaInput"
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      value={typeof ex.sets === 'number' ? ex.sets : ''}
+                      onChange={(ev) => updateExerciseMeta(ex.id, { sets: normalizeOptionalIntFromInput(ev.target.value) })}
+                      placeholder="-"
+                    />
+                  </label>
+                  <label className="runMetaField">
+                    <span className="runMetaLabel">Reps</span>
+                    <input
+                      className="runMetaInput"
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      value={typeof ex.reps === 'number' ? ex.reps : ''}
+                      onChange={(ev) => updateExerciseMeta(ex.id, { reps: normalizeOptionalIntFromInput(ev.target.value) })}
+                      placeholder="-"
+                    />
+                  </label>
+                  <label className="runMetaField">
+                    <span className="runMetaLabel">Weight</span>
+                    <input
+                      className="runMetaInput"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.5"
+                      min={0}
+                      value={typeof ex.weight === 'number' ? ex.weight : ''}
+                      onChange={(ev) => updateExerciseMeta(ex.id, { weight: normalizeOptionalNumberFromInput(ev.target.value) })}
+                      placeholder="-"
+                    />
+                  </label>
+                </div>
+
                 {ex.imageUrls?.length ? (
                   <div className="imageStrip" aria-label="Exercise reference images">
                     {ex.imageUrls.map((url) => (
-                      <img key={url} className="imageThumb" src={url} alt={`${ex.name} reference`} loading="lazy" />
+                      <img key={url} className="imageThumb" src={resolveImageUrl(url)} alt={`${ex.name} reference`} loading="lazy" />
                     ))}
                   </div>
                 ) : null}

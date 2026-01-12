@@ -5,9 +5,24 @@ export type Route =
   | { name: 'run'; routineId: string }
   | { name: 'completed'; completionId: string }
 
-export const parseHashRoute = (hash: string): Route => {
-  const raw = (hash || '').replace(/^#/, '').trim()
-  const path = raw.startsWith('/') ? raw.slice(1) : raw
+const normalizeBasePath = (basePath: string): string => {
+  let normalized = (basePath || '/').trim()
+  if (!normalized.startsWith('/')) normalized = `/${normalized}`
+  if (!normalized.endsWith('/')) normalized = `${normalized}/`
+  return normalized === '//' ? '/' : normalized
+}
+
+const stripBasePath = (pathname: string, basePath: string): string => {
+  const base = normalizeBasePath(basePath)
+  const rawPath = (pathname || '/').trim() || '/'
+  if (base !== '/' && rawPath.startsWith(base)) {
+    return rawPath.slice(base.length).replace(/^\/+/, '')
+  }
+  return rawPath.replace(/^\/+/, '')
+}
+
+export const parsePathRoute = (pathname: string, basePath: string): Route => {
+  const path = stripBasePath(pathname, basePath)
 
   if (path === '') return { name: 'home' }
   if (path === 'create') return { name: 'create' }
@@ -24,17 +39,22 @@ export const parseHashRoute = (hash: string): Route => {
   return { name: 'home' }
 }
 
-export const toHash = (route: Route): string => {
-  switch (route.name) {
-    case 'home':
-      return '#'
-    case 'create':
-      return '#create'
-    case 'edit':
-      return `#edit/${route.routineId}`
-    case 'run':
-      return `#run/${route.routineId}`
-    case 'completed':
-      return `#completed/${route.completionId}`
-  }
+export const toPath = (route: Route, basePath: string): string => {
+  const base = normalizeBasePath(basePath)
+  const suffix = (() => {
+    switch (route.name) {
+      case 'home':
+        return ''
+      case 'create':
+        return 'create'
+      case 'edit':
+        return `edit/${route.routineId}`
+      case 'run':
+        return `run/${route.routineId}`
+      case 'completed':
+        return `completed/${route.completionId}`
+    }
+  })()
+
+  return suffix ? `${base}${suffix}` : base
 }

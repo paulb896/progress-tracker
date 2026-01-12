@@ -1,5 +1,15 @@
 # Progress Tracker
 
+## Adding exercise images
+
+Put your image files in `public/exercises/` (for example: `public/exercises/rowing-machine.jpg`).
+
+Then reference them in the app using a path like:
+
+- `exercises/rowing-machine.jpg`
+
+This works locally and on GitHub Pages (the app prefixes the correct base path).
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

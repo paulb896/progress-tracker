@@ -10,7 +10,7 @@ export const EXERCISE_PRESETS: ExercisePreset[] = [
     name: 'Rowing machine',
     imageUrl: 'exercises/rowing-machine.png',
   },
-  { name: 'Lateral raise dumbbell', imageUrl: 'exercises/lateral-raise-dumbbell.webp' },
+  { name: 'Lateral raise dumbbell', imageUrl: 'exercises/lateral-raise.png' },
   { name: 'Shoulder press dumbbell', imageUrl: 'exercises/shoulder-press-dumbbell.png' },
   { name: 'Shrugs dumbbell', imageUrl: 'exercises/shrugs-dumbbell.png' },
   { name: 'Triceps cable', imageUrl: 'exercises/triceps-cable.png' },

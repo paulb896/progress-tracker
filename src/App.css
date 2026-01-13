@@ -191,6 +191,27 @@
   align-items: center;
 }
 
+.exerciseDragHandle {
+  cursor: grab;
+  user-select: none;
+}
+
+.exerciseRowDragOver {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+@media (prefers-color-scheme: light) {
+  .exerciseRowDragOver {
+    background: rgba(0, 0, 0, 0.03);
+  }
+}
+
+.exerciseRowActions {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
 .createPanel .panelBody {
   padding: 16px;
 }
@@ -355,11 +376,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
 }
 
 .completionRowActions {
   flex: 0 0 auto;
+  padding-left: 8px;
 }
 
 .completionRowButton:hover {

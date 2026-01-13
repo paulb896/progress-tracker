@@ -69,6 +69,9 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
     return [{ id: makeId(), name: '', imageUrl: '', sets: '', reps: '', weight: '' }]
   })
 
+  const [dragExerciseId, setDragExerciseId] = React.useState<string | null>(null)
+  const [dragOverExerciseId, setDragOverExerciseId] = React.useState<string | null>(null)
+
   const [error, setError] = React.useState<string | null>(null)
 
   const addExercise = () => {
@@ -77,6 +80,35 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
 
   const removeExercise = (id: string) => {
     setExerciseDrafts((prev) => prev.filter((e) => e.id !== id))
+  }
+
+  const moveExercise = (id: string, delta: -1 | 1) => {
+    setExerciseDrafts((prev) => {
+      const idx = prev.findIndex((e) => e.id === id)
+      if (idx < 0) return prev
+      const nextIdx = idx + delta
+      if (nextIdx < 0 || nextIdx >= prev.length) return prev
+
+      const copy = [...prev]
+      const [item] = copy.splice(idx, 1)
+      copy.splice(nextIdx, 0, item!)
+      return copy
+    })
+  }
+
+  const moveExerciseTo = (sourceId: string, targetId: string) => {
+    setExerciseDrafts((prev) => {
+      if (sourceId === targetId) return prev
+      const sourceIndex = prev.findIndex((e) => e.id === sourceId)
+      const targetIndex = prev.findIndex((e) => e.id === targetId)
+      if (sourceIndex < 0 || targetIndex < 0) return prev
+
+      const copy = [...prev]
+      const [item] = copy.splice(sourceIndex, 1)
+      const insertAt = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex
+      copy.splice(insertAt, 0, item!)
+      return copy
+    })
   }
 
   const updateExercise = (id: string, patch: Partial<DraftExercise>) => {
@@ -163,8 +195,46 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
 
         <div className="exerciseList">
           {exerciseDrafts.map((ex, index) => (
-            <div key={ex.id} className="exerciseRow">
-              <div className="exerciseIndex">{index + 1}</div>
+            <div
+              key={ex.id}
+              className={dragOverExerciseId === ex.id ? 'exerciseRow exerciseRowDragOver' : 'exerciseRow'}
+              onDragOver={(ev) => {
+                if (!dragExerciseId) return
+                ev.preventDefault()
+                setDragOverExerciseId(ex.id)
+              }}
+              onDragLeave={() => {
+                setDragOverExerciseId((prev) => (prev === ex.id ? null : prev))
+              }}
+              onDrop={(ev) => {
+                ev.preventDefault()
+                const sourceId = ev.dataTransfer.getData('text/plain') || dragExerciseId
+                if (!sourceId) return
+                moveExerciseTo(sourceId, ex.id)
+                setDragExerciseId(null)
+                setDragOverExerciseId(null)
+              }}
+            >
+              <div
+                className="exerciseIndex exerciseDragHandle"
+                draggable
+                role="button"
+                tabIndex={0}
+                aria-label="Drag to reorder"
+                title="Drag to reorder"
+                onDragStart={(ev) => {
+                  setDragExerciseId(ex.id)
+                  setDragOverExerciseId(ex.id)
+                  ev.dataTransfer.effectAllowed = 'move'
+                  ev.dataTransfer.setData('text/plain', ex.id)
+                }}
+                onDragEnd={() => {
+                  setDragExerciseId(null)
+                  setDragOverExerciseId(null)
+                }}
+              >
+                {index + 1}
+              </div>
               <div className="exerciseFields">
                 <input
                   className="input"
@@ -221,16 +291,46 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
                   </label>
                 </div>
               </div>
-              <button
-                type="button"
-                className="iconButton"
-                aria-label="Remove exercise"
-                onClick={() => removeExercise(ex.id)}
-                disabled={exerciseDrafts.length <= 1}
-                title={exerciseDrafts.length <= 1 ? 'At least one row required' : 'Remove'}
-              >
-                ×
-              </button>
+              <div className="exerciseRowActions">
+                <button
+                  type="button"
+                  className="iconButton"
+                  aria-label="Move exercise up"
+                  onClick={() => moveExercise(ex.id, -1)}
+                  disabled={index === 0}
+                  title={index === 0 ? 'Already at top' : 'Move up'}
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  className="iconButton"
+                  aria-label="Move exercise down"
+                  onClick={() => moveExercise(ex.id, 1)}
+                  disabled={index === exerciseDrafts.length - 1}
+                  title={index === exerciseDrafts.length - 1 ? 'Already at bottom' : 'Move down'}
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  className="iconButton"
+                  aria-label="Remove exercise"
+                  onClick={() => {
+                    if (isEdit) {
+                      const label = ex.name.trim() ? `"${ex.name.trim()}"` : 'this exercise'
+                      const ok = window.confirm(`Remove ${label} from the routine?`)
+                      if (!ok) return
+                    }
+
+                    removeExercise(ex.id)
+                  }}
+                  disabled={exerciseDrafts.length <= 1}
+                  title={exerciseDrafts.length <= 1 ? 'At least one row required' : 'Remove'}
+                >
+                  ×
+                </button>
+              </div>
             </div>
           ))}
         </div>

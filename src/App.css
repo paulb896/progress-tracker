@@ -425,14 +425,18 @@
   position: sticky;
   top: 0;
   z-index: 5;
-  background: #242424;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.00)),
+    #242424;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.35);
 }
 
 .runStickyRight {
-  display: grid;
-  justify-items: end;
-  gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
   flex: 0 0 auto;
 }
 
@@ -442,29 +446,61 @@
 
 .runStatusTitle {
   font-weight: 700;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  font-size: 16px;
+  letter-spacing: 0.01em;
 }
 
 .runNextName {
   font-weight: 650;
 }
 
-.runProgress {
-  width: 260px;
-  height: 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.08);
-  overflow: hidden;
+.runGauge {
+  position: relative;
+  width: 52px;
+  height: 52px;
   flex: 0 0 auto;
-  align-self: center;
 }
 
-.runProgressFill {
-  height: 100%;
-  width: 0;
-  background: rgba(255, 255, 255, 0.5);
-  transition: width 260ms ease;
+.runGaugeSvg {
+  display: block;
+  width: 52px;
+  height: 52px;
+}
+
+.runGaugeTrack {
+  stroke: rgba(255, 255, 255, 0.18);
+}
+
+.runGaugeValue {
+  stroke: rgba(255, 255, 255, 0.85);
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 260ms ease;
+}
+
+.runGaugeCenter {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.runGaugePrimary {
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.runGaugeSecondary {
+  margin-top: 1px;
+  font-weight: 650;
+  font-size: 11px;
+  opacity: 0.8;
+  line-height: 1.1;
 }
 
 @media (prefers-color-scheme: light) {
@@ -477,17 +513,19 @@
   }
 
   .runSticky {
-    background: #ffffff;
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.00)),
+      #ffffff;
     border-bottom-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.10);
   }
 
-  .runProgress {
-    border-color: rgba(0, 0, 0, 0.18);
-    background: rgba(0, 0, 0, 0.06);
+  .runGaugeTrack {
+    stroke: rgba(0, 0, 0, 0.14);
   }
 
-  .runProgressFill {
-    background: rgba(0, 0, 0, 0.35);
+  .runGaugeValue {
+    stroke: rgba(0, 0, 0, 0.75);
   }
 }
 
@@ -576,6 +614,7 @@
   font-weight: 650;
 }
 
+/* Legacy input styling (kept, but Run screen now uses buttons). */
 .runMetaInput {
   box-sizing: border-box;
   width: 100%;
@@ -584,6 +623,58 @@
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(0, 0, 0, 0.12);
   color: inherit;
+}
+
+.runMetaControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.runMetaButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.runMetaButton {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.runMetaButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.runMetaButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.runMetaValue {
+  font-size: 14px;
+  font-weight: 750;
+  min-width: 28px;
+  text-align: right;
+}
+
+@media (prefers-color-scheme: light) {
+  .runMetaButton {
+    border-color: rgba(0, 0, 0, 0.16);
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  .runMetaButton:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
 }
 
 .runMetaValue {

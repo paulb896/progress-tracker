@@ -11,20 +11,64 @@ type RunRoutineViewProps = {
 
 type DoneState = Record<string, boolean>
 
-const normalizeOptionalIntFromInput = (raw: string): number | undefined => {
-  const trimmed = raw.trim()
-  if (!trimmed) return undefined
-  const n = Number(trimmed)
-  if (!Number.isFinite(n)) return undefined
-  const i = Math.trunc(n)
-  return i > 0 ? i : undefined
+type ProgressGaugeProps = {
+  doneCount: number
+  totalCount: number
+  progress: number
 }
 
-const normalizeOptionalNumberFromInput = (raw: string): number | undefined => {
-  const trimmed = raw.trim()
-  if (!trimmed) return undefined
-  const n = Number(trimmed)
-  return Number.isFinite(n) && n > 0 ? n : undefined
+const ProgressGauge = ({ doneCount, totalCount, progress }: ProgressGaugeProps) => {
+  const clamped = Number.isFinite(progress) ? Math.min(1, Math.max(0, progress)) : 0
+  const percent = Math.round(clamped * 100)
+
+  const size = 52
+  const stroke = 6
+  const radius = (size - stroke) / 2
+  const circumference = 2 * Math.PI * radius
+  const dashOffset = circumference * (1 - clamped)
+
+  return (
+    <div
+      className="runGauge"
+      role="progressbar"
+      aria-label="Routine progress"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={percent}
+    >
+      <svg className="runGaugeSvg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+        <circle className="runGaugeTrack" cx={size / 2} cy={size / 2} r={radius} strokeWidth={stroke} fill="none" />
+        <circle
+          className="runGaugeValue"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          strokeWidth={stroke}
+          fill="none"
+          strokeDasharray={`${circumference}`}
+          strokeDashoffset={`${dashOffset}`}
+        />
+      </svg>
+      <div className="runGaugeCenter" aria-hidden="true">
+        <div className="runGaugePrimary">
+          {doneCount}/{totalCount}
+        </div>
+        <div className="runGaugeSecondary">{percent}%</div>
+      </div>
+    </div>
+  )
+}
+
+const adjustOptionalPositiveInt = (current: number | undefined, delta: number): number | undefined => {
+  const base = typeof current === 'number' && Number.isFinite(current) ? Math.trunc(current) : 0
+  const next = base + delta
+  return next > 0 ? next : undefined
+}
+
+const adjustOptionalPositiveNumber = (current: number | undefined, delta: number): number | undefined => {
+  const base = typeof current === 'number' && Number.isFinite(current) ? current : 0
+  const next = base + delta
+  return next > 0 ? next : undefined
 }
 
 export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }: RunRoutineViewProps) => {
@@ -35,6 +79,7 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
   const doneCount = routine.exercises.reduce((acc, ex) => acc + (doneByExerciseId[ex.id] ? 1 : 0), 0)
   const totalCount = routine.exercises.length
   const progress = totalCount ? doneCount / totalCount : 0
+  const progressPercent = totalCount ? Math.round(progress * 100) : 0
 
   const toggle = (exerciseId: string) => {
     setDoneByExerciseId((prev) => {
@@ -105,21 +150,11 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
               </div>
             </div>
 
-            <div className="runStickyRight">
+            <div className="runStickyRight" aria-label={`Progress ${progressPercent}%`}>
+              <ProgressGauge doneCount={doneCount} totalCount={totalCount} progress={progress} />
               <button type="button" className="button" onClick={onComplete} disabled={!allDone}>
                 Complete routine
               </button>
-
-              <div
-                className="runProgress"
-                role="progressbar"
-                aria-label="Routine progress"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.round(progress * 100)}
-              >
-                <div className="runProgressFill" style={{ width: `${Math.round(progress * 100)}%` }} />
-              </div>
             </div>
           </div>
 
@@ -152,49 +187,110 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
               >
                 <label className="runRowTop">
                   <input className="runCheckboxInput" type="checkbox" checked={checked} onChange={() => toggle(ex.id)} />
-                  <span className="runName">
-                    {ex.name}
-                  </span>
+                  <span className="runName">{ex.name}</span>
                 </label>
 
                 <div className="runMeta" aria-label="Sets, reps, weight">
-                  <label className="runMetaField">
+                  <div className="runMetaField">
                     <span className="runMetaLabel">Sets</span>
-                    <input
-                      className="runMetaInput"
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      value={typeof ex.sets === 'number' ? ex.sets : ''}
-                      onChange={(ev) => updateExerciseMeta(ex.id, { sets: normalizeOptionalIntFromInput(ev.target.value) })}
-                      placeholder="-"
-                    />
-                  </label>
-                  <label className="runMetaField">
+                    <div className="runMetaControls">
+                      <div className="runMetaButtons" aria-label="Adjust sets">
+                        <button
+                          type="button"
+                          className="runMetaButton"
+                          onClick={() => updateExerciseMeta(ex.id, { sets: adjustOptionalPositiveInt(ex.sets, -1) })}
+                          disabled={typeof ex.sets !== 'number' || ex.sets <= 1}
+                          aria-label="Decrement sets"
+                        >
+                          −
+                        </button>
+                        <button
+                          type="button"
+                          className="runMetaButton"
+                          onClick={() => updateExerciseMeta(ex.id, { sets: adjustOptionalPositiveInt(ex.sets, 1) })}
+                          aria-label="Increment sets"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span className="runMetaValue" aria-label="Current sets">
+                        {typeof ex.sets === 'number' ? ex.sets : '—'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="runMetaField">
                     <span className="runMetaLabel">Reps</span>
-                    <input
-                      className="runMetaInput"
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      value={typeof ex.reps === 'number' ? ex.reps : ''}
-                      onChange={(ev) => updateExerciseMeta(ex.id, { reps: normalizeOptionalIntFromInput(ev.target.value) })}
-                      placeholder="-"
-                    />
-                  </label>
-                  <label className="runMetaField">
+                    <div className="runMetaControls">
+                      <div className="runMetaButtons" aria-label="Adjust reps">
+                        <button
+                          type="button"
+                          className="runMetaButton"
+                          onClick={() => updateExerciseMeta(ex.id, { reps: adjustOptionalPositiveInt(ex.reps, -1) })}
+                          disabled={typeof ex.reps !== 'number' || ex.reps <= 1}
+                          aria-label="Decrement reps"
+                        >
+                          −
+                        </button>
+                        <button
+                          type="button"
+                          className="runMetaButton"
+                          onClick={() => updateExerciseMeta(ex.id, { reps: adjustOptionalPositiveInt(ex.reps, 1) })}
+                          aria-label="Increment reps"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span className="runMetaValue" aria-label="Current reps">
+                        {typeof ex.reps === 'number' ? ex.reps : '—'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="runMetaField">
                     <span className="runMetaLabel">Weight</span>
-                    <input
-                      className="runMetaInput"
-                      type="number"
-                      inputMode="decimal"
-                      step="0.5"
-                      min={0}
-                      value={typeof ex.weight === 'number' ? ex.weight : ''}
-                      onChange={(ev) => updateExerciseMeta(ex.id, { weight: normalizeOptionalNumberFromInput(ev.target.value) })}
-                      placeholder="-"
-                    />
-                  </label>
+                    <div className="runMetaControls">
+                      <div className="runMetaButtons" aria-label="Adjust weight">
+                        <button
+                          type="button"
+                          className="runMetaButton"
+                          onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, -5) })}
+                          disabled={typeof ex.weight !== 'number' || ex.weight <= 5}
+                          aria-label="Decrement weight by 5"
+                        >
+                          −5
+                        </button>
+                        <button
+                          type="button"
+                          className="runMetaButton"
+                          onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, -1) })}
+                          disabled={typeof ex.weight !== 'number' || ex.weight <= 1}
+                          aria-label="Decrement weight by 1"
+                        >
+                          −1
+                        </button>
+                        <button
+                          type="button"
+                          className="runMetaButton"
+                          onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, 1) })}
+                          aria-label="Increment weight by 1"
+                        >
+                          +1
+                        </button>
+                        <button
+                          type="button"
+                          className="runMetaButton"
+                          onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, 5) })}
+                          aria-label="Increment weight by 5"
+                        >
+                          +5
+                        </button>
+                      </div>
+                      <span className="runMetaValue" aria-label="Current weight">
+                        {typeof ex.weight === 'number' ? ex.weight : '—'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 {ex.imageUrls?.length ? (

@@ -11,6 +11,8 @@ type DraftExercise = {
   sets: string
   reps: string
   weight: string
+  timeMins: string
+  timeSecs: string
 }
 
 type CreateRoutineViewProps = {
@@ -42,6 +44,17 @@ const normalizeOptionalNumber = (raw: string): number | undefined => {
   return Number.isFinite(n) && n > 0 ? n : undefined
 }
 
+const normalizeOptionalDurationSeconds = (minsRaw: string, secsRaw: string): number | undefined => {
+  const minsTrimmed = minsRaw.trim()
+  const secsTrimmed = secsRaw.trim()
+  if (!minsTrimmed && !secsTrimmed) return undefined
+
+  const mins = minsTrimmed ? normalizeOptionalInt(minsTrimmed) ?? 0 : 0
+  const secs = secsTrimmed ? normalizeOptionalInt(secsTrimmed) ?? 0 : 0
+  const total = mins * 60 + secs
+  return total > 0 ? total : undefined
+}
+
 export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [], onCancel, onSave }: CreateRoutineViewProps) => {
   const isEdit = !!initialRoutine
 
@@ -63,10 +76,12 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
         sets: typeof ex.sets === 'number' ? String(ex.sets) : '',
         reps: typeof ex.reps === 'number' ? String(ex.reps) : '',
         weight: typeof ex.weight === 'number' ? String(ex.weight) : '',
+        timeMins: typeof ex.timeSeconds === 'number' ? String(Math.floor(ex.timeSeconds / 60)) : '',
+        timeSecs: typeof ex.timeSeconds === 'number' ? String(Math.floor(ex.timeSeconds % 60)) : '',
       }))
     }
 
-    return [{ id: makeId(), name: '', imageUrl: '', sets: '', reps: '', weight: '' }]
+    return [{ id: makeId(), name: '', imageUrl: '', sets: '', reps: '', weight: '', timeMins: '', timeSecs: '' }]
   })
 
   const [dragExerciseId, setDragExerciseId] = React.useState<string | null>(null)
@@ -75,7 +90,7 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
   const [error, setError] = React.useState<string | null>(null)
 
   const addExercise = () => {
-    setExerciseDrafts((prev) => [...prev, { id: makeId(), name: '', imageUrl: '', sets: '', reps: '', weight: '' }])
+    setExerciseDrafts((prev) => [...prev, { id: makeId(), name: '', imageUrl: '', sets: '', reps: '', weight: '', timeMins: '', timeSecs: '' }])
   }
 
   const removeExercise = (id: string) => {
@@ -133,6 +148,7 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
         sets: normalizeOptionalInt(d.sets),
         reps: normalizeOptionalInt(d.reps),
         weight: normalizeOptionalNumber(d.weight),
+        timeSeconds: normalizeOptionalDurationSeconds(d.timeMins, d.timeSecs),
       }))
       .filter((ex) => ex.name.length > 0)
 
@@ -286,6 +302,29 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
                       inputMode="decimal"
                       value={ex.weight}
                       onChange={(ev) => updateExercise(ex.id, { weight: ev.target.value })}
+                      placeholder="Optional"
+                    />
+                  </label>
+                </div>
+
+                <div className="exerciseTimeRow" aria-label="Optional time goal">
+                  <label className="metaField">
+                    <span className="metaLabel">Minutes</span>
+                    <input
+                      className="input metaInput"
+                      inputMode="numeric"
+                      value={ex.timeMins}
+                      onChange={(ev) => updateExercise(ex.id, { timeMins: ev.target.value })}
+                      placeholder="Optional"
+                    />
+                  </label>
+                  <label className="metaField">
+                    <span className="metaLabel">Seconds</span>
+                    <input
+                      className="input metaInput"
+                      inputMode="numeric"
+                      value={ex.timeSecs}
+                      onChange={(ev) => updateExercise(ex.id, { timeSecs: ev.target.value })}
                       placeholder="Optional"
                     />
                   </label>

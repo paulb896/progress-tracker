@@ -1,5 +1,6 @@
 import type { RoutineCompletion } from '../completions/types'
 import { resolveImageUrl } from '../app/resolveImageUrl'
+import { formatDuration } from '../app/formatDuration'
 
 type CompletionDetailViewProps = {
   completion: RoutineCompletion
@@ -63,6 +64,10 @@ export const CompletionDetailView = ({ completion, onBack, onDelete }: Completio
                       <span className="runMetaValue">{typeof ex.weight === 'number' ? ex.weight : '-'}</span>
                     </div>
                   </div>
+                ) : null}
+
+                {typeof ex.timeSeconds === 'number' && ex.timeSeconds > 0 ? (
+                  <div className="hint">Time: {formatDuration(ex.timeSeconds)}</div>
                 ) : null}
 
                 {ex.imageUrls?.length ? (

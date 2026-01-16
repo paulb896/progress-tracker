@@ -36,7 +36,7 @@ function App() {
             navigate({ name: 'home' })
           }}
           headerRight={
-            <div className="headerCube" aria-label="3D rotating cube demo">
+            <div className="headerCube" aria-label="3D lifting weight demo">
               <ThreeDemo />
             </div>
           }

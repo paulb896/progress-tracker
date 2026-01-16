@@ -28,6 +28,7 @@ const isRoutine = (value: unknown): value is Routine => {
     if (typeof e.sets !== 'undefined' && typeof e.sets !== 'number') return false
     if (typeof e.reps !== 'undefined' && typeof e.reps !== 'number') return false
     if (typeof e.weight !== 'undefined' && typeof e.weight !== 'number') return false
+    if (typeof e.timeSeconds !== 'undefined' && typeof e.timeSeconds !== 'number') return false
 
     if (typeof e.imageUrls === 'undefined') continue
     if (!Array.isArray(e.imageUrls)) return false

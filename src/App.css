@@ -288,6 +288,13 @@
   min-width: 0;
 }
 
+.exerciseTimeRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+
 .metaField {
   display: grid;
   gap: 6px;
@@ -570,6 +577,71 @@
   border-color: rgba(255, 255, 255, 0.22);
 }
 
+.runRowMinimized {
+  padding: 10px 12px;
+}
+
+.runRowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.runRowHeader:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.25);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+
+.runRowHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.runRowHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.runMiniMeta {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.78;
+  white-space: nowrap;
+}
+
+.runMiniThumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.runExpandButton {
+  border-radius: 12px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.runExpandButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.runExpandButton:active {
+  transform: translateY(1px);
+}
+
 .runRowDone {
   opacity: 0.65;
 }
@@ -601,6 +673,10 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+}
+
+.runMetaWide {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .runMetaField {
@@ -674,6 +750,19 @@
 
   .runMetaButton:hover {
     background: rgba(0, 0, 0, 0.06);
+  }
+
+  .runMiniThumb {
+    border-color: rgba(0, 0, 0, 0.14);
+  }
+
+  .runExpandButton {
+    border-color: rgba(0, 0, 0, 0.14);
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .runExpandButton:hover {
+    background: rgba(0, 0, 0, 0.05);
   }
 }
 

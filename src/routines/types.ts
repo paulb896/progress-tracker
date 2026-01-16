@@ -5,6 +5,7 @@ export type Exercise = {
   sets?: number
   reps?: number
   weight?: number
+  timeSeconds?: number
 }
 
 export type Routine = {

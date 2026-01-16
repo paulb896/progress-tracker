@@ -17,10 +17,12 @@ const isExercise = (v: unknown): boolean => {
   const sets = obj.sets
   const reps = obj.reps
   const weight = obj.weight
+  const timeSeconds = obj.timeSeconds
   return isString(obj.id) && isString(obj.name) && (imageUrls === undefined || isStringArray(imageUrls))
     && (sets === undefined || isNumber(sets))
     && (reps === undefined || isNumber(reps))
     && (weight === undefined || isNumber(weight))
+    && (timeSeconds === undefined || isNumber(timeSeconds))
 }
 
 const isCompletion = (v: unknown): v is RoutineCompletion => {

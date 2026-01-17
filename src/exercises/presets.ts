@@ -23,10 +23,10 @@ export const EXERCISE_PRESETS: ExercisePreset[] = [
   { name: 'Hip thrust', imageUrl: 'exercises/hip-thrust.png' },
   { name: 'Seated Calf Raise', imageUrl: 'exercises/seated-calf-raise.png' },
   { name: 'Chest press dumbbell', imageUrl: 'exercises/chest-press-dumbbell.jpg' },
-  { name: 'Upper chest dumbbell' },
+  { name: 'Upper chest dumbbell', imageUrl: 'exercises/chest-press-dumbbell.jpg' },
   { name: 'Push ups on knee' },
-  { name: 'Arnold biceps' },
-  { name: 'Hammer biceps', imageUrl: 'exercises/hammer-biceps.png' },
+  { name: 'Arnold biceps', imageUrl: 'exercises/arnold-biceps.png' },
+  { name: 'Hammer biceps', imageUrl: 'exercises/bicep-curl.png' },
   { name: 'Chest press barbell' },
   { name: 'Wall sit', imageUrl: 'exercises/wall-sit.jpg' },
 ]

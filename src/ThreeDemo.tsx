@@ -109,13 +109,49 @@ const StudioEnvironment = () => {
 
 const LiftedWeight = () => {
   const groupRef = React.useRef<Group | null>(null)
+  const { gl } = useThree()
 
-  useFrame((state) => {
+  const isPressedRef = React.useRef(false)
+  const pressAmountRef = React.useRef(0)
+
+  React.useEffect(() => {
+    const el = gl.domElement
+
+    const onPointerDown = () => {
+      isPressedRef.current = true
+    }
+
+    const onPointerUp = () => {
+      isPressedRef.current = false
+    }
+
+    el.addEventListener('pointerdown', onPointerDown)
+    el.addEventListener('pointerup', onPointerUp)
+    el.addEventListener('pointercancel', onPointerUp)
+    el.addEventListener('pointerleave', onPointerUp)
+
+    return () => {
+      el.removeEventListener('pointerdown', onPointerDown)
+      el.removeEventListener('pointerup', onPointerUp)
+      el.removeEventListener('pointercancel', onPointerUp)
+      el.removeEventListener('pointerleave', onPointerUp)
+    }
+  }, [gl])
+
+  useFrame((state, delta) => {
     const g = groupRef.current
     if (!g) return
     const t = state.clock.getElapsedTime()
-    const lift = 0.55 + Math.max(0, Math.sin(t * 1.25)) * 0.45
-    g.position.y = lift
+
+    // Higher automatic lift.
+    const autoLift = 0.45 + Math.max(0, Math.sin(t * 1.25)) * 0.9
+
+    // Extra lift while pressed/clicked (press down -> up, release -> down).
+    const targetPress = isPressedRef.current ? 1 : 0
+    const ease = 1 - Math.exp(-delta * 14)
+    pressAmountRef.current += (targetPress - pressAmountRef.current) * ease
+
+    g.position.y = autoLift + pressAmountRef.current * 0.35
     g.rotation.set(0, 0, 0)
   })
 

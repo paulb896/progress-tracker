@@ -116,7 +116,7 @@ const LiftedWeight = () => {
     const t = state.clock.getElapsedTime()
     const lift = 0.55 + Math.max(0, Math.sin(t * 1.25)) * 0.45
     g.position.y = lift
-    g.rotation.z = Math.sin(t * 0.8) * 0.08
+    g.rotation.set(0, 0, 0)
   })
 
   return (

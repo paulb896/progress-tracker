@@ -606,7 +606,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-end;
 }
 
 .runMiniMeta {
@@ -614,6 +616,9 @@
   font-weight: 700;
   opacity: 0.78;
   white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .runMiniThumb {
@@ -625,21 +630,37 @@
 }
 
 .runExpandButton {
-  border-radius: 12px;
-  padding: 6px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.06);
   color: inherit;
   font-weight: 900;
+  font-size: 16px;
+  line-height: 1;
   cursor: pointer;
+  transition:
+    transform 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease;
 }
 
 .runExpandButton:hover {
   background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .runExpandButton:active {
-  transform: translateY(1px);
+  transform: translateY(1px) scale(0.98);
+}
+
+.runExpandButton:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+  outline-offset: 2px;
 }
 
 .runRowDone {
@@ -658,6 +679,14 @@
   align-items: center;
   cursor: pointer;
   user-select: none;
+  min-width: 0;
+}
+
+.runRowTop .runName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .runCheckboxInput {
@@ -757,12 +786,13 @@
   }
 
   .runExpandButton {
-    border-color: rgba(0, 0, 0, 0.14);
+    border-color: rgba(0, 0, 0, 0.16);
     background: rgba(0, 0, 0, 0.03);
   }
 
   .runExpandButton:hover {
     background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.22);
   }
 }
 
@@ -931,6 +961,26 @@
     padding: 12px;
   }
 
+  .runRowHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .runRowHeaderRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .runMiniMeta {
+    white-space: normal;
+    line-height: 1.2;
+  }
+
+  .runMiniMeta .dot {
+    margin: 0 4px;
+  }
+
   .runRowTop {
     gap: 12px;
   }
@@ -942,6 +992,30 @@
 
   .runMeta {
     grid-template-columns: 1fr;
+  }
+
+  .runMetaWide {
+    grid-template-columns: 1fr;
+  }
+
+  .runMetaControls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .runMetaButtons {
+    gap: 10px;
+  }
+
+  .runMetaButton {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  .runMetaValue {
+    text-align: left;
   }
 
   .imageThumb {

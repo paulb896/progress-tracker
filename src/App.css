@@ -609,6 +609,47 @@
   border: 1px dashed var(--border);
 }
 
+.scenarioList {
+  display: grid;
+  gap: 10px;
+}
+
+.scenarioItem {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.scenarioItem[open] {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border-2));
+}
+
+.scenarioSummary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px;
+  font-weight: 720;
+  letter-spacing: -0.01em;
+}
+
+.scenarioSummary::-webkit-details-marker {
+  display: none;
+}
+
+.scenarioSummary:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+  outline-offset: 2px;
+}
+
+.scenarioGif {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
 .exerciseRunList {
   margin-top: 12px;
   display: grid;

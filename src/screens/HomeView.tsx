@@ -1,6 +1,7 @@
 import React from 'react'
 import type { Routine } from '../routines/types'
 import type { RoutineCompletion } from '../completions/types'
+import { SCENARIO_GIFS, resolveScenarioGifUrl } from '../scenarios/scenarioGifs'
 
 type HomeViewProps = {
   routines: Routine[]
@@ -81,6 +82,30 @@ export const HomeView = ({
             )}
           </div>
         </section>
+
+        {SCENARIO_GIFS.length ? (
+          <section className="panel" style={{ marginTop: 12 }}>
+            <div className="panelTitle">Usage scenarios</div>
+            <div className="panelBody">
+              <div className="scenarioList" role="list">
+                {SCENARIO_GIFS.map((s) => (
+                  <details key={s.fileName} className="scenarioItem" role="listitem">
+                    <summary className="scenarioSummary">{s.title}</summary>
+                    <img
+                      className="scenarioGif"
+                      src={resolveScenarioGifUrl(s.fileName)}
+                      alt={`Demo: ${s.title}`}
+                      loading="lazy"
+                    />
+                  </details>
+                ))}
+              </div>
+              <div className="hint" style={{ marginTop: 10 }}>
+                These are short demos generated from the Playwright BDD scenarios.
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <section className="panel" style={{ marginTop: 12 }}>
           <div className="panelTitle">Completed routines</div>

@@ -9,6 +9,7 @@ import { CompletionDetailView } from './screens/CompletionDetailView'
 import { useRoutines } from './routines/useRoutines'
 import { useCompletions } from './completions/useCompletions'
 import { makeId } from './routines/id'
+import { ScenarioGifCursor } from './components/ScenarioGifCursor'
 
 function App() {
   const { route, navigate } = usePathRoute()
@@ -23,6 +24,7 @@ function App() {
 
   return (
     <div className="app">
+      <ScenarioGifCursor />
       {route.name === 'home' ? (
         <HomeView
           routines={routines}

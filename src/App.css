@@ -650,6 +650,21 @@
   background: var(--surface-2);
 }
 
+.scenarioGifCursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--text) 65%, transparent);
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate3d(12px, 12px, 0);
+}
+
 .exerciseRunList {
   margin-top: 12px;
   display: grid;

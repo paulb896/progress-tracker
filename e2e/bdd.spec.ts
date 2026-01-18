@@ -2,27 +2,98 @@ import { test, expect } from '@playwright/test'
 
 const isScenarioGifRun = process.env.PROGRESS_TRACKER_SCENARIO_GIF === '1'
 
-const pauseIfGif = async (page: import('@playwright/test').Page, ms = 450) => {
+type Page = import('@playwright/test').Page
+type Locator = import('@playwright/test').Locator
+
+const pauseIfGif = async (page: Page, ms = 450) => {
   if (!isScenarioGifRun) return
   await page.waitForTimeout(ms)
 }
 
-const acceptAllDialogs = (page: import('@playwright/test').Page) => {
+const acceptAllDialogs = (page: Page) => {
   page.on('dialog', async (dialog) => {
     await dialog.accept()
   })
 }
 
-const clearAppStorage = async (page: import('@playwright/test').Page) => {
+const clearAppStorage = async (page: Page) => {
   await page.goto('/')
   await page.evaluate(() => {
     window.localStorage.clear()
   })
 }
 
+const enableScenarioGifUi = async (page: Page) => {
+  if (!isScenarioGifRun) return
+  await page.addInitScript(() => {
+    ;(window as any).__PROGRESS_TRACKER_SCENARIO_GIF__ = true
+  })
+}
+
+const createMouseHelpers = (page: Page) => {
+  let last = { x: 12, y: 12 }
+
+  const moveTo = async (locator: Locator) => {
+    if (!isScenarioGifRun) return
+    await locator.scrollIntoViewIfNeeded()
+    const box = await locator.boundingBox()
+    if (!box) return
+
+    const targetX = box.x + Math.max(8, Math.min(box.width - 8, box.width * 0.35))
+    const targetY = box.y + Math.max(8, Math.min(box.height - 8, box.height * 0.55))
+
+    await page.mouse.move(last.x, last.y)
+    await page.mouse.move(targetX, targetY, { steps: 14 })
+    last = { x: targetX, y: targetY }
+  }
+
+  const click = async (locator: Locator) => {
+    if (!isScenarioGifRun) {
+      await locator.click()
+      return
+    }
+    await moveTo(locator)
+    await pauseIfGif(page, 180)
+    await locator.click()
+    await pauseIfGif(page, 220)
+  }
+
+  const check = async (locator: Locator) => {
+    if (!isScenarioGifRun) {
+      await locator.check()
+      return
+    }
+    await moveTo(locator)
+    await pauseIfGif(page, 160)
+    await locator.check()
+    await pauseIfGif(page, 220)
+  }
+
+  const fill = async (locator: Locator, value: string) => {
+    if (!isScenarioGifRun) {
+      await locator.fill(value)
+      return
+    }
+
+    await moveTo(locator)
+    await locator.click()
+    await pauseIfGif(page, 160)
+
+    await locator.fill('')
+    if (value) {
+      // Per-character typing so it's visible in the recording.
+      await locator.type(value, { delay: 70 })
+    }
+    await pauseIfGif(page, 240)
+  }
+
+  return { moveTo, click, check, fill }
+}
+
 test.describe('Progress Tracker — BDD scenarios', () => {
   test.beforeEach(async ({ page }) => {
     acceptAllDialogs(page)
+    await enableScenarioGifUi(page)
     await clearAppStorage(page)
   })
 
@@ -34,10 +105,12 @@ test.describe('Progress Tracker — BDD scenarios', () => {
     })
 
     await test.step('When I create a routine with preset exercises', async () => {
-      await page.getByRole('button', { name: 'Create routine' }).click()
+      const m = createMouseHelpers(page)
+
+      await m.click(page.getByRole('button', { name: 'Create routine' }))
       await pauseIfGif(page)
 
-      await page.getByLabel('Routine name').fill('BDD Routine')
+      await m.fill(page.getByLabel('Routine name'), 'BDD Routine')
       await pauseIfGif(page, 350)
 
       const exerciseNameInputs = page.getByPlaceholder('Exercise name (e.g., Push-ups)')
@@ -45,33 +118,34 @@ test.describe('Progress Tracker — BDD scenarios', () => {
 
       await expect(exerciseNameInputs).toHaveCount(1)
 
-      await exerciseNameInputs.nth(0).fill('Bench Press')
+      await m.fill(exerciseNameInputs.nth(0), 'Bench Press')
       await pauseIfGif(page, 350)
 
       await expect(imageUrlInputs.nth(0)).toHaveValue(/exercises\/bench-press\.webp$/)
 
-      await page.getByRole('button', { name: 'Add exercise' }).click()
+      await m.click(page.getByRole('button', { name: 'Add exercise' }))
       await pauseIfGif(page)
       await expect(exerciseNameInputs).toHaveCount(2)
-      await exerciseNameInputs.nth(1).fill('Planks')
+      await m.fill(exerciseNameInputs.nth(1), 'Planks')
       await pauseIfGif(page, 350)
 
-      await page.getByRole('button', { name: 'Save routine' }).click()
+      await m.click(page.getByRole('button', { name: 'Save routine' }))
       await pauseIfGif(page)
     })
 
     await test.step('Then I can run the routine and complete it', async () => {
+      const m = createMouseHelpers(page)
       await expect(page.getByText('Run routine')).toBeVisible()
       await expect(page.getByRole('button', { name: 'Complete routine' })).toBeDisabled()
       await pauseIfGif(page)
 
-      await page.getByRole('checkbox', { name: /Mark Bench Press done/ }).check()
+      await m.check(page.getByRole('checkbox', { name: /Mark Bench Press done/ }))
       await pauseIfGif(page, 300)
-      await page.getByRole('checkbox', { name: /Mark Planks done/ }).check()
+      await m.check(page.getByRole('checkbox', { name: /Mark Planks done/ }))
       await pauseIfGif(page, 300)
 
       await expect(page.getByRole('button', { name: 'Complete routine' })).toBeEnabled()
-      await page.getByRole('button', { name: 'Complete routine' }).click()
+      await m.click(page.getByRole('button', { name: 'Complete routine' }))
       await pauseIfGif(page)
 
       await expect(page.getByText('Completed routines')).toBeVisible()
@@ -80,7 +154,8 @@ test.describe('Progress Tracker — BDD scenarios', () => {
     })
 
     await test.step('And I can view completion details', async () => {
-      await page.getByLabel(/View completed routine: BDD Routine/).click()
+      const m = createMouseHelpers(page)
+      await m.click(page.getByLabel(/View completed routine: BDD Routine/))
       await pauseIfGif(page)
       await expect(page.getByText('Completed routine')).toBeVisible()
       await expect(page.getByText('BDD Routine')).toBeVisible()
@@ -91,34 +166,37 @@ test.describe('Progress Tracker — BDD scenarios', () => {
 
   test('Scenario: Edit a completed routine (name + exercises + images) and persist changes', async ({ page }) => {
     await test.step('Given I have a completed routine', async () => {
+      const m = createMouseHelpers(page)
       await page.goto('/')
       await pauseIfGif(page)
-      await page.getByRole('button', { name: 'Create routine' }).click()
+      await m.click(page.getByRole('button', { name: 'Create routine' }))
       await pauseIfGif(page)
-      await page.getByLabel('Routine name').fill('Edit Completion Routine')
+      await m.fill(page.getByLabel('Routine name'), 'Edit Completion Routine')
       await pauseIfGif(page, 350)
 
       const exerciseNameInputs = page.getByPlaceholder('Exercise name (e.g., Push-ups)')
-      await exerciseNameInputs.nth(0).fill('Bench Press')
+      await m.fill(exerciseNameInputs.nth(0), 'Bench Press')
       await pauseIfGif(page, 350)
-      await page.getByRole('button', { name: 'Save routine' }).click()
+      await m.click(page.getByRole('button', { name: 'Save routine' }))
       await pauseIfGif(page)
 
-      await page.getByRole('checkbox', { name: /Mark Bench Press done/ }).check()
+      await m.check(page.getByRole('checkbox', { name: /Mark Bench Press done/ }))
       await pauseIfGif(page, 300)
-      await page.getByRole('button', { name: 'Complete routine' }).click()
+      await m.click(page.getByRole('button', { name: 'Complete routine' }))
       await pauseIfGif(page)
 
-      await page.getByLabel(/View completed routine: Edit Completion Routine/).click()
+      await m.click(page.getByLabel(/View completed routine: Edit Completion Routine/))
       await pauseIfGif(page)
       await expect(page.getByText('Completed routine')).toBeVisible()
     })
 
     await test.step('When I edit the completion and save', async () => {
-      await page.getByRole('button', { name: 'Edit' }).click()
+      const m = createMouseHelpers(page)
+
+      await m.click(page.getByRole('button', { name: 'Edit' }))
       await pauseIfGif(page)
 
-      await page.getByLabel('Routine name').fill('Edited Completion Name')
+      await m.fill(page.getByLabel('Routine name'), 'Edited Completion Name')
       await pauseIfGif(page, 350)
 
       const exerciseName = page.getByPlaceholder('Exercise name')
@@ -126,27 +204,28 @@ test.describe('Progress Tracker — BDD scenarios', () => {
 
       await expect(exerciseName).toHaveCount(1)
 
-      await imageUrl.nth(0).fill('')
+      await m.fill(imageUrl.nth(0), '')
       await pauseIfGif(page, 250)
-      await exerciseName.nth(0).fill('Push ups')
+      await m.fill(exerciseName.nth(0), 'Push ups')
       await pauseIfGif(page, 350)
 
       await expect(imageUrl.nth(0)).toHaveValue(/exercises\/push-ups\.webp$/)
 
-      await page.getByRole('button', { name: 'Save' }).click()
+      await m.click(page.getByRole('button', { name: 'Save' }))
       await pauseIfGif(page)
     })
 
     await test.step('Then the completion reflects the edits and remains after navigation', async () => {
+      const m = createMouseHelpers(page)
       await expect(page.getByText('Edited Completion Name')).toBeVisible()
       await expect(page.getByText('Push ups')).toBeVisible()
       await pauseIfGif(page)
 
-      await page.getByRole('button', { name: 'Back' }).click()
+      await m.click(page.getByRole('button', { name: 'Back' }))
       await pauseIfGif(page)
       await expect(page.getByText('Edited Completion Name')).toBeVisible()
 
-      await page.getByLabel(/View completed routine: Edited Completion Name/).click()
+      await m.click(page.getByLabel(/View completed routine: Edited Completion Name/))
       await pauseIfGif(page)
       await expect(page.getByText('Push ups')).toBeVisible()
     })
@@ -154,45 +233,46 @@ test.describe('Progress Tracker — BDD scenarios', () => {
 
   test('Scenario: Edit a routine and delete routine/history from home', async ({ page }) => {
     await test.step('Given I have a saved routine', async () => {
+      const m = createMouseHelpers(page)
       await page.goto('/')
       await pauseIfGif(page)
-      await page.getByRole('button', { name: 'Create routine' }).click()
+      await m.click(page.getByRole('button', { name: 'Create routine' }))
       await pauseIfGif(page)
-      await page.getByLabel('Routine name').fill('Routine To Edit/Delete')
+      await m.fill(page.getByLabel('Routine name'), 'Routine To Edit/Delete')
       await pauseIfGif(page, 350)
-      await page.getByPlaceholder('Exercise name (e.g., Push-ups)').nth(0).fill('Planks')
+      await m.fill(page.getByPlaceholder('Exercise name (e.g., Push-ups)').nth(0), 'Planks')
       await pauseIfGif(page, 350)
-      await page.getByRole('button', { name: 'Save routine' }).click()
+      await m.click(page.getByRole('button', { name: 'Save routine' }))
       await pauseIfGif(page)
 
-      await page.getByRole('button', { name: 'Back' }).click()
+      await m.click(page.getByRole('button', { name: 'Back' }))
       await pauseIfGif(page)
       await expect(page.getByText('Routine To Edit/Delete')).toBeVisible()
     })
 
     await test.step('When I edit the routine', async () => {
-      await page.getByRole('button', { name: 'Edit' }).first().click()
+      const m = createMouseHelpers(page)
+
+      await m.click(page.getByRole('button', { name: 'Edit' }).first())
       await expect(page.getByText('Edit routine')).toBeVisible()
       await pauseIfGif(page)
 
-      await page.getByLabel('Routine name').fill('Routine Edited')
+      await m.fill(page.getByLabel('Routine name'), 'Routine Edited')
       await pauseIfGif(page, 350)
-      await page.getByRole('button', { name: 'Save changes' }).click()
+      await m.click(page.getByRole('button', { name: 'Save changes' }))
       await pauseIfGif(page)
 
       await expect(page.getByText('Run routine')).toBeVisible()
-      await page.getByRole('button', { name: 'Back' }).click()
+      await m.click(page.getByRole('button', { name: 'Back' }))
       await pauseIfGif(page)
     })
 
     await test.step('And I can delete the routine from home', async () => {
+      const m = createMouseHelpers(page)
       await expect(page.getByText('Routine Edited')).toBeVisible()
       await pauseIfGif(page)
 
-      await page
-        .locator('.routineCard', { hasText: 'Routine Edited' })
-        .getByRole('button', { name: 'Delete' })
-        .click()
+      await m.click(page.locator('.routineCard', { hasText: 'Routine Edited' }).getByRole('button', { name: 'Delete' }))
 
       await pauseIfGif(page)
 

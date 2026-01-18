@@ -1,83 +1,86 @@
 # Progress Tracker
 
-## Adding exercise images
+Workout routine tracker built with Vite + React + TypeScript.
 
-Put your image files in `public/exercises/` (for example: `public/exercises/rowing-machine.jpg`).
+## Quick start
 
-Then reference them in the app using a path like:
+- Install: `npm ci`
+- Dev: `npm run dev`
+- Build: `npm run build`
+- Preview build: `npm run preview`
+
+## Key folders
+
+- `src/`: app code
+- `e2e/`: Playwright E2E tests + BDD scenario catalog
+- `public/`: static assets (exercise images, etc.)
+- `docs/`: GitHub Pages build output (generated)
+- `.github/skills/`: Agent Skills (Copilot/agent reusable workflows)
+
+## Architecture (high level)
+
+### App entry + routing
+
+- Entry point: `src/main.tsx`
+- Top-level composition + navigation: `src/App.tsx`
+- Routing is intentionally minimal (no router lib): `src/app/usePathRoute.ts`
+
+### Screens
+
+- Home / list routines + completion history: `src/screens/HomeView.tsx`
+- Create/edit routine template: `src/screens/CreateRoutineView.tsx`
+- Run routine (checkboxes, per-exercise edits): `src/screens/RunRoutineView.tsx`
+- View/edit a completion snapshot: `src/screens/CompletionDetailView.tsx`
+
+### State + persistence
+
+- Routine templates are managed by `src/routines/useRoutines.ts` and stored in `localStorage` via `src/routines/storage.ts`.
+	- Storage key: `progress-tracker:routines:v1`
+- Completion history is managed by `src/completions/useCompletions.ts` and stored in `localStorage` via `src/completions/storage.ts`.
+	- Storage key: `progress-tracker:completions:v1` (stored as an object `{ completions: [...] }`)
+- Both storage layers are defensive: they validate parsed JSON and tolerate invalid/legacy shapes.
+
+### Exercise images
+
+- Images are referenced as paths like `exercises/rowing-machine.jpg` and resolved against the app base path for GitHub Pages.
+- The helper for base-path-safe rendering is `src/exercises/resolveImageUrl.ts`.
+
+### 3D header demo
+
+- The header 3D scene is implemented in `src/ThreeDemo.tsx` (Three.js via `@react-three/fiber`).
+
+### E2E tests
+
+- BDD scenario spec: `e2e/SCENARIOS.md`
+- Playwright tests: `e2e/bdd.spec.ts`
+- Config: `playwright.config.ts`
+
+## Data model (persistence)
+
+The app persists to `localStorage` (routines + completion history). Tests clear storage between runs.
+
+## Exercise images
+
+Put images in `public/exercises/` (example: `public/exercises/rowing-machine.jpg`).
+
+Reference them in the UI using a path like:
 
 - `exercises/rowing-machine.jpg`
 
-This works locally and on GitHub Pages (the app prefixes the correct base path).
+This is base-path safe for GitHub Pages.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## E2E tests + scenarios
 
-Currently, two official plugins are available:
+- Scenarios (source of truth): `e2e/SCENARIOS.md`
+- Tests: `e2e/bdd.spec.ts`
+- Run: `npm run test:e2e`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Agent Skill (recommended)
 
-## React Compiler
+Guidance for maintaining the BDD scenario catalog + Playwright tests is packaged as an Agent Skill:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `.github/skills/progress-tracker-bdd-e2e/SKILL.md`
 
-## Expanding the ESLint configuration
+## GitHub Pages
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+This repo is set up to publish as a SPA on GitHub Pages (build output goes to `docs/`).

@@ -12,7 +12,7 @@ import { makeId } from './routines/id'
 function App() {
   const { route, navigate } = usePathRoute()
   const { routines, upsertRoutine, deleteRoutine } = useRoutines()
-  const { completions, addCompletion, removeCompletion } = useCompletions()
+  const { completions, addCompletion, removeCompletion, updateCompletion } = useCompletions()
 
   const routineForRun = route.name === 'run' ? routines.find((r) => r.id === route.routineId) ?? null : null
   const routineForEdit = route.name === 'edit' ? routines.find((r) => r.id === route.routineId) ?? null : null
@@ -127,6 +127,9 @@ function App() {
               onDelete={(completionId) => {
                 removeCompletion(completionId)
                 navigate({ name: 'home' })
+              }}
+              onUpdate={(updated) => {
+                updateCompletion(updated)
               }}
             />
           ) : (

@@ -295,6 +295,30 @@
   min-width: 0;
 }
 
+.exerciseImagePreview {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 8px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.exerciseImagePreviewImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.exerciseImagePreviewFallback {
+  padding: 10px 12px;
+  font-size: 12px;
+  opacity: 0.78;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+}
+
 .metaField {
   display: grid;
   gap: 6px;
@@ -534,6 +558,21 @@
   .runGaugeValue {
     stroke: rgba(0, 0, 0, 0.75);
   }
+
+  .runDot {
+    border-color: rgba(0, 0, 0, 0.22);
+    opacity: 0.8;
+  }
+
+  .runDotDone {
+    background: rgba(0, 0, 0, 0.35);
+    opacity: 1;
+  }
+
+  .runDotNext {
+    background: rgba(0, 0, 0, 0.10);
+    border-color: rgba(0, 0, 0, 0.35);
+  }
 }
 
 .runDots {
@@ -559,6 +598,24 @@
 .runDotNext {
   opacity: 1;
   transform: scale(1.1);
+}
+
+@media (prefers-color-scheme: light) {
+  .runDot {
+    border-color: rgba(0, 0, 0, 0.22);
+    opacity: 0.85;
+  }
+
+  .runDotDone {
+    background: rgba(0, 0, 0, 0.55);
+    border-color: rgba(0, 0, 0, 0.35);
+    opacity: 1;
+  }
+
+  .runDotNext {
+    background: rgba(0, 0, 0, 0.12);
+    border-color: rgba(0, 0, 0, 0.40);
+  }
 }
 
 .runRow {
@@ -923,6 +980,14 @@
 
   .routineActions {
     flex-wrap: wrap;
+  }
+
+  .completionRowActions {
+    padding-right: 6px;
+  }
+
+  .completionRowActions .button {
+    width: auto;
   }
 
   .footerRow {

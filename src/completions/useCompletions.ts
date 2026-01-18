@@ -17,9 +17,17 @@ export const useCompletions = () => {
     setCompletions((prev) => prev.filter((c) => c.id !== completionId))
   }
 
+  const updateCompletion = (completion: RoutineCompletion) => {
+    setCompletions((prev) => {
+      const next = prev.map((c) => (c.id === completion.id ? completion : c))
+      return next.sort((a, b) => b.completedAt.localeCompare(a.completedAt))
+    })
+  }
+
   return {
     completions,
     addCompletion,
     removeCompletion,
+    updateCompletion,
   }
 }

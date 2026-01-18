@@ -3,6 +3,7 @@ import type { Routine } from '../routines/types'
 import { makeId } from '../routines/id'
 import type { RoutineCompletion } from '../completions/types'
 import { EXERCISE_PRESETS } from '../exercises/presets'
+import { resolveImageUrl } from '../app/resolveImageUrl'
 
 type DraftExercise = {
   id: string
@@ -87,6 +88,8 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
   const [dragExerciseId, setDragExerciseId] = React.useState<string | null>(null)
   const [dragOverExerciseId, setDragOverExerciseId] = React.useState<string | null>(null)
 
+  const [imagePreviewFailedById, setImagePreviewFailedById] = React.useState<Record<string, boolean>>({})
+
   const [error, setError] = React.useState<string | null>(null)
 
   const addExercise = () => {
@@ -95,6 +98,13 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
 
   const removeExercise = (id: string) => {
     setExerciseDrafts((prev) => prev.filter((e) => e.id !== id))
+
+    setImagePreviewFailedById((prev) => {
+      if (!prev[id]) return prev
+      const copy = { ...prev }
+      delete copy[id]
+      return copy
+    })
   }
 
   const moveExercise = (id: string, delta: -1 | 1) => {
@@ -128,6 +138,15 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
 
   const updateExercise = (id: string, patch: Partial<DraftExercise>) => {
     setExerciseDrafts((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e)))
+
+    if (Object.prototype.hasOwnProperty.call(patch, 'imageUrl')) {
+      setImagePreviewFailedById((prev) => {
+        if (!prev[id]) return prev
+        const copy = { ...prev }
+        delete copy[id]
+        return copy
+      })
+    }
   }
 
   const onSubmit = (e: React.FormEvent) => {
@@ -273,6 +292,24 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
                   onChange={(ev) => updateExercise(ex.id, { imageUrl: ev.target.value })}
                   placeholder="Image URL (optional)"
                 />
+
+                {ex.imageUrl.trim() ? (
+                  <div className="exerciseImagePreview" aria-label="Exercise image preview">
+                    {imagePreviewFailedById[ex.id] ? (
+                      <div className="exerciseImagePreviewFallback">Image failed to load.</div>
+                    ) : (
+                      <img
+                        className="exerciseImagePreviewImg"
+                        src={resolveImageUrl(ex.imageUrl.trim())}
+                        alt={`${ex.name || 'Exercise'} preview`}
+                        loading="lazy"
+                        onError={() => {
+                          setImagePreviewFailedById((prev) => ({ ...prev, [ex.id]: true }))
+                        }}
+                      />
+                    )}
+                  </div>
+                ) : null}
 
                 <div className="exerciseMetaRow" aria-label="Optional training details">
                   <label className="metaField">

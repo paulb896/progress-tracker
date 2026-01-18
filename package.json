@@ -11,6 +11,7 @@
     "build": "tsc -b && vite build",
     "postbuild": "node scripts/postbuild.cjs",
     "lint": "eslint .",
+    "optimize:images": "node scripts/optimize-images.cjs",
     "preview": "vite preview"
   },
   "dependencies": {

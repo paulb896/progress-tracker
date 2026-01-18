@@ -74,6 +74,11 @@ const extractScenarioTitles = (tsContents) => {
   return titles
 }
 
+const toWhitespaceTolerantRegex = (value) => {
+  const parts = value.trim().split(/\s+/)
+  return parts.map(escapeRegex).join('\\s+')
+}
+
 const writeManifest = (items) => {
   const lines = []
   lines.push("export type ScenarioGif = { title: string; fileName: string }")
@@ -131,9 +136,11 @@ const main = async () => {
 
     // Playwright greps against the full title including describe() blocks.
     // So we match the scenario string anywhere in the full title.
-    const grep = escapeRegex(`Scenario: ${item.title}`)
+    const grep = `Scenario:\\s*${toWhitespaceTolerantRegex(item.title)}`
 
-    run('npx', [
+    run(
+      'npx',
+      [
       'playwright',
       'test',
       '--config',
@@ -142,7 +149,14 @@ const main = async () => {
       'chromium',
       '--grep',
       grep,
-    ])
+      ],
+      {
+        env: {
+          ...process.env,
+          PROGRESS_TRACKER_SCENARIO_GIF: '1',
+        },
+      }
+    )
 
     const videos = findFiles(GIF_TEST_RESULTS_DIR, (p) => p.endsWith('.webm') || p.endsWith('.mp4'))
     if (!videos.length) {
@@ -161,6 +175,8 @@ const main = async () => {
       '-y',
       '-i',
       inputVideo,
+      '-frames:v',
+      '1',
       '-vf',
       'fps=12,scale=720:-1:flags=lanczos,palettegen=stats_mode=diff',
       palette,

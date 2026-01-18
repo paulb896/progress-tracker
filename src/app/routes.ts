@@ -1,5 +1,6 @@
 export type Route =
   | { name: 'home' }
+  | { name: 'howto' }
   | { name: 'create' }
   | { name: 'edit'; routineId: string }
   | { name: 'run'; routineId: string }
@@ -25,6 +26,7 @@ export const parsePathRoute = (pathname: string, basePath: string): Route => {
   const path = stripBasePath(pathname, basePath)
 
   if (path === '') return { name: 'home' }
+  if (path === 'how-to') return { name: 'howto' }
   if (path === 'create') return { name: 'create' }
 
   const editMatch = path.match(/^edit\/([^/]+)$/)
@@ -45,6 +47,8 @@ export const toPath = (route: Route, basePath: string): string => {
     switch (route.name) {
       case 'home':
         return ''
+      case 'howto':
+        return 'how-to'
       case 'create':
         return 'create'
       case 'edit':

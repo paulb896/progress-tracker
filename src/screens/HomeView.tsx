@@ -1,12 +1,12 @@
 import React from 'react'
 import type { Routine } from '../routines/types'
 import type { RoutineCompletion } from '../completions/types'
-import { SCENARIO_GIFS, resolveScenarioGifUrl } from '../scenarios/scenarioGifs'
 
 type HomeViewProps = {
   routines: Routine[]
   completions: RoutineCompletion[]
   onCreate: () => void
+  onHowTo: () => void
   onEdit: (routineId: string) => void
   onRun: (routineId: string) => void
   onDelete: (routineId: string) => void
@@ -19,6 +19,7 @@ export const HomeView = ({
   routines,
   completions,
   onCreate,
+  onHowTo,
   onEdit,
   onRun,
   onDelete,
@@ -37,9 +38,12 @@ export const HomeView = ({
           <div className="headerRight">{headerRight}</div>
         </div>
 
-        <div className="headerActions">
+        <div className="headerActions rowGap">
           <button className="button primary" type="button" onClick={onCreate}>
             Create routine
+          </button>
+          <button className="button secondary" type="button" onClick={onHowTo}>
+            How to
           </button>
         </div>
       </header>
@@ -82,30 +86,6 @@ export const HomeView = ({
             )}
           </div>
         </section>
-
-        {SCENARIO_GIFS.length ? (
-          <section className="panel" style={{ marginTop: 12 }}>
-            <div className="panelTitle">Usage scenarios</div>
-            <div className="panelBody">
-              <div className="scenarioList" role="list">
-                {SCENARIO_GIFS.map((s) => (
-                  <details key={s.fileName} className="scenarioItem" role="listitem">
-                    <summary className="scenarioSummary">{s.title}</summary>
-                    <img
-                      className="scenarioGif"
-                      src={resolveScenarioGifUrl(s.fileName)}
-                      alt={`Demo: ${s.title}`}
-                      loading="lazy"
-                    />
-                  </details>
-                ))}
-              </div>
-              <div className="hint" style={{ marginTop: 10 }}>
-                These are short demos generated from the Playwright BDD scenarios.
-              </div>
-            </div>
-          </section>
-        ) : null}
 
         <section className="panel" style={{ marginTop: 12 }}>
           <div className="panelTitle">Completed routines</div>

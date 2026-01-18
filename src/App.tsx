@@ -2,6 +2,7 @@ import './App.css'
 import { ThreeDemo } from './ThreeDemo'
 import { usePathRoute } from './app/usePathRoute'
 import { HomeView } from './screens/HomeView'
+import { HowToView } from './screens/HowToView'
 import { CreateRoutineView } from './screens/CreateRoutineView'
 import { RunRoutineView } from './screens/RunRoutineView'
 import { CompletionDetailView } from './screens/CompletionDetailView'
@@ -27,6 +28,7 @@ function App() {
           routines={routines}
           completions={completions}
           onCreate={() => navigate({ name: 'create' })}
+          onHowTo={() => navigate({ name: 'howto' })}
           onEdit={(routineId) => navigate({ name: 'edit', routineId })}
           onRun={(routineId) => navigate({ name: 'run', routineId })}
           onViewCompletion={(completionId) => navigate({ name: 'completed', completionId })}
@@ -41,6 +43,12 @@ function App() {
             </div>
           }
         />
+      ) : null}
+
+      {route.name === 'howto' ? (
+        <main className="content">
+          <HowToView onBack={() => navigate({ name: 'home' })} />
+        </main>
       ) : null}
 
       {route.name === 'create' ? (

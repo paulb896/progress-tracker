@@ -14,6 +14,10 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:4173',
     trace: 'off',
     screenshot: 'off',
+    launchOptions: {
+      // Make captured scenario demos more legible and “human-paced”.
+      slowMo: 220,
+    },
   },
   webServer: {
     command: 'npm run preview -- --port 4173 --strictPort',

@@ -28,6 +28,7 @@ Workout routine tracker built with Vite + React + TypeScript.
 ### Screens
 
 - Home / list routines + completion history: `src/screens/HomeView.tsx`
+- How-to / scenario demos: `src/screens/HowToView.tsx`
 - Create/edit routine template: `src/screens/CreateRoutineView.tsx`
 - Run routine (checkboxes, per-exercise edits): `src/screens/RunRoutineView.tsx`
 - View/edit a completion snapshot: `src/screens/CompletionDetailView.tsx`

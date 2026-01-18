@@ -4,32 +4,40 @@
   padding: 24px;
 }
 
+.content {
+  display: grid;
+  gap: 12px;
+}
+
 .header {
   margin-bottom: 16px;
 }
 
 .title {
   margin: 0;
-  font-size: 28px;
-  line-height: 1.15;
+  font-size: clamp(24px, 2.6vw, 34px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  font-weight: 760;
 }
 
 .subtitle {
   margin: 8px 0 0 0;
-  opacity: 0.8;
+  color: var(--muted);
 }
 
 .panel {
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
+  background: var(--surface);
 }
 
 /* Many screens use a simple <div class="panelTitle">... without panelTitleRow.
    Give it padding so the title text isn't flush to the panel border. */
 .panel > .panelTitle {
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid var(--border);
 }
 
 /* Sticky headers won't work if a parent has overflow hidden. */
@@ -43,11 +51,12 @@
   justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid var(--border);
 }
 
 .panelTitle {
-  font-weight: 650;
+  font-weight: 720;
+  letter-spacing: -0.01em;
 }
 
 .panelBody {
@@ -56,7 +65,7 @@
 
 .subtitle2 {
   margin-top: 4px;
-  opacity: 0.8;
+  color: var(--muted);
   font-size: 14px;
 }
 
@@ -78,24 +87,39 @@
 .headerCube {
   width: 180px;
   height: 120px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
+  background: var(--surface);
 }
 
 .button {
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--border);
   padding: 9px 12px;
   font-size: 14px;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-2);
   color: inherit;
   cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 120ms ease;
 }
 
 .button:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-3);
+  border-color: var(--border-2);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+  outline-offset: 2px;
 }
 
 .button.secondary {
@@ -103,7 +127,27 @@
 }
 
 .button.secondary:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-2);
+}
+
+.button.primary {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.button.primary:hover {
+  background: color-mix(in srgb, var(--accent) 22%, var(--surface-3));
+  border-color: color-mix(in srgb, var(--accent) 65%, var(--border-2));
+}
+
+.button.danger {
+  background: var(--danger-soft);
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--border));
+}
+
+.button.danger:hover {
+  background: color-mix(in srgb, var(--danger) 18%, var(--surface-3));
+  border-color: color-mix(in srgb, var(--danger) 65%, var(--border-2));
 }
 
 .button:disabled {
@@ -117,13 +161,13 @@
 
 .fieldLabel {
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 700;
   margin-bottom: 6px;
 }
 
 .hint {
   font-size: 13px;
-  opacity: 0.75;
+  color: var(--muted);
 }
 
 .input {
@@ -131,9 +175,12 @@
   width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
   color: inherit;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
 }
 
 .input:focus-visible {
@@ -143,8 +190,77 @@
 
 .divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--border);
   margin: 14px 0;
+}
+
+.routineCard,
+.completionRow {
+  background: rgba(255, 255, 255, 0.02);
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 120ms ease;
+}
+
+.routineCard:hover,
+.completionRowButton:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.routineCard:active {
+  transform: scale(0.995);
+}
+
+@media (prefers-color-scheme: light) {
+  .panel {
+    border-color: rgba(0, 0, 0, 0.12);
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .panelTitleRow,
+  .panel > .panelTitle {
+    border-bottom-color: rgba(0, 0, 0, 0.12);
+  }
+
+  .divider {
+    background: rgba(0, 0, 0, 0.12);
+  }
+
+  .button {
+    border-color: rgba(0, 0, 0, 0.14);
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .button:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+
+  .button.secondary {
+    background: transparent;
+  }
+
+  .input {
+    border-color: rgba(0, 0, 0, 0.14);
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .input:hover {
+    border-color: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  .routineCard,
+  .completionRow {
+    border-color: rgba(0, 0, 0, 0.12);
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .routineCard:hover,
+  .completionRowButton:hover {
+    border-color: rgba(0, 0, 0, 0.2);
+  }
 }
 
 .rowBetween {
@@ -158,6 +274,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 2px;
 }
 
 .footerRow {
@@ -197,7 +314,7 @@
 }
 
 .exerciseRowDragOver {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface-2);
 }
 
 @media (prefers-color-scheme: light) {
@@ -223,45 +340,110 @@
 
 .createPanel .hint {
   font-size: 13px;
-  opacity: 0.78;
+  color: var(--muted);
+}
+
+.createPanel .panelTitleRow {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%),
+    var(--surface);
+}
+
+.createPanel .divider {
+  margin: 16px 0;
 }
 
 .createPanel .input {
-  background: rgba(0, 0, 0, 0.12);
+  background: var(--surface-2);
   transition:
     background 160ms ease,
     border-color 160ms ease;
 }
 
 .createPanel .input:hover {
-  background: rgba(0, 0, 0, 0.09);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: var(--surface-3);
+  border-color: var(--border-2);
 }
 
 .createPanel .input:focus-visible {
-  border-color: rgba(255, 255, 255, 0.28);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-2));
 }
 
 .createPanel .exerciseRow {
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface);
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 120ms ease;
+}
+
+.createPanel .exerciseRow:hover {
+  background: var(--surface-2);
+  border-color: var(--border-2);
+}
+
+.createPanel .exerciseRow:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-2));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
 }
 
 .createPanel .exerciseIndex {
   width: 30px;
   height: 30px;
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  color: color-mix(in srgb, var(--accent) 70%, var(--text));
+  font-weight: 800;
 }
 
 .createPanel .iconButton {
-  border-color: rgba(255, 255, 255, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.08);
+  padding: 0;
+  background: var(--surface-2);
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    transform 120ms ease;
+}
+
+.createPanel .iconButton:hover {
+  background: var(--surface-3);
+  border-color: var(--border-2);
+}
+
+.createPanel .iconButton:active {
+  transform: translateY(1px);
+}
+
+.createPanel .iconButton:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+  outline-offset: 2px;
+}
+
+.createPanel .iconButton:disabled {
+  opacity: 0.45;
+}
+
+.createPanel .iconButton svg {
+  display: block;
+}
+
+.createPanel .iconButtonDanger {
+  background: var(--danger-soft);
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--border));
+}
+
+.createPanel .iconButtonDanger:hover {
+  background: color-mix(in srgb, var(--danger) 14%, var(--surface-3));
+  border-color: color-mix(in srgb, var(--danger) 65%, var(--border-2));
 }
 
 .exerciseIndex {
@@ -301,6 +483,8 @@
   margin-top: 8px;
   border-radius: 12px;
   overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .exerciseImagePreviewImg {
@@ -314,8 +498,8 @@
 .exerciseImagePreviewFallback {
   padding: 10px 12px;
   font-size: 12px;
-  opacity: 0.78;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--muted);
+  border: 1px solid var(--border);
   border-radius: 12px;
 }
 
@@ -327,13 +511,19 @@
 
 .metaLabel {
   font-size: 12px;
-  opacity: 0.78;
+  color: var(--muted);
   font-weight: 650;
 }
 
 .metaInput {
   min-width: 0;
-  padding: 10px 12px;
+  padding: 9px 10px;
+}
+
+.createPanel .footerRow {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
 
 .iconButton {
@@ -356,8 +546,8 @@
   margin-top: 12px;
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
 }
 
 .routineList {
@@ -366,7 +556,7 @@
 }
 
 .routineCard {
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px;
   display: flex;
@@ -382,6 +572,7 @@
 .routineActions {
   display: flex;
   gap: 10px;
+  padding: 2px;
 }
 
 .completionList {
@@ -389,45 +580,20 @@
   gap: 10px;
 }
 
-.completionRow {
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 14px;
-  padding: 12px;
-}
-
 .completionRowButton {
-  text-align: left;
-  width: 100%;
-  color: inherit;
-  background: transparent;
   cursor: pointer;
 }
 
-.completionRowInner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.completionRowActions {
-  flex: 0 0 auto;
-  padding-left: 8px;
-}
-
-.completionRowButton:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.completionRowButton:active {
-  transform: scale(0.99);
+.completionRowButton:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+  outline-offset: 4px;
 }
 
 .completionBullet {
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.25);
+  background: color-mix(in srgb, var(--text) 28%, transparent);
   flex: 0 0 auto;
 }
 
@@ -436,20 +602,26 @@
 }
 
 .empty {
-  opacity: 0.8;
+  color: var(--muted);
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
 }
 
 .exerciseRunList {
   margin-top: 12px;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .runStatus {
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.04);
+  padding: 14px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 72%),
+    var(--surface);
 }
 
 .runSticky {
@@ -457,9 +629,9 @@
   top: 0;
   z-index: 5;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.00)),
-    #242424;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    linear-gradient(180deg, var(--surface-3), rgba(0, 0, 0, 0.00)),
+    var(--bg);
+  border-bottom: 1px solid var(--border);
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.35);
 }
 
@@ -479,11 +651,12 @@
   font-weight: 700;
   margin-bottom: 4px;
   font-size: 16px;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.005em;
 }
 
 .runNextName {
-  font-weight: 650;
+  font-weight: 720;
+  color: color-mix(in srgb, var(--accent) 70%, var(--text));
 }
 
 .runGauge {
@@ -500,11 +673,11 @@
 }
 
 .runGaugeTrack {
-  stroke: rgba(255, 255, 255, 0.18);
+  stroke: color-mix(in srgb, var(--text) 18%, transparent);
 }
 
 .runGaugeValue {
-  stroke: rgba(255, 255, 255, 0.85);
+  stroke: color-mix(in srgb, var(--accent) 55%, var(--text));
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
   stroke-linecap: round;
@@ -530,7 +703,7 @@
   margin-top: 1px;
   font-weight: 650;
   font-size: 11px;
-  opacity: 0.8;
+  color: var(--muted);
   line-height: 1.1;
 }
 
@@ -556,7 +729,7 @@
   }
 
   .runGaugeValue {
-    stroke: rgba(0, 0, 0, 0.75);
+    stroke: color-mix(in srgb, var(--accent) 72%, var(--text));
   }
 
   .runDot {
@@ -565,13 +738,14 @@
   }
 
   .runDotDone {
-    background: rgba(0, 0, 0, 0.35);
+    background: color-mix(in srgb, var(--accent) 35%, var(--text));
+    border-color: color-mix(in srgb, var(--accent) 60%, rgba(0, 0, 0, 0.20));
     opacity: 1;
   }
 
   .runDotNext {
-    background: rgba(0, 0, 0, 0.10);
-    border-color: rgba(0, 0, 0, 0.35);
+    background: var(--accent-soft);
+    border-color: color-mix(in srgb, var(--accent) 70%, rgba(0, 0, 0, 0.28));
   }
 }
 
@@ -586,18 +760,21 @@
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  opacity: 0.75;
+  border: 1px solid var(--border);
+  opacity: 0.8;
 }
 
 .runDotDone {
-  background: rgba(255, 255, 255, 0.35);
+  background: color-mix(in srgb, var(--accent) 40%, var(--text));
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
   opacity: 1;
 }
 
 .runDotNext {
   opacity: 1;
   transform: scale(1.1);
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 62%, var(--border-2));
 }
 
 @media (prefers-color-scheme: light) {
@@ -607,22 +784,22 @@
   }
 
   .runDotDone {
-    background: rgba(0, 0, 0, 0.55);
-    border-color: rgba(0, 0, 0, 0.35);
+    background: color-mix(in srgb, var(--accent) 40%, var(--text));
+    border-color: color-mix(in srgb, var(--accent) 65%, rgba(0, 0, 0, 0.22));
     opacity: 1;
   }
 
   .runDotNext {
-    background: rgba(0, 0, 0, 0.12);
-    border-color: rgba(0, 0, 0, 0.40);
+    background: var(--accent-soft);
+    border-color: color-mix(in srgb, var(--accent) 70%, rgba(0, 0, 0, 0.28));
   }
 }
 
 .runRow {
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 14px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface);
   transition:
     transform 160ms ease,
     background 160ms ease,
@@ -630,8 +807,8 @@
 }
 
 .runRow:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: var(--surface-2);
+  border-color: var(--border-2);
 }
 
 .runRowMinimized {
@@ -647,7 +824,7 @@
 }
 
 .runRowHeader:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.25);
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
   outline-offset: 3px;
   border-radius: 12px;
 }
@@ -671,7 +848,7 @@
 .runMiniMeta {
   font-size: 12px;
   font-weight: 700;
-  opacity: 0.78;
+  color: var(--muted);
   white-space: nowrap;
   min-width: 0;
   overflow: hidden;
@@ -683,7 +860,7 @@
   height: 34px;
   border-radius: 10px;
   object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--border);
 }
 
 .runExpandButton {
@@ -693,8 +870,8 @@
   place-items: center;
   border-radius: 999px;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
   color: inherit;
   font-weight: 900;
   font-size: 16px;
@@ -707,8 +884,8 @@
 }
 
 .runExpandButton:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: var(--surface-3);
+  border-color: var(--border-2);
 }
 
 .runExpandButton:active {
@@ -726,7 +903,8 @@
 
 .runRowJustDone {
   opacity: 1;
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface-2));
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border-2));
   animation: run-pop 420ms ease;
 }
 
@@ -751,7 +929,7 @@
   height: 28px;
   flex: 0 0 auto;
   cursor: pointer;
-  accent-color: #646cff;
+  accent-color: var(--accent);
 }
 
 .runMeta {
@@ -772,7 +950,7 @@
 
 .runMetaLabel {
   font-size: 12px;
-  opacity: 0.75;
+  color: var(--muted);
   font-weight: 650;
 }
 
@@ -802,18 +980,27 @@
 
 .runMetaButton {
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--border);
   padding: 6px 10px;
   font-size: 13px;
   font-weight: 700;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-2);
   color: inherit;
   cursor: pointer;
   line-height: 1;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    transform 120ms ease;
 }
 
 .runMetaButton:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-3);
+  border-color: var(--border-2);
+}
+
+.runMetaButton:active {
+  transform: translateY(1px);
 }
 
 .runMetaButton:disabled {
@@ -831,7 +1018,7 @@
 @media (prefers-color-scheme: light) {
   .runMetaButton {
     border-color: rgba(0, 0, 0, 0.16);
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(0, 0, 0, 0.03);
   }
 
   .runMetaButton:hover {
@@ -965,7 +1152,7 @@
     flex-wrap: wrap;
   }
 
-  .button {
+  .headerActions .button {
     width: 100%;
   }
 
@@ -973,9 +1160,17 @@
     justify-content: stretch;
   }
 
+  .exerciseActions .button {
+    width: 100%;
+  }
+
   .routineCard {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .routineActions .button {
+    width: 100%;
   }
 
   .routineActions {
@@ -993,6 +1188,10 @@
   .footerRow {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .footerRow .button {
+    width: 100%;
   }
 
   .exerciseRow {
@@ -1016,6 +1215,10 @@
   .runStatusRow {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .runStickyRight .button {
+    width: 100%;
   }
 
   .runProgress {

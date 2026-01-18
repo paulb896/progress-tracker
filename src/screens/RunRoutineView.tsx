@@ -170,7 +170,7 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
 
             <div className="runStickyRight" aria-label={`Progress ${progressPercent}%`}>
               <ProgressGauge doneCount={doneCount} totalCount={totalCount} progress={progress} />
-              <button type="button" className="button" onClick={onComplete} disabled={!allDone}>
+              <button type="button" className="button primary" onClick={onComplete} disabled={!allDone}>
                 Complete routine
               </button>
             </div>

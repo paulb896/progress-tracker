@@ -376,7 +376,16 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
                   disabled={index === 0}
                   title={index === 0 ? 'Already at top' : 'Move up'}
                 >
-                  ↑
+                  <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      d="M12 5l-6 6m6-6l6 6M12 5v14"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </button>
                 <button
                   type="button"
@@ -386,11 +395,20 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
                   disabled={index === exerciseDrafts.length - 1}
                   title={index === exerciseDrafts.length - 1 ? 'Already at bottom' : 'Move down'}
                 >
-                  ↓
+                  <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      d="M12 19l6-6m-6 6l-6-6M12 5v14"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </button>
                 <button
                   type="button"
-                  className="iconButton"
+                  className="iconButton iconButtonDanger"
                   aria-label="Remove exercise"
                   onClick={() => {
                     if (isEdit) {
@@ -404,7 +422,16 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
                   disabled={exerciseDrafts.length <= 1}
                   title={exerciseDrafts.length <= 1 ? 'At least one row required' : 'Remove'}
                 >
-                  ×
+                  <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      d="M9 3h6m-7 6h8m-9 0l1 12h6l1-12M10 6l.5-2h3L14 6"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -412,7 +439,7 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
         </div>
 
         <div className="exerciseActions">
-          <button type="button" className="button" onClick={addExercise}>
+          <button type="button" className="button secondary" onClick={addExercise}>
             Add exercise
           </button>
         </div>
@@ -439,7 +466,7 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
           <button type="button" className="button secondary" onClick={onCancel}>
             Cancel
           </button>
-          <button type="submit" className="button">
+          <button type="submit" className="button primary">
             {isEdit ? 'Save changes' : 'Save routine'}
           </button>
         </div>

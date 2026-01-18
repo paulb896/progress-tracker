@@ -37,7 +37,7 @@ export const HomeView = ({
         </div>
 
         <div className="headerActions">
-          <button className="button" type="button" onClick={onCreate}>
+          <button className="button primary" type="button" onClick={onCreate}>
             Create routine
           </button>
         </div>
@@ -56,7 +56,7 @@ export const HomeView = ({
                       <div className="hint">{r.exercises.length} exercises</div>
                     </div>
                     <div className="routineActions">
-                      <button type="button" className="button" onClick={() => onRun(r.id)}>
+                      <button type="button" className="button primary" onClick={() => onRun(r.id)}>
                         Run
                       </button>
                       <button type="button" className="button secondary" onClick={() => onEdit(r.id)}>
@@ -64,7 +64,7 @@ export const HomeView = ({
                       </button>
                       <button
                         type="button"
-                        className="button secondary"
+                        className="button danger"
                         onClick={() => {
                           const ok = window.confirm(`Delete routine "${r.name}"?`)
                           if (ok) onDelete(r.id)
@@ -90,7 +90,7 @@ export const HomeView = ({
                 {completions.slice(0, 25).map((c) => (
                   <div
                     key={c.id}
-                    className="completionRow completionRowButton"
+                    className="routineCard completionRowButton"
                     role="listitem"
                     onClick={() => onViewCompletion(c.id)}
                     onKeyDown={(ev) => {
@@ -102,28 +102,26 @@ export const HomeView = ({
                     tabIndex={0}
                     aria-label={`View completed routine: ${c.routineName}`}
                   >
-                    <div className="completionRowInner">
-                      <div className="completionMain">
-                        <div className="completionName">{c.routineName}</div>
+                    <div className="routineMain">
+                      <div className="routineName">{c.routineName}</div>
                         <div className="hint">
                           {c.exerciseCount} exercises <span className="dot">•</span>{' '}
                           {new Date(c.completedAt).toLocaleString()}
                         </div>
-                      </div>
+                    </div>
 
-                      <div className="completionRowActions">
-                        <button
-                          type="button"
-                          className="button secondary"
-                          onClick={(ev) => {
-                            ev.stopPropagation()
-                            const ok = window.confirm(`Delete this completed routine from history?`)
-                            if (ok) onDeleteCompletion(c.id)
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
+                    <div className="routineActions">
+                      <button
+                        type="button"
+                        className="button danger"
+                        onClick={(ev) => {
+                          ev.stopPropagation()
+                          const ok = window.confirm(`Delete this completed routine from history?`)
+                          if (ok) onDeleteCompletion(c.id)
+                        }}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))}

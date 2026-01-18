@@ -127,7 +127,7 @@ export const CompletionDetailView = ({ completion, onBack, onDelete, onUpdate }:
               <>
                 <button
                   type="button"
-                  className="button"
+                  className="button primary"
                   onClick={() => {
                     setError(null)
 
@@ -210,7 +210,7 @@ export const CompletionDetailView = ({ completion, onBack, onDelete, onUpdate }:
           ) : null}
           <button
             type="button"
-            className="button secondary"
+            className="button danger"
             onClick={() => {
               const ok = window.confirm('Delete this completed routine from history?')
               if (ok) onDelete(completion.id)

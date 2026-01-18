@@ -1,11 +1,29 @@
 :root {
+  /* Typography */
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  line-height: 1.45;
   font-weight: 400;
 
+  /* Color system (dark default) */
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  --bg: #0b0f14;
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.72);
+
+  --surface: rgba(255, 255, 255, 0.03);
+  --surface-2: rgba(255, 255, 255, 0.06);
+  --surface-3: rgba(255, 255, 255, 0.10);
+
+  --border: rgba(255, 255, 255, 0.14);
+  --border-2: rgba(255, 255, 255, 0.22);
+
+  --accent: #1cc8b7;
+  --accent-soft: rgba(28, 200, 183, 0.14);
+  --danger: #ff4d6d;
+  --danger-soft: rgba(255, 77, 109, 0.18);
+
+  color: var(--text);
+  background-color: var(--bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -13,58 +31,54 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-}
-
-#root {
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  background: var(--bg);
+  color: var(--text);
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  transition: border-color 0.25s;
 }
-button:hover {
-  border-color: #646cff;
-}
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+    --bg: #f6f8fc;
+    --text: #0f172a;
+    --muted: rgba(15, 23, 42, 0.70);
+
+    --surface: rgba(15, 23, 42, 0.02);
+    --surface-2: rgba(15, 23, 42, 0.04);
+    --surface-3: rgba(15, 23, 42, 0.06);
+
+    --border: rgba(15, 23, 42, 0.12);
+    --border-2: rgba(15, 23, 42, 0.18);
+
+    --accent: #0f8f92;
+    --accent-soft: rgba(15, 143, 146, 0.12);
+    --danger: #d7263d;
+    --danger-soft: rgba(215, 38, 61, 0.14);
   }
 }

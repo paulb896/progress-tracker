@@ -78,6 +78,26 @@ const adjustOptionalDurationSeconds = (current: number | undefined, deltaSeconds
   return next > 0 ? next : undefined
 }
 
+
+const ArrowLeft = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"></line>
+    <polyline points="12 19 5 12 12 5"></polyline>
+  </svg>
+)
+
+const ChevronDown = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9"></polyline>
+  </svg>
+)
+
+const ChevronRight = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 18 15 12 9 6"></polyline>
+  </svg>
+)
+
 export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }: RunRoutineViewProps) => {
   const [doneByExerciseId, setDoneByExerciseId] = React.useState<DoneState>({})
   const [expandedByExerciseId, setExpandedByExerciseId] = React.useState<Record<string, boolean>>({})
@@ -134,25 +154,24 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
   }, [allDone])
 
   return (
-    <div className="panel runPanel">
-      <div className="panelTitleRow">
-        <div>
-          <div className="panelTitle">Run routine</div>
-          <div className="subtitle2">{routine.name}</div>
+    <div className="runContainer">
+      <header className="runHeader">
+        <button type="button" className="iconButton" onClick={onBack} aria-label="Go back">
+          <ArrowLeft />
+        </button>
+        <div className="runHeaderContent">
+           <div className="heroBadge">Active Session</div>
+           <h1 className="runPageTitle textGradient">{routine.name}</h1>
         </div>
-        <div className="rowGap">
-          <button type="button" className="button secondary" onClick={reset}>
-            Reset
-          </button>
-          <button type="button" className="button secondary" onClick={onBack}>
-            Back
-          </button>
-        </div>
-      </div>
+        <button type="button" className="button secondary" onClick={reset}>
+          Reset
+        </button>
+      </header>
 
-      <div className="panelBody">
+      <div className="panel glassPanel runMainPanel">
         <div className={allDonePulse ? 'runStatus runStatusAllDone runSticky' : 'runStatus runSticky'}>
           <div className="rowBetween runStatusRow">
+
             <div>
               <div className="runStatusTitle">
                 {doneCount} / {totalCount} completed
@@ -197,7 +216,6 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
             const setsText = typeof ex.sets === 'number' ? String(ex.sets) : '—'
             const repsText = typeof ex.reps === 'number' ? String(ex.reps) : '—'
             const weightText = typeof ex.weight === 'number' ? String(ex.weight) : '—'
-            const timeText = formatDuration(ex.timeSeconds)
             return (
               <div
                 key={ex.id}
@@ -211,8 +229,8 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
                       : 'runRow runRowMinimized'
                 }
               >
-                <div className="runRowHeader">
-                  <label className="runRowTop" aria-label={checked ? `Mark ${ex.name} not done` : `Mark ${ex.name} done`}>
+                <div className="runRowHeader" onClick={() => setExpanded(ex.id, !expanded)}>
+                  <label className="runRowTop" onClick={(e) => e.stopPropagation()} aria-label={checked ? `Mark ${ex.name} not done` : `Mark ${ex.name} done`}>
                     <input
                       className="runCheckboxInput"
                       type="checkbox"
@@ -223,187 +241,155 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
                   </label>
 
                   <div className="runRowHeaderRight">
-                    <div className="runMiniMeta" aria-label="Sets reps weight time summary">
-                      S {setsText} <span className="dot">•</span> R {repsText} <span className="dot">•</span> W {weightText}{' '}
-                      <span className="dot">•</span> T {timeText}
-                    </div>
-                    {miniThumbUrl ? <img className="runMiniThumb" src={miniThumbUrl} alt="" loading="lazy" /> : null}
+                    {!expanded && (
+                      <div className="runMiniMeta" aria-label="Sets reps weight time summary">
+                        {setsText} x {repsText} <span className="dot">•</span> {weightText} <span className="unit">kg</span>
+                      </div>
+                    )}
+                    {!expanded && miniThumbUrl ? <img className="runMiniThumb" src={miniThumbUrl} alt="" loading="lazy" /> : null}
                     <button
                       type="button"
                       className="runExpandButton"
-                      onClick={() => setExpanded(ex.id, !expanded)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setExpanded(ex.id, !expanded)
+                      }}
                       aria-label={expanded ? 'Minimize' : 'Expand'}
                       title={expanded ? 'Minimize' : 'Expand'}
                     >
-                      {expanded ? '▾' : '▸'}
+                      {expanded ? <ChevronDown /> : <ChevronRight />}
                     </button>
                   </div>
                 </div>
 
                 {expanded ? (
-                  <>
-                    <div className="runMeta runMetaWide" aria-label="Sets, reps, weight, time">
-                      <div className="runMetaField">
-                        <span className="runMetaLabel">Sets</span>
-                        <div className="runMetaControls">
-                          <div className="runMetaButtons" aria-label="Adjust sets">
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { sets: adjustOptionalPositiveInt(ex.sets, -1) })}
-                              disabled={typeof ex.sets !== 'number' || ex.sets <= 1}
-                              aria-label="Decrement sets"
-                            >
-                              −
-                            </button>
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { sets: adjustOptionalPositiveInt(ex.sets, 1) })}
-                              aria-label="Increment sets"
-                            >
-                              +
-                            </button>
-                          </div>
-                          <span className="runMetaValue" aria-label="Current sets">
-                            {typeof ex.sets === 'number' ? ex.sets : '—'}
-                          </span>
+                  <div className="runCardExpanded">
+                    <div className="runMetaGrid">
+                      <div className="runMetaPill">
+                        <span className="runMetaLabel">SETS</span>
+                        <div className="runStepper">
+                          <button
+                            type="button"
+                            className="runStepperBtn"
+                            onClick={() => updateExerciseMeta(ex.id, { sets: adjustOptionalPositiveInt(ex.sets, -1) })}
+                            disabled={typeof ex.sets !== 'number' || ex.sets <= 1}
+                          >
+                            −
+                          </button>
+                          <div className="runStepperValue">{typeof ex.sets === 'number' ? ex.sets : '—'}</div>
+                          <button
+                            type="button"
+                            className="runStepperBtn"
+                            onClick={() => updateExerciseMeta(ex.id, { sets: adjustOptionalPositiveInt(ex.sets, 1) })}
+                          >
+                            +
+                          </button>
                         </div>
                       </div>
 
-                      <div className="runMetaField">
-                        <span className="runMetaLabel">Reps</span>
-                        <div className="runMetaControls">
-                          <div className="runMetaButtons" aria-label="Adjust reps">
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { reps: adjustOptionalPositiveInt(ex.reps, -1) })}
-                              disabled={typeof ex.reps !== 'number' || ex.reps <= 1}
-                              aria-label="Decrement reps"
-                            >
-                              −
-                            </button>
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { reps: adjustOptionalPositiveInt(ex.reps, 1) })}
-                              aria-label="Increment reps"
-                            >
-                              +
-                            </button>
-                          </div>
-                          <span className="runMetaValue" aria-label="Current reps">
-                            {typeof ex.reps === 'number' ? ex.reps : '—'}
-                          </span>
+                      <div className="runMetaPill">
+                        <span className="runMetaLabel">REPS</span>
+                        <div className="runStepper">
+                          <button
+                            type="button"
+                            className="runStepperBtn"
+                            onClick={() => updateExerciseMeta(ex.id, { reps: adjustOptionalPositiveInt(ex.reps, -1) })}
+                            disabled={typeof ex.reps !== 'number' || ex.reps <= 1}
+                          >
+                            −
+                          </button>
+                          <div className="runStepperValue">{typeof ex.reps === 'number' ? ex.reps : '—'}</div>
+                          <button
+                            type="button"
+                            className="runStepperBtn"
+                            onClick={() => updateExerciseMeta(ex.id, { reps: adjustOptionalPositiveInt(ex.reps, 1) })}
+                          >
+                            +
+                          </button>
                         </div>
                       </div>
 
-                      <div className="runMetaField">
-                        <span className="runMetaLabel">Weight</span>
-                        <div className="runMetaControls">
-                          <div className="runMetaButtons" aria-label="Adjust weight">
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, -5) })}
-                              disabled={typeof ex.weight !== 'number' || ex.weight <= 5}
-                              aria-label="Decrement weight by 5"
-                            >
-                              −5
-                            </button>
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, -1) })}
-                              disabled={typeof ex.weight !== 'number' || ex.weight <= 1}
-                              aria-label="Decrement weight by 1"
-                            >
-                              −1
-                            </button>
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, 1) })}
-                              aria-label="Increment weight by 1"
-                            >
-                              +1
-                            </button>
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, 5) })}
-                              aria-label="Increment weight by 5"
-                            >
-                              +5
-                            </button>
-                          </div>
-                          <span className="runMetaValue" aria-label="Current weight">
-                            {typeof ex.weight === 'number' ? ex.weight : '—'}
-                          </span>
+                      <div className="runMetaPill">
+                        <span className="runMetaLabel">WEIGHT (KG)</span>
+                        <div className="runStepper">
+                          <button
+                            type="button"
+                            className="runStepperBtn"
+                            onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, -5) })}
+                            disabled={typeof ex.weight !== 'number' || ex.weight <= 5}
+                            title="-5"
+                          >
+                            −
+                          </button>
+                          <button
+                            type="button"
+                            className="runStepperBtn"
+                            onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, -1) })}
+                            disabled={typeof ex.weight !== 'number' || ex.weight <= 1}
+                            title="-1"
+                          >
+                            −
+                          </button>
+                          <div className="runStepperValue">{typeof ex.weight === 'number' ? ex.weight : '—'}</div>
+                          <button
+                            type="button"
+                            className="runStepperBtn"
+                            onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, 1) })}
+                            title="+1"
+                          >
+                            +
+                          </button>
+                          <button
+                            type="button"
+                            className="runStepperBtn"
+                            onClick={() => updateExerciseMeta(ex.id, { weight: adjustOptionalPositiveNumber(ex.weight, 5) })}
+                            title="+5"
+                          >
+                            +
+                          </button>
                         </div>
                       </div>
 
-                      <div className="runMetaField">
-                        <span className="runMetaLabel">Time</span>
-                        <div className="runMetaControls">
-                          <div className="runMetaButtons" aria-label="Adjust time">
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { timeSeconds: adjustOptionalDurationSeconds(ex.timeSeconds, -60) })}
-                              disabled={typeof ex.timeSeconds !== 'number' || ex.timeSeconds <= 60}
-                              aria-label="Decrement time by 1 minute"
-                            >
-                              −1m
-                            </button>
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { timeSeconds: adjustOptionalDurationSeconds(ex.timeSeconds, -10) })}
-                              disabled={typeof ex.timeSeconds !== 'number' || ex.timeSeconds <= 10}
-                              aria-label="Decrement time by 10 seconds"
-                            >
-                              −10s
-                            </button>
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { timeSeconds: adjustOptionalDurationSeconds(ex.timeSeconds, 10) })}
-                              aria-label="Increment time by 10 seconds"
-                            >
-                              +10s
-                            </button>
-                            <button
-                              type="button"
-                              className="runMetaButton"
-                              onClick={() => updateExerciseMeta(ex.id, { timeSeconds: adjustOptionalDurationSeconds(ex.timeSeconds, 60) })}
-                              aria-label="Increment time by 1 minute"
-                            >
-                              +1m
-                            </button>
-                          </div>
-                          <span className="runMetaValue" aria-label="Current time">
+                      <div className="runMetaPill">
+                        <span className="runMetaLabel">TIME</span>
+                        <div className="runStepper">
+                          <button
+                            type="button"
+                            className="runStepperBtn"
+                            onClick={() => updateExerciseMeta(ex.id, { timeSeconds: adjustOptionalDurationSeconds(ex.timeSeconds, -10) })}
+                            disabled={typeof ex.timeSeconds !== 'number' || ex.timeSeconds <= 10}
+                          >
+                            −
+                          </button>
+                          <div className="runStepperValue minWidthTime">
                             {formatDuration(ex.timeSeconds)}
-                          </span>
+                          </div>
+                          <button
+                            type="button"
+                            className="runStepperBtn"
+                            onClick={() => updateExerciseMeta(ex.id, { timeSeconds: adjustOptionalDurationSeconds(ex.timeSeconds, 10) })}
+                          >
+                            +
+                          </button>
                         </div>
                       </div>
                     </div>
 
                     {ex.imageUrls?.length ? (
-                      <div className="imageStrip" aria-label="Exercise reference images">
+                      <div className="runImagesGrid">
                         {ex.imageUrls.map((url) => (
-                          <img
-                            key={url}
-                            className="imageThumb"
-                            src={resolveImageUrl(url)}
-                            alt={`${ex.name} reference`}
-                            loading="lazy"
-                          />
+                          <div key={url} className="runImageFrame">
+                             <img
+                              className="runImageFull"
+                              src={resolveImageUrl(url)}
+                              alt={`${ex.name} reference`}
+                              loading="lazy"
+                            />
+                          </div>
                         ))}
                       </div>
                     ) : null}
-                  </>
+                  </div>
                 ) : null}
               </div>
             )

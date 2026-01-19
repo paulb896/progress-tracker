@@ -34,7 +34,6 @@ function App() {
           onEdit={(routineId) => navigate({ name: 'edit', routineId })}
           onRun={(routineId) => navigate({ name: 'run', routineId })}
           onViewCompletion={(completionId) => navigate({ name: 'completed', completionId })}
-          onDeleteCompletion={(completionId) => removeCompletion(completionId)}
           onDelete={(routineId) => {
             deleteRoutine(routineId)
             navigate({ name: 'home' })

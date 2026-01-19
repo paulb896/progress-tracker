@@ -192,7 +192,7 @@ const LiftedWeight = () => {
       <mesh position={[0.58, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderGeometry args={[0.22, 0.22, 0.1, 20]} />
         <meshPhysicalMaterial
-          color="#646cff"
+          color="#2dd4bf"
           roughness={0.38}
           metalness={0.35}
           clearcoat={0.25}
@@ -203,7 +203,7 @@ const LiftedWeight = () => {
       <mesh position={[-0.58, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderGeometry args={[0.22, 0.22, 0.1, 20]} />
         <meshPhysicalMaterial
-          color="#646cff"
+          color="#2dd4bf"
           roughness={0.38}
           metalness={0.35}
           clearcoat={0.25}

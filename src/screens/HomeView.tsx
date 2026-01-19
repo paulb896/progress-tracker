@@ -11,9 +11,24 @@ type HomeViewProps = {
   onRun: (routineId: string) => void
   onDelete: (routineId: string) => void
   onViewCompletion: (completionId: string) => void
-  onDeleteCompletion: (completionId: string) => void
   headerRight?: React.ReactNode
 }
+
+const DumbbellIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 12h10" />
+    <rect x="2" y="6" width="3" height="12" rx="1" />
+    <rect x="5" y="8" width="2" height="8" rx="1" />
+    <rect x="17" y="8" width="2" height="8" rx="1" />
+    <rect x="19" y="6" width="3" height="12" rx="1" />
+  </svg>
+)
+
+const CheckIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
 
 export const HomeView = ({
   routines,
@@ -24,119 +39,119 @@ export const HomeView = ({
   onRun,
   onDelete,
   onViewCompletion,
-  onDeleteCompletion,
   headerRight,
 }: HomeViewProps) => {
   return (
     <>
-      <header className="header">
-        <div className="headerRow">
-          <div>
-            <h1 className="title">Progress Tracker</h1>
-            <p className="subtitle">Create exercise routines and check them off as you go.</p>
-          </div>
-          <div className="headerRight">{headerRight}</div>
+      <section className="heroSection">
+        <div className="heroCanvasWrapper">
+          <div className="heroCanvasFadeTop" />
+          <div className="heroCanvasFadeBottom" />
+          {headerRight}
         </div>
 
-        <div className="headerActions rowGap">
-          <button className="button primary" type="button" onClick={onCreate}>
-            Create routine
-          </button>
-          <button className="button secondary" type="button" onClick={onHowTo}>
-            How to
-          </button>
-        </div>
-      </header>
+        <div className="heroContent">
+          <div className="heroBadge">Daily Fitness Tracker</div>
+          <h1 className="heroTitle">
+            Crush Your <br />
+            <span className="textGradient">Fitness Goals</span>
+          </h1>
+          <p className="heroSubtitle">
+            Track your sets, visualize progress, and stay consistent with a modern workflow built for performance.
+          </p>
 
-      <main className="content">
-        <section className="panel">
-          <div className="panelTitle">Your routines</div>
-          <div className="panelBody">
-            {routines.length ? (
-              <div className="routineList" role="list">
-                {routines.map((r) => (
-                  <div key={r.id} className="routineCard" role="listitem">
-                    <div className="routineMain">
-                      <div className="routineName">{r.name}</div>
-                      <div className="hint">{r.exercises.length} exercises</div>
-                    </div>
-                    <div className="routineActions">
-                      <button type="button" className="button primary" onClick={() => onRun(r.id)}>
-                        Run
-                      </button>
-                      <button type="button" className="button secondary" onClick={() => onEdit(r.id)}>
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="button danger"
-                        onClick={() => {
-                          const ok = window.confirm(`Delete routine "${r.name}"?`)
-                          if (ok) onDelete(r.id)
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty">No routines yet. Create one to get started.</div>
-            )}
+          <div className="heroActions">
+            <button className="button primary bigButton" type="button" onClick={onCreate}>
+              Start New Routine
+            </button>
+            <button className="button secondary bigButton" type="button" onClick={onHowTo}>
+              How it works
+            </button>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="panel" style={{ marginTop: 12 }}>
-          <div className="panelTitle">Completed routines</div>
-          <div className="panelBody">
-            {completions.length ? (
-              <div className="completionList" role="list">
-                {completions.slice(0, 25).map((c) => (
-                  <div
-                    key={c.id}
-                    className="routineCard completionRowButton"
-                    role="listitem"
-                    onClick={() => onViewCompletion(c.id)}
-                    onKeyDown={(ev) => {
-                      if (ev.key === 'Enter' || ev.key === ' ') {
-                        ev.preventDefault()
-                        onViewCompletion(c.id)
-                      }
-                    }}
-                    tabIndex={0}
-                    aria-label={`View completed routine: ${c.routineName}`}
-                  >
-                    <div className="routineMain">
-                      <div className="routineName">{c.routineName}</div>
-                        <div className="hint">
-                          {c.exerciseCount} exercises <span className="dot">•</span>{' '}
-                          {new Date(c.completedAt).toLocaleString()}
+      <div className="dashboardGrid">
+        <main className="mainColumn">
+          <section className="panel glassPanel">
+            <div className="panelHeaderPlain">
+              <h2 className="panelTitlePlain">Your Routines</h2>
+              <button className="iconButton" onClick={onCreate} aria-label="Add routine">
+                +
+              </button>
+            </div>
+            
+            <div className="panelBody">
+              {routines.length ? (
+                <div className="routineGrid" role="list">
+                  {routines.map((r) => (
+                    <div key={r.id} className="summaryCard" role="listitem">
+                      <div className="summaryCardInner" onClick={() => onRun(r.id)}>
+                        <div className="summaryIcon">
+                          <DumbbellIcon />
                         </div>
+                        <div className="summaryContent">
+                          <div className="routineName">{r.name}</div>
+                          <div className="hint">{r.exercises.length} exercises</div>
+                        </div>
+                        <div className="summaryArrow">→</div>
+                      </div>
+                      <div className="summaryFooter">
+                         <button className="textButton" onClick={(e) => { e.stopPropagation(); onEdit(r.id); }}>Edit</button>
+                         <button className="textButton dangerText" onClick={(e) => { 
+                           e.stopPropagation(); 
+                           const ok = window.confirm(`Delete routine "${r.name}"?`)
+                           if (ok) onDelete(r.id)
+                         }}>Delete</button>
+                      </div>
                     </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty">No routines yet. Create one to get started.</div>
+              )}
+            </div>
+          </section>
+        </main>
 
-                    <div className="routineActions">
-                      <button
-                        type="button"
-                        className="button danger"
-                        onClick={(ev) => {
-                          ev.stopPropagation()
-                          const ok = window.confirm(`Delete this completed routine from history?`)
-                          if (ok) onDeleteCompletion(c.id)
-                        }}
-                      >
-                        Delete
-                      </button>
+        <aside className="sideColumn">
+          <section className="panel glassPanel">
+            <div className="panelTitle">Recent Activity</div>
+            <div className="panelBody scrollableBody">
+              {completions.length ? (
+                <div className="activityList" role="list">
+                  {completions.slice(0, 10).map((c) => (
+                    <div
+                      key={c.id}
+                      className="activityItem"
+                      role="listitem"
+                      aria-label={`View completed routine: ${c.routineName}`}
+                      onClick={() => onViewCompletion(c.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault()
+                          onViewCompletion(c.id)
+                        }
+                      }}
+                      tabIndex={0}
+                    >
+                       <div className="activityIcon"><CheckIcon /></div>
+                       <div className="activityInfo">
+                          <div className="activityName">{c.routineName}</div>
+                          <div className="activityDate">
+                            {new Date(c.completedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                          </div>
+                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty">No completed routines yet. Finish one to start your history.</div>
-            )}
-          </div>
-        </section>
-      </main>
+                  ))}
+                </div>
+              ) : (
+                <div className="emptyMini">No history yet.</div>
+              )}
+            </div>
+          </section>
+        </aside>
+      </div>
     </>
   )
 }

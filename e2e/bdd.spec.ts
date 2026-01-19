@@ -150,14 +150,14 @@ test.describe('Progress Tracker — BDD scenarios', () => {
   test('Scenario: Create a routine, run it, and record completion history', async ({ page }) => {
     await test.step('Given I am on the home screen', async () => {
       await page.goto('/')
-      await expect(page.getByRole('heading', { name: 'Progress Tracker' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Crush Your Fitness Goals' })).toBeVisible()
       await pauseIfGif(page)
     })
 
     await test.step('When I create a routine with preset exercises', async () => {
       const m = createMouseHelpers(page)
 
-      await m.click(page.getByRole('button', { name: 'Create routine' }))
+      await m.click(page.getByRole('button', { name: 'Start New Routine' }))
       await pauseIfGif(page)
 
       await m.fill(page.getByLabel('Routine name'), 'BDD Routine')
@@ -185,7 +185,8 @@ test.describe('Progress Tracker — BDD scenarios', () => {
 
     await test.step('Then I can run the routine and complete it', async () => {
       const m = createMouseHelpers(page)
-      await expect(page.getByText('Run routine')).toBeVisible()
+      await expect(page.getByText('Active Session')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'BDD Routine' })).toBeVisible()
       await expect(page.getByRole('button', { name: 'Complete routine' })).toBeDisabled()
       await pauseIfGif(page)
 
@@ -198,7 +199,7 @@ test.describe('Progress Tracker — BDD scenarios', () => {
       await m.click(page.getByRole('button', { name: 'Complete routine' }))
       await pauseIfGif(page)
 
-      await expect(page.getByText('Completed routines')).toBeVisible()
+      await expect(page.getByText('Recent Activity')).toBeVisible()
       await expect(page.getByLabel(/View completed routine: BDD Routine/)).toBeVisible()
       await pauseIfGif(page)
     })
@@ -219,7 +220,7 @@ test.describe('Progress Tracker — BDD scenarios', () => {
       const m = createMouseHelpers(page)
       await page.goto('/')
       await pauseIfGif(page)
-      await m.click(page.getByRole('button', { name: 'Create routine' }))
+      await m.click(page.getByRole('button', { name: 'Start New Routine' }))
       await pauseIfGif(page)
       await m.fill(page.getByLabel('Routine name'), 'Edit Completion Routine')
       await pauseIfGif(page, 350)
@@ -286,7 +287,7 @@ test.describe('Progress Tracker — BDD scenarios', () => {
       const m = createMouseHelpers(page)
       await page.goto('/')
       await pauseIfGif(page)
-      await m.click(page.getByRole('button', { name: 'Create routine' }))
+      await m.click(page.getByRole('button', { name: 'Start New Routine' }))
       await pauseIfGif(page)
       await m.fill(page.getByLabel('Routine name'), 'Routine To Edit/Delete')
       await pauseIfGif(page, 350)
@@ -312,8 +313,9 @@ test.describe('Progress Tracker — BDD scenarios', () => {
       await m.click(page.getByRole('button', { name: 'Save changes' }))
       await pauseIfGif(page)
 
-      await expect(page.getByText('Run routine')).toBeVisible()
-      await m.click(page.getByRole('button', { name: 'Back' }))
+      await expect(page.getByText('Active Session')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Routine Edited' })).toBeVisible()
+      await m.click(page.getByRole('button', { name: 'Go back' }))
       await pauseIfGif(page)
     })
 
@@ -322,7 +324,7 @@ test.describe('Progress Tracker — BDD scenarios', () => {
       await expect(page.getByText('Routine Edited')).toBeVisible()
       await pauseIfGif(page)
 
-      await m.click(page.locator('.routineCard', { hasText: 'Routine Edited' }).getByRole('button', { name: 'Delete' }))
+      await m.click(page.locator('.summaryCard', { hasText: 'Routine Edited' }).getByRole('button', { name: 'Delete' }))
 
       await pauseIfGif(page)
 

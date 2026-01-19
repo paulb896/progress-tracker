@@ -4,7 +4,7 @@
 }
 
 .app {
-  max-width: 1040px;
+  max-width: 1200px; /* Increased max-width for dashboard feel */
   margin: 0 auto;
   padding: 32px 24px;
   animation: fadeIn 0.5s ease-out;
@@ -15,27 +15,332 @@
   gap: 24px;
 }
 
-.header {
-  margin-bottom: 32px;
+/* -------------------------
+   NEW HERO & DASHBOARD STYLES
+   ------------------------- */
+
+.heroSection {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 40px;
+  margin-bottom: 48px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
 }
 
-.title {
-  margin: 0;
-  font-size: clamp(28px, 3.5vw, 42px);
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+.heroContent {
+  padding: 40px;
+  z-index: 2;
+  position: relative;
+}
+
+.heroVisual {
+  position: relative;
+  height: 400px;
+  background: radial-gradient(circle at 50% 50%, var(--surface-2) 0%, var(--bg) 80%);
+}
+
+.heroCanvasWrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 55%;
+  height: 100%;
+  z-index: 1;
+}
+
+.heroCanvasWrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Fades to blend the canvas edges */
+.heroCanvasFadeTop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--surface), transparent);
+  z-index: 3;
+}
+.heroCanvasFadeBottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to top, var(--surface), transparent);
+  z-index: 3;
+}
+
+.heroBadge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 999px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.heroTitle {
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.05;
   font-weight: 800;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.04em;
+}
+
+.textGradient {
   background: var(--accent-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  width: fit-content;
 }
 
-.subtitle {
-  margin: 8px 0 0 0;
+.heroSubtitle {
+  font-size: 1.15rem;
+  line-height: 1.6;
   color: var(--muted);
+  max-width: 480px;
+  margin: 0 0 32px 0;
+}
+
+.heroActions {
+  display: flex;
+  gap: 16px;
+}
+
+.bigButton {
+  padding: 14px 24px;
+  font-size: 1rem;
+  border-radius: 99px;
+}
+
+/* Dashboard Grid */
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.glassPanel {
+  background: var(--surface-glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.panelHeaderPlain {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.panelTitlePlain {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Routine Summary Cards (New look) */
+.routineGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.summaryCard {
+  background: var(--surface-2);
+  border-radius: 18px;
+  border: 1px solid transparent;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-hover);
+  box-shadow: var(--shadow-lg);
+}
+
+.summaryCardInner {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.summaryIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  border: 1px solid var(--border);
+}
+
+.summaryContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.summaryContent .routineName {
   font-size: 1.1rem;
-  font-weight: 500;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summaryArrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-weight: bold;
+}
+
+/* Ensure SVGs inside icon containers center nicely */
+.summaryIcon svg,
+.activityIcon svg,
+.runExpandButton svg {
+  display: block;
+}
+
+.summaryFooter {
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding: 8px;
+  gap: 8px;
+  background: rgba(0,0,0,0.1);
+}
+
+.textButton {
+  flex: 1;
+  padding: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  border-radius: 8px;
+  transition: 0.1s;
+}
+.textButton:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+.dangerText:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+/* Sidebar lists */
+.scrollableBody {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activityList {
+  display: grid;
+  gap: 12px;
+}
+
+.activityItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.activityItem:hover {
+  border-color: var(--border-2);
+  transform: translateX(2px);
+}
+
+.activityIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.activityInfo {
+  flex: 1;
+}
+
+.activityName {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.activityDate {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.emptyMini {
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+
+@media (max-width: 800px) {
+  .heroSection {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 0;
+  }
+  .heroContent {
+    padding: 32px 24px;
+  }
+  .heroActions {
+    justify-content: center;
+  }
+  .heroCanvasWrapper {
+    width: 100%;
+    position: relative;
+    height: 300px;
+    order: -1; 
+  }
+  
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .panel {
@@ -519,7 +824,7 @@
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--border);
   background: transparent;
   color: inherit;
   cursor: pointer;
@@ -528,7 +833,7 @@
 }
 
 .iconButton:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-2);
 }
 
 .error {
@@ -600,45 +905,83 @@
   font-size: 0.95rem;
 }
 
-.scenarioList {
+.scenarioGrid {
   display: grid;
-  gap: 10px;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
 
-.scenarioItem {
+.scenarioCard {
   border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--surface);
+  border-radius: 18px;
+  background: var(--surface-2);
   overflow: hidden;
+  transition: all 0.2s ease;
 }
 
-.scenarioItem[open] {
-  border-color: color-mix(in srgb, var(--accent) 28%, var(--border-2));
+.scenarioCard[open] {
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-hover);
+  grid-row: span 2; /* If grid support allows, helps give space */
 }
 
 .scenarioSummary {
   list-style: none;
   cursor: pointer;
-  padding: 12px;
-  font-weight: 720;
-  letter-spacing: -0.01em;
+  padding: 16px 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.1s;
+}
+
+.scenarioSummary:hover {
+  background: rgba(255,255,255,0.03);
 }
 
 .scenarioSummary::-webkit-details-marker {
   display: none;
 }
 
-.scenarioSummary:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-  outline-offset: 2px;
+.scenarioTitle {
+  font-size: 1rem;
+}
+
+.scenarioIcon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 14px;
+  transition: transform 0.2s;
+  border: 1px solid var(--border);
+}
+
+.scenarioCard[open] .scenarioIcon {
+  transform: rotate(180deg);
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  border-color: transparent;
+}
+
+.scenarioContent {
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  padding: 4px;
 }
 
 .scenarioGif {
   width: 100%;
   height: auto;
   display: block;
-  border-top: 1px solid var(--border);
-  background: var(--surface-2);
+  border-radius: 12px;
+  border: 1px solid var(--border);
 }
 
 .scenarioGifCursor {
@@ -1277,4 +1620,342 @@
     height: auto;
     aspect-ratio: 16 / 9;
   }
+}
+
+/* -------------------------
+   RUN ROUTINE REDESIGN
+   ------------------------- */
+
+.runContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 900px;
+  margin: 0 auto;
+  min-height: 80vh;
+}
+
+.runHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 12px 0;
+}
+
+.runHeaderContent {
+  flex: 1;
+}
+
+.runPageTitle {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* Reset/Back buttons in header are handled by utility classes */
+
+.runMainPanel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Clip children to border radius */
+  min-height: 400px;
+}
+
+/* Overriding runStatus for the new layout */
+.runStatus.runSticky {
+  /* Remove old border/radius as it's now full width inside panel */
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid var(--border);
+  
+  /* Make it stick properly */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  
+  /* Glassy look meant for sticky header */
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px);
+  margin: 0;
+  padding: 20px 24px;
+}
+
+.exerciseRunList {
+  padding: 24px;
+  background: transparent; /* Let panel bg show */
+}
+
+/* Improve runRow visual inside the glass panel */
+.runRow {
+  background: var(--surface-2); /* Distinct from glass in both modes */
+  border: 1px solid var(--border);
+  box-shadow: none; /* Cleaner look */
+}
+
+.runRow:hover {
+  background: var(--surface-3);
+  border-color: var(--accent-soft);
+}
+
+.runRowHeader {
+  padding: 4px 0;
+}
+
+.runCheckboxInput {
+  accent-color: var(--accent);
+  width: 24px;
+  height: 24px;
+}
+
+/* -------------------------
+   RUN ROUTINE CARD & STEPPER
+   ------------------------- */
+
+.runCardExpanded {
+  border-top: 1px solid var(--border); /* Divider between header and body */
+  background: rgba(0, 0, 0, 0.1); /* Slight darken for the body area */
+  padding: 24px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.runMetaGrid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.runMetaPill {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.runMetaLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-left: 4px;
+}
+
+.runStepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg); /* Darker inset look */
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  height: 48px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.runStepperBtn {
+  flex: 0 0 40px;
+  height: 40px;
+  border-radius: 8px; /* Slightly rounded squares */
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--accent);
+  background: transparent;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.runStepperBtn:hover {
+  background: var(--surface-3);
+  color: var(--accent-hover);
+}
+
+.runStepperBtn:active {
+  transform: scale(0.92);
+}
+
+.runStepperBtn:disabled {
+  opacity: 0.2;
+  cursor: default;
+  pointer-events: none;
+}
+
+.runStepperValue {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.minWidthTime {
+  font-size: 15px; /* Slightly smaller for 00m 00s */
+}
+
+/* Image Gallery Layout */
+.runImagesGrid {
+  margin-top: 24px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.runImageFrame {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  aspect-ratio: 16/9;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s;
+}
+
+.runImageFrame:hover {
+  transform: scale(1.02);
+  border-color: var(--accent-soft);
+}
+
+.runImageFull {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Updated Mini Meta */
+.runMiniMeta {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.runMiniMeta .unit {
+  font-size: 0.85em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
+/* Responsive Handling */
+@media (min-width: 900px) {
+  .runCardExpanded {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr; /* Controls | Images */
+    gap: 32px;
+    align-items: start;
+  }
+  
+  .runImagesGrid {
+    margin-top: 0; /* Remove top margin in side-by-side mode */
+    grid-template-columns: 1fr; /* Stack vertically if space is narrow, or grid */
+  }
+  
+  /* If multiple images, let them grid */
+  .runImagesGrid:has(> .runImageFrame:nth-child(2)) {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+/* -------------------------
+   TIGHTENING UP LAYOUT
+   ------------------------- */
+
+.runRowHeader {
+  min-height: 44px; /* Ensure good touch target */
+  padding: 0px; /* Reset padding, let flex gap handle it */
+}
+
+/* Tighter alignment for checkbox area */
+.runRowTop {
+  gap: 12px;
+  padding: 8px 0; /* Vertical padding specific to the label */
+  flex: 1; /* Allow it to take available width */
+}
+
+.runCheckboxInput {
+  margin: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.runCheckboxInput:active {
+  transform: scale(0.9);
+}
+
+.runName {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+/* Explicit arrow button placement */
+.runExpandButton {
+  margin-left: 4px;
+  width: 32px;
+  height: 32px;
+  background: transparent; /* Cleaner look */
+  border: 1px solid transparent; /* Invisible border by default */
+  color: var(--muted);
+}
+
+.runExpandButton:hover {
+  background: var(--surface-3);
+  color: var(--text);
+  border-color: var(--border-2);
+}
+
+/* Align the right side meta text properly */
+.runRowHeaderRight {
+  gap: 16px; 
+}
+
+/* -------------------------
+   FINAL ROW REFINEMENTS
+   ------------------------- */
+
+/* Normalize padding logic to prevent width shift on expand */
+.runRow, .runRowMinimized {
+  padding: 0 !important; /* Move padding to inner elements */
+  overflow: visible; /* Ensure shadows/popouts work if needed, though hidden is safer for border-radius */
+  overflow: hidden; 
+}
+
+/* New Header Padding logic */
+.runRowHeader {
+  padding: 12px 16px !important; /* Consistent padding in all states */
+  min-height: 56px; /* Taller touch target, better spacing */
+}
+
+/* Fix "V" icon spacing & colors */
+.runExpandButton {
+  margin-left: 8px; /* More separation from meta text */
+  width: 36px;
+  height: 36px;
+  border-radius: 50%; /* Circle looks more modern */
+  transition: all 0.2s ease;
+  
+  /* Reset colors to blend better */
+  background: transparent;
+  color: var(--muted);
+  border: none;
+}
+
+.runExpandButton:hover {
+  background: var(--surface-3); /* Subtle highlight */
+  color: var(--text);
+  transform: translateY(0); /* Remove jumpy transforms */
+}
+
+/* Ensure the expanded card blends */
+.runCardExpanded {
+  background: rgba(0, 0, 0, 0.2) !important; /* Slightly darker for contrast */
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }

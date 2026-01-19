@@ -65,7 +65,7 @@ If the product changes, update this document first, then update/extend Playwrigh
 ### Feature: Create Routine
 
 - Scenario: Create a routine
-  - Given I click "Create routine"
+  - Given I click "Start New Routine"
   - When I enter a routine name
   - And I enter at least one exercise name
   - Then I can save the routine

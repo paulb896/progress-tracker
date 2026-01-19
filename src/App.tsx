@@ -22,8 +22,10 @@ function App() {
   const completionForView =
     route.name === 'completed' ? completions.find((c) => c.id === route.completionId) ?? null : null
 
+  const isWide = route.name === 'run'
+
   return (
-    <div className="app">
+    <div className={`app ${isWide ? 'app--wide' : ''}`}>
       <ScenarioGifCursor />
       {route.name === 'home' ? (
         <HomeView

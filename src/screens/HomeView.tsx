@@ -44,30 +44,34 @@ export const HomeView = ({
   return (
     <>
       <section className="heroSection">
-        <div className="heroCanvasWrapper">
-          <div className="heroCanvasFadeTop" />
-          <div className="heroCanvasFadeBottom" />
-          {headerRight}
-        </div>
-
         <div className="heroContent">
-          <div className="heroBadge">Daily Fitness Tracker</div>
+          <div className="heroBadge">
+            <span className="heroBadgeDot" /> Fitness App
+          </div>
           <h1 className="heroTitle">
-            Crush Your <br />
-            <span className="textGradient">Fitness Goals</span>
+            Create your routines <br />
+            with <span className="textGradient">custom exercises</span> <br />
+            and achieve your fitness goals.
           </h1>
           <p className="heroSubtitle">
-            Track your sets, visualize progress, and stay consistent with a modern workflow built for performance.
+            All of your completed workouts are tracked in one place, making it easy to monitor your progress over time.
           </p>
 
           <div className="heroActions">
             <button className="button primary bigButton" type="button" onClick={onCreate}>
               Start New Routine
             </button>
-            <button className="button secondary bigButton" type="button" onClick={onHowTo}>
-              How it works
+            <button className="button secondary bigButton outlineButton" type="button" onClick={onHowTo}>
+              How to Guides
             </button>
           </div>
+        </div>
+
+        <div className="heroCanvasWrapper">
+          <div className="heroCanvasFadeTop" />
+          <div className="heroCanvasFadeBottom" />
+          <div className="heroCanvasFadeLeft" />
+          {headerRight}
         </div>
       </section>
 

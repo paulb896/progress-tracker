@@ -10,6 +10,12 @@
   animation: fadeIn 0.5s ease-out;
 }
 
+.app--wide {
+  max-width: none;
+  width: 100%;
+  padding: 32px 48px; /* Slightly wider padding on large screens */
+}
+
 .content {
   display: grid;
   gap: 24px;
@@ -22,97 +28,90 @@
 .heroSection {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.2fr 1fr;
   align-items: center;
-  gap: 40px;
+  gap: 0;
   margin-bottom: 48px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 24px;
+  background: radial-gradient(circle at 70% 50%, #2a1b3d 0%, #0f0f12 70%);
+  border: 1px solid rgba(255, 255, 255, 0.05); /* Very subtle border */
+  border-radius: 32px;
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  min-height: 500px;
 }
 
 .heroContent {
-  padding: 40px;
+  padding: 64px;
   z-index: 2;
   position: relative;
-}
-
-.heroVisual {
-  position: relative;
-  height: 400px;
-  background: radial-gradient(circle at 50% 50%, var(--surface-2) 0%, var(--bg) 80%);
+  max-width: 650px;
 }
 
 .heroCanvasWrapper {
   position: absolute;
   top: 0;
-  right: 0;
-  width: 55%;
+  right: -5%; /* Pull slightly off-screen like the reference */
+  width: 60%;
   height: 100%;
   z-index: 1;
+  pointer-events: none; /* Let clicks pass through if needed, though canvas handles drag */
+  pointer-events: auto; /* Actually we want to drag the weight */
 }
 
-.heroCanvasWrapper canvas {
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-}
-
-/* Fades to blend the canvas edges */
+/* Fades removed to allow seamless transparency */
 .heroCanvasFadeTop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: linear-gradient(to bottom, var(--surface), transparent);
-  z-index: 3;
+  display: none;
 }
 .heroCanvasFadeBottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: linear-gradient(to top, var(--surface), transparent);
-  z-index: 3;
+  display: none;
+}
+.heroCanvasFadeLeft {
+  display: none;
 }
 
 .heroBadge {
-  display: inline-block;
-  padding: 6px 12px;
-  background: var(--accent-soft);
-  color: var(--accent-hover);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.08); /* Dark glass badge */
+  color: #fff;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
   border-radius: 999px;
-  margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  margin-bottom: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.heroBadgeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2dd4bf; /* Teal dot */
+  box-shadow: 0 0 8px rgba(45, 212, 191, 0.6);
 }
 
 .heroTitle {
-  font-size: clamp(32px, 5vw, 56px);
-  line-height: 1.05;
-  font-weight: 800;
-  margin: 0 0 16px 0;
-  letter-spacing: -0.04em;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 1.1;
+  font-weight: 500; /* Lighter weight like the reference "syngri" font */
+  margin: 0 0 24px 0;
+  letter-spacing: -0.02em;
+  color: #fff;
 }
 
+/* Highlight "digital success" equivalent */
 .textGradient {
-  background: var(--accent-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: rgba(255, 255, 255, 0.9); /* Just distinct white/grey */
+  font-weight: 400; /* Even thinner for contrast */
 }
 
 .heroSubtitle {
-  font-size: 1.15rem;
+  font-size: 1.125rem;
   line-height: 1.6;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.7);
   max-width: 480px;
-  margin: 0 0 32px 0;
+  margin: 0 0 40px 0;
 }
 
 .heroActions {
@@ -121,9 +120,35 @@
 }
 
 .bigButton {
-  padding: 14px 24px;
+  height: 56px;
+  padding: 0 32px;
   font-size: 1rem;
-  border-radius: 99px;
+  border-radius: 12px; /* Slightly squarer than pill */
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+/* Primary Button (White) */
+.heroContent .button.primary {
+  background: #fff;
+  color: #000;
+  border: none;
+}
+.heroContent .button.primary:hover {
+  background: #f0f0f0;
+  transform: translateY(-2px);
+}
+
+/* Secondary Button (Outline) */
+.heroContent .button.secondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+.heroContent .button.secondary:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 /* Dashboard Grid */
@@ -409,12 +434,12 @@
 }
 
 .headerCube {
-  width: 180px;
-  height: 120px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--surface);
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
 }
 
 .button {
@@ -611,7 +636,7 @@
   background: var(--surface-2);
 }
 
-@media (prefers-color-scheme: light) {
+@media (max-width: 1px) {
   .exerciseRowDragOver {
     background: rgba(0, 0, 0, 0.03);
   }
@@ -1128,7 +1153,7 @@
   border-color: color-mix(in srgb, var(--accent) 62%, var(--border-2));
 }
 
-@media (prefers-color-scheme: light) {
+@media (max-width: 1px) {
   .runDot {
     border-color: rgba(0, 0, 0, 0.22);
     opacity: 0.85;
@@ -1623,23 +1648,28 @@
 }
 
 /* -------------------------
-   RUN ROUTINE REDESIGN
+   RUN ROUTINE VIEW (REDESIGN)
    ------------------------- */
 
 .runContainer {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  max-width: 900px;
+  gap: 24px;
+  max-width: 1800px; /* Nearly full width on standard 1080p, constrained on 4k */
+  width: 100%;
   margin: 0 auto;
-  min-height: 80vh;
+  min-height: 85vh;
+  padding-bottom: 120px;
 }
 
+/* Header Area */
 .runHeader {
   display: flex;
-  align-items: flex-start;
-  gap: 24px;
-  padding: 12px 0;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 0;
+  position: relative;
+  z-index: 10;
 }
 
 .runHeaderContent {
@@ -1647,152 +1677,353 @@
 }
 
 .runPageTitle {
-  font-size: clamp(28px, 4vw, 40px);
+  font-size: clamp(32px, 5vw, 48px);
   font-weight: 800;
-  margin: 0;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  margin: 8px 0 0 0;
+  background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  filter: drop-shadow(0 4px 12px rgba(45, 212, 191, 0.2));
 }
 
-/* Reset/Back buttons in header are handled by utility classes */
+.heroBadge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 6px 12px;
+  background: rgba(45, 212, 191, 0.1);
+  color: var(--accent);
+  border-radius: 99px;
+  border: 1px solid rgba(45, 212, 191, 0.2);
+  box-shadow: 0 0 12px rgba(45, 212, 191, 0.1);
+}
 
+/* Glass Panel Container */
 .runMainPanel {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Clip children to border radius */
-  min-height: 400px;
+  background: rgba(20, 20, 22, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5);
 }
 
-/* Overriding runStatus for the new layout */
-.runStatus.runSticky {
-  /* Remove old border/radius as it's now full width inside panel */
-  border: none;
-  border-radius: 0;
-  border-bottom: 1px solid var(--border);
-  
-  /* Make it stick properly */
+/* Sticky Status Bar (Top) */
+.runStatus {
   position: sticky;
   top: 0;
   z-index: 100;
-  
-  /* Glassy look meant for sticky header */
-  background: var(--surface-glass);
-  backdrop-filter: blur(16px);
-  margin: 0;
-  padding: 20px 24px;
+  background: rgba(15, 15, 18, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 24px;
+}
+.runStatusAllDone {
+  animation: bg-pulse-green 1s ease-in-out infinite alternate;
+}
+@keyframes bg-pulse-green {
+  from { background: rgba(15, 15, 18, 0.85); box-shadow: 0 0 0 rgba(45, 212, 191, 0); }
+  to { background: rgba(45, 212, 191, 0.15); box-shadow: 0 0 30px rgba(45, 212, 191, 0.1); }
 }
 
-.exerciseRunList {
-  padding: 24px;
-  background: transparent; /* Let panel bg show */
+.runStatusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* Improve runRow visual inside the glass panel */
-.runRow {
-  background: var(--surface-2); /* Distinct from glass in both modes */
-  border: 1px solid var(--border);
-  box-shadow: none; /* Cleaner look */
+.runStatusTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
 }
 
-.runRow:hover {
-  background: var(--surface-3);
-  border-color: var(--accent-soft);
+.runNextName {
+  color: var(--text);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
 }
 
-.runRowHeader {
-  padding: 4px 0;
+.runStickyRight {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
-.runCheckboxInput {
-  accent-color: var(--accent);
+/* Progress Gauge */
+.runGauge {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.runGaugeSvg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+.runGaugeTrack {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+.runGaugeValue {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px var(--accent));
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.runGaugeCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.runGaugePrimary {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+.runGaugeSecondary {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* Dots */
+.runDots {
+  display: flex;
+  gap: 4px;
+  margin-top: 16px;
+  justify-content: center;
+}
+.runDot {
+  width: 8px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+}
+.runDotDone {
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(45, 212, 191, 0.4);
+}
+.runDotNext {
+  background: #fff;
   width: 24px;
-  height: 24px;
 }
 
-/* -------------------------
-   RUN ROUTINE CARD & STEPPER
-   ------------------------- */
+/* List Items */
+.exerciseRunList {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
+.runRow {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.runRowHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  min-height: 72px;
+  cursor: pointer;
+}
+.runRow:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+.runRowDone {
+  opacity: 0.6;
+  filter: grayscale(0.8);
+}
+.runRowDone:hover {
+  opacity: 0.8;
+  filter: grayscale(0.2);
+}
+.runRowJustDone {
+  animation: flash-success 0.6s ease-out;
+}
+@keyframes flash-success {
+  0% { background: var(--accent); color: #000; transform: scale(1.02); }
+  100% { background: rgba(255, 255, 255, 0.03); color: inherit; transform: scale(1); }
+}
+
+/* Checkbox & Name */
+.runRowTop {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+.runCheckboxInput {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.runCheckboxInput::after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  background: #000;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.runCheckboxInput:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-soft);
+}
+.runCheckboxInput:checked::after {
+  transform: scale(1);
+}
+.runName {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Right Side Meta */
+.runRowHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.runMiniMeta {
+  text-align: right;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  background: rgba(0,0,0,0.2);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+.runExpandButton {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  border: none;
+  transition: all 0.2s;
+}
+.runExpandButton:hover {
+  background: var(--accent);
+  color: #000;
+  transform: rotate(90deg);
+}
+
+/* Expanded Card Area */
 .runCardExpanded {
-  border-top: 1px solid var(--border); /* Divider between header and body */
-  background: rgba(0, 0, 0, 0.1); /* Slight darken for the body area */
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   padding: 24px;
-  animation: fadeIn 0.2s ease-out;
+  animation: slide-down 0.2s ease-out;
+}
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .runMetaGrid {
   display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
 }
 
 .runMetaPill {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
-
 .runMetaLabel {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
-  color: var(--muted);
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding-left: 4px;
+  text-align: center;
 }
 
+/* Stepper Controls */
 .runStepper {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--bg); /* Darker inset look */
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 4px;
-  height: 48px;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  background: transparent;
+  padding: 0;
+  border: none;
+  box-shadow: none;
 }
-
 .runStepperBtn {
-  flex: 0 0 40px;
-  height: 40px;
-  border-radius: 8px; /* Slightly rounded squares */
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 400;
+  border: none;
   display: grid;
   place-items: center;
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--accent);
-  background: transparent;
-  transition: all 0.2s ease;
-  user-select: none;
+  transition: all 0.1s;
 }
-
 .runStepperBtn:hover {
-  background: var(--surface-3);
-  color: var(--accent-hover);
+  background: var(--accent);
+  color: #000;
 }
-
 .runStepperBtn:active {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
-
-.runStepperBtn:disabled {
-  opacity: 0.2;
-  cursor: default;
-  pointer-events: none;
-}
-
 .runStepperValue {
-  flex: 1;
-  text-align: center;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+  color: #fff;
+  text-align: center;
 }
 
 .minWidthTime {
-  font-size: 15px; /* Slightly smaller for 00m 00s */
+  font-size: 16px;
 }
 
 /* Image Gallery Layout */
@@ -1956,6 +2187,138 @@
 
 /* Ensure the expanded card blends */
 .runCardExpanded {
-  background: rgba(0, 0, 0, 0.2) !important; /* Slightly darker for contrast */
+  background: rgba(0, 0, 0, 0.2) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Light mode overrides disabled for Syngri theme */
+@media (max-width: 1px) {
+  .runPageTitle {
+    background: linear-gradient(135deg, var(--text) 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: none;
+  }
+
+  .runMainPanel {
+    background: rgba(255, 255, 255, 0.65);
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.1);
+  }
+
+  .runStatus {
+    background: rgba(245, 245, 247, 0.9);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .runStatusAllDone {
+    animation: bg-pulse-green-light 1s ease-in-out infinite alternate;
+  }
+  
+  @keyframes bg-pulse-green-light {
+    from { background: rgba(245, 245, 247, 0.9); box-shadow: 0 0 0 rgba(45, 212, 191, 0); }
+    to { background: rgba(45, 212, 191, 0.15); box-shadow: 0 0 30px rgba(45, 212, 191, 0.1); }
+  }
+
+  .runStatusTitle {
+    color: var(--muted);
+  }
+
+  .runNextName {
+    color: var(--text);
+  }
+
+  .runGaugeTrack {
+    stroke: rgba(0, 0, 0, 0.08);
+  }
+
+  .runGaugePrimary {
+    color: var(--text);
+  }
+
+  .runDot {
+    background: rgba(0, 0, 0, 0.15);
+  }
+  .runDotDone {
+    background: var(--accent);
+  }
+  .runDotNext {
+    background: var(--text);
+  }
+
+  .runRow {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .runRow:hover {
+    background: #fff;
+    border-color: var(--accent);
+  }
+
+  .runRowDone {
+    opacity: 0.7;
+    filter: grayscale(0.6);
+  }
+  
+  /* Flash success needs light mode override */
+  @keyframes flash-success {
+    0% { background: var(--accent); color: #fff; transform: scale(1.02); }
+    100% { background: rgba(255, 255, 255, 0.6); color: inherit; transform: scale(1); }
+  }
+
+  /* Checkbox dark rim looks bad on light. */
+  .runCheckboxInput {
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+  .runCheckboxInput:checked {
+    border-color: var(--accent);
+    color: #fff; /* Checkmark if we used one */
+  }
+
+  .runExpandButton {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--muted);
+  }
+  .runExpandButton:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+  
+  .runMiniMeta {
+    background: rgba(0,0,0,0.06);
+    color: var(--text-2);
+  }
+
+  .runCardExpanded {
+    background: rgba(0, 0, 0, 0.03) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .runMetaPill {
+    background: #fff;
+    border-color: rgba(0, 0, 0, 0.06);
+  }
+  
+  .runMetaLabel {
+    color: var(--muted);
+  }
+
+  .runStepperBtn {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text);
+  }
+  .runStepperBtn:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+  
+  .runStepperValue {
+    color: var(--text);
+  }
+  
+  .runImageFrame {
+    border-color: rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
 }

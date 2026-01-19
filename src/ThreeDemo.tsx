@@ -115,6 +115,93 @@ const StudioEnvironment = () => {
   return null
 }
 
+const Plate = ({
+  position,
+  color,
+  width,
+  radius = 0.225, // Standard 450mm diameter for bumper plates
+  texture = 'rubber', // 'rubber' | 'iron' | 'urethane'
+}: {
+  position: [number, number, number]
+  color: string
+  width: number
+  radius?: number
+  texture?: 'rubber' | 'iron' | 'urethane'
+}) => {
+  // We use extra segments for roundness
+  const radialSegments = 48
+
+  // Hub geometry (center ring) -> standard Olympic 50mm opening (0.025 radius)
+  // We make the hub slightly wider physically to pop out
+  const hubRadius = 0.07
+
+  const materialProps =
+    texture === 'rubber'
+      ? {
+          roughness: 0.7,
+          metalness: 0.1,
+          clearcoat: 0.1,
+          clearcoatRoughness: 0.6,
+        }
+      : texture === 'urethane'
+        ? {
+            roughness: 0.2,
+            metalness: 0.2,
+            clearcoat: 1,
+            clearcoatRoughness: 0.1,
+          }
+        : {
+            // Iron
+            roughness: 0.5,
+            metalness: 0.6,
+            clearcoat: 0.0,
+          }
+
+  return (
+    <group position={position} rotation={[0, 0, Math.PI / 2]}>
+      {/* Main Plate Body */}
+      <mesh castShadow receiveShadow>
+        <cylinderGeometry args={[radius, radius, width, radialSegments]} />
+        <meshPhysicalMaterial color={color} {...materialProps} envMapIntensity={1} />
+      </mesh>
+
+      {/* Central Hub (Steel Insert) */}
+      <mesh position={[0, 0, 0]}>
+        <cylinderGeometry args={[hubRadius, hubRadius, width + 0.002, 32]} />
+        <meshPhysicalMaterial
+          color="#666666"
+          roughness={0.25}
+          metalness={1.0}
+          clearcoat={0.5}
+          envMapIntensity={2.0}
+        />
+      </mesh>
+    </group>
+  )
+}
+
+const Collar = ({ position }: { position: [number, number, number] }) => {
+  return (
+    <group position={position} rotation={[0, 0, Math.PI / 2]}>
+      {/* Clamp Body */}
+      <mesh castShadow>
+        <cylinderGeometry args={[0.04, 0.04, 0.05, 32]} />
+        <meshPhysicalMaterial
+          color="#1f2937"
+          roughness={0.4}
+          metalness={0.8}
+          envMapIntensity={1.5}
+        />
+      </mesh>
+      {/* Lever/Bolt detail */}
+      <mesh position={[0.045, 0, 0]}>
+        <boxGeometry args={[0.02, 0.03, 0.06]} />
+        <meshStandardMaterial color="#ef4444" />
+      </mesh>
+    </group>
+  )
+}
+
 const LiftedWeight = () => {
   const groupRef = React.useRef<Group | null>(null)
   const { gl } = useThree()
@@ -151,10 +238,32 @@ const LiftedWeight = () => {
     if (!g) return
     const t = state.clock.getElapsedTime()
 
-    // Higher automatic lift.
-    const autoLift = 0.45 + Math.max(0, Math.sin(t * 1.25)) * 0.9
+    // 4-second lifting cycle
+    // 0.0 - 0.8: Lift (Explosive up)
+    // 0.8 - 2.0: Pause at top
+    // 2.0 - 3.2: Lower (Controlled eccentric)
+    // 3.2 - 4.0: Pause at bottom
+    const cycle = 4.0
+    const pVal = t % cycle
+    let liftFactor = 0
 
-    // Extra lift while pressed/clicked (press down -> up, release -> down).
+    if (pVal < 0.8) {
+      // EaseOutCubic: 1 - pow(1 - x, 3)
+      const x = pVal / 0.8
+      liftFactor = 1 - Math.pow(1 - x, 3)
+    } else if (pVal < 2.0) {
+      liftFactor = 1
+    } else if (pVal < 3.2) {
+      // EaseInOutQuad for lowering
+      const x = (pVal - 2.0) / 1.2
+      const ease = x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2
+      liftFactor = 1 - ease
+    } else {
+      liftFactor = 0
+    }
+
+    const autoLift = 0.45 + liftFactor * 0.9
+
     const targetPress = isPressedRef.current ? 1 : 0
     const ease = 1 - Math.exp(-delta * 14)
     pressAmountRef.current += (targetPress - pressAmountRef.current) * ease
@@ -163,54 +272,97 @@ const LiftedWeight = () => {
     g.rotation.set(0, 0, 0)
   })
 
+  // Bar dimensions
+  const barLength = 2.2 // Standard Olympic bar
+  const shaftRadius = 0.014 // 28mm diameter -> 14mm radius
+  const sleeveRadius = 0.025 // 50mm diameter -> 25mm radius
+  const sleeveLength = 0.415
+  const shaftLength = barLength - 2 * sleeveLength
+
+  // Calculated positions
+  const sleeveOffset = shaftLength / 2 + sleeveLength / 2
+
   return (
     <group ref={groupRef}>
-      {/* Bar */}
+      {/* 
+        --------------------
+           BARBELL SHAFT
+        --------------------
+      */}
       <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.06, 0.06, 1.7, 16]} />
+        <cylinderGeometry args={[shaftRadius, shaftRadius, shaftLength, 32]} />
         <meshPhysicalMaterial
-          color="#c7c9d1"
-          roughness={0.22}
-          metalness={1}
-          clearcoat={0.35}
-          clearcoatRoughness={0.18}
-          envMapIntensity={1.15}
+          color="#1a1a1a"
+          roughness={0.12}
+          metalness={1.0}
+          clearcoat={0.5}
+          clearcoatRoughness={0.1}
+          envMapIntensity={3.0}
         />
       </mesh>
 
-      {/* Plates */}
-      <mesh position={[0.74, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.32, 0.32, 0.18, 24]} />
-        <meshStandardMaterial color="#1f2937" roughness={0.86} metalness={0.08} envMapIntensity={0.25} />
+      {/* 
+        --------------------
+           SLEEVES (Ends)
+        --------------------
+      */}
+      <mesh position={[sleeveOffset, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[sleeveRadius, sleeveRadius, sleeveLength, 32]} />
+        <meshPhysicalMaterial
+          color="#333333"
+          roughness={0.2}
+          metalness={1.0}
+          envMapIntensity={2.5}
+        />
       </mesh>
-      <mesh position={[-0.74, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.32, 0.32, 0.18, 24]} />
-        <meshStandardMaterial color="#111827" roughness={0.88} metalness={0.06} envMapIntensity={0.25} />
+      <mesh position={[-sleeveOffset, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[sleeveRadius, sleeveRadius, sleeveLength, 32]} />
+        <meshPhysicalMaterial
+          color="#333333"
+          roughness={0.2}
+          metalness={1.0}
+          envMapIntensity={2.5}
+        />
       </mesh>
 
-      {/* Inner plates (accent) */}
-      <mesh position={[0.58, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.22, 0.22, 0.1, 20]} />
-        <meshPhysicalMaterial
-          color="#2dd4bf"
-          roughness={0.38}
-          metalness={0.35}
-          clearcoat={0.25}
-          clearcoatRoughness={0.2}
-          envMapIntensity={0.8}
-        />
+      {/* 
+        --------------------
+           SLEEVE STOPPERS (Collars built-in to bar)
+        --------------------
+      */}
+      <mesh position={[shaftLength / 2 + 0.015, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[0.035, 0.035, 0.03, 32]} />
+        <meshPhysicalMaterial color="#333333" metalness={1} roughness={0.25} envMapIntensity={2.0}/>
       </mesh>
-      <mesh position={[-0.58, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-        <cylinderGeometry args={[0.22, 0.22, 0.1, 20]} />
-        <meshPhysicalMaterial
-          color="#2dd4bf"
-          roughness={0.38}
-          metalness={0.35}
-          clearcoat={0.25}
-          clearcoatRoughness={0.2}
-          envMapIntensity={0.8}
-        />
+      <mesh position={[-shaftLength / 2 - 0.015, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+        <cylinderGeometry args={[0.035, 0.035, 0.03, 32]} />
+        <meshPhysicalMaterial color="#333333" metalness={1} roughness={0.25} envMapIntensity={2.0}/>
       </mesh>
+
+      {/* 
+        --------------------
+           PLATES (Right Side) - Start slightly inside from sleeve start
+        --------------------
+      */}
+      {/* Heavy Inner Plate (Black) */}
+      <Plate position={[0.78, 0, 0]} width={0.08} color="#111827" texture="rubber" />
+      
+      {/* Accent Outer Plate (Teal) */}
+      <Plate position={[0.87, 0, 0]} width={0.05} color="#2dd4bf" texture="urethane" />
+
+      {/* Collar Clamp */}
+      <Collar position={[0.92, 0, 0]} />
+
+
+      {/* 
+        --------------------
+           PLATES (Left Side)
+        --------------------
+      */}
+      <Plate position={[-0.78, 0, 0]} width={0.08} color="#111827" texture="rubber" />
+      <Plate position={[-0.87, 0, 0]} width={0.05} color="#2dd4bf" texture="urethane" />
+      <Collar position={[-0.92, 0, 0]} />
+
     </group>
   )
 }
@@ -258,10 +410,11 @@ export const ThreeDemo = () => {
 
       <DragOrbitCamera />
 
-      <group position={[0, 0, 0]}>
+      <group position={[0, -0.2, 0]}>
+        {/* Invisible shadow catcher floor */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]} receiveShadow>
-          <planeGeometry args={[8, 8]} />
-          <meshStandardMaterial color="#465566" roughness={0.95} metalness={0.02} envMapIntensity={0.2} />
+          <planeGeometry args={[10, 10]} />
+          <shadowMaterial transparent opacity={0.4} color="#000" />
         </mesh>
         <LiftedWeight />
       </group>

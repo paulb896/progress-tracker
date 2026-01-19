@@ -27,6 +27,10 @@ If the product changes, update this document first, then update/extend Playwrigh
   - And there are no completions
   - Then the home screen shows an empty message for routines and completions
 
+- Scenario: Hero headline copy
+  - Given I am on the home screen
+  - Then the hero headline reads "Create your routines"
+
 - Scenario: Routine list actions
   - Given one or more routines exist
   - Then each routine row provides actions: Run, Edit, Delete

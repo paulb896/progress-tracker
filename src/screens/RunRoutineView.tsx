@@ -22,8 +22,9 @@ const ProgressGauge = ({ doneCount, totalCount, progress }: ProgressGaugeProps) 
   const clamped = Number.isFinite(progress) ? Math.min(1, Math.max(0, progress)) : 0
   const percent = Math.round(clamped * 100)
 
-  const size = 52
-  const stroke = 6
+  // We use a fixed coordinate system for the SVG path, but let CSS control the display size
+  const size = 100
+  const stroke = 8
   const radius = (size - stroke) / 2
   const circumference = 2 * Math.PI * radius
   const dashOffset = circumference * (1 - clamped)
@@ -37,7 +38,7 @@ const ProgressGauge = ({ doneCount, totalCount, progress }: ProgressGaugeProps) 
       aria-valuemax={100}
       aria-valuenow={percent}
     >
-      <svg className="runGaugeSvg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+      <svg className="runGaugeSvg" viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
         <circle className="runGaugeTrack" cx={size / 2} cy={size / 2} r={radius} strokeWidth={stroke} fill="none" />
         <circle
           className="runGaugeValue"
@@ -243,7 +244,7 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
                   <div className="runRowHeaderRight">
                     {!expanded && (
                       <div className="runMiniMeta" aria-label="Sets reps weight time summary">
-                        {setsText} x {repsText} <span className="dot">•</span> {weightText} <span className="unit">kg</span>
+                        {setsText} x {repsText} <span className="dot">•</span> {weightText} <span className="unit">lbs</span>
                       </div>
                     )}
                     {!expanded && miniThumbUrl ? <img className="runMiniThumb" src={miniThumbUrl} alt="" loading="lazy" /> : null}
@@ -310,7 +311,7 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
                       </div>
 
                       <div className="runMetaPill">
-                        <span className="runMetaLabel">WEIGHT (KG)</span>
+                        <span className="runMetaLabel">WEIGHT (LBS)</span>
                         <div className="runStepper">
                           <button
                             type="button"

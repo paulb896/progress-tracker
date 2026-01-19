@@ -17,6 +17,9 @@ export default defineConfig({
     launchOptions: {
       // Make captured scenario demos more legible and “human-paced”.
       slowMo: 220,
+      // WebGL can render inconsistently in headless video capture depending on GPU/driver.
+      // Force a more deterministic software GL path so the Three.js header demo records cleanly.
+      args: ['--use-gl=swiftshader', '--ignore-gpu-blocklist', '--enable-webgl'],
     },
   },
   webServer: {

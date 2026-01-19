@@ -4,6 +4,14 @@ import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment'
 import type { Group } from 'three'
 
+const isScenarioGifMode = (): boolean => {
+  try {
+    return (window as any).__PROGRESS_TRACKER_SCENARIO_GIF__ === true
+  } catch {
+    return false
+  }
+}
+
 const DragOrbitCamera = () => {
   const { camera, gl } = useThree()
 
@@ -89,7 +97,7 @@ const DragOrbitCamera = () => {
 const StudioEnvironment = () => {
   const { gl, scene } = useThree()
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const pmrem = new THREE.PMREMGenerator(gl)
     pmrem.compileEquirectangularShader()
 
@@ -208,10 +216,13 @@ const LiftedWeight = () => {
 }
 
 export const ThreeDemo = () => {
+  const isGif = isScenarioGifMode()
+
   return (
     <Canvas
       shadows
-      dpr={[1, 2]}
+      dpr={isGif ? 1 : [1, 2]}
+      gl={{ preserveDrawingBuffer: isGif }}
       camera={{ position: [2.8, 1.2, 2.4], fov: 50 }}
       onCreated={({ gl }) => {
         gl.shadowMap.enabled = true
@@ -219,6 +230,11 @@ export const ThreeDemo = () => {
         gl.toneMapping = THREE.ACESFilmicToneMapping
         gl.toneMappingExposure = 1.08
         gl.outputColorSpace = THREE.SRGBColorSpace
+
+        // In headless capture we intentionally reduce work to avoid frames dropping/blanking.
+        if (isGif) {
+          gl.setPixelRatio(1)
+        }
       }}
     >
       <StudioEnvironment />

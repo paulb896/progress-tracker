@@ -12,6 +12,10 @@ const GIF_PUBLIC_DIR = path.join(repoRoot, 'public', 'scenario-gifs')
 const MANIFEST_PATH = path.join(repoRoot, 'src', 'scenarios', 'scenarioGifs.ts')
 const GIF_TEST_RESULTS_DIR = path.join(repoRoot, 'test-results-gifs')
 
+// Skip the first moments of the recording (WebGL warm-up, env map compilation, etc.)
+// so the resulting GIF starts at a clean, stable point.
+const GIF_START_TRIM_SECONDS = 4.2
+
 const run = (command, args, options = {}) => {
   const result = spawnSync(command, args, {
     cwd: repoRoot,
@@ -173,9 +177,11 @@ const main = async () => {
     // Two-pass palette gen/use for better quality + smaller size.
     run('ffmpeg', [
       '-y',
+      '-ss',
+      String(GIF_START_TRIM_SECONDS),
       '-i',
       inputVideo,
-      '-frames:v',
+      '-update',
       '1',
       '-vf',
       'fps=12,scale=720:-1:flags=lanczos,palettegen=stats_mode=diff',
@@ -184,6 +190,8 @@ const main = async () => {
 
     run('ffmpeg', [
       '-y',
+      '-ss',
+      String(GIF_START_TRIM_SECONDS),
       '-i',
       inputVideo,
       '-i',

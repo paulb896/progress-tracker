@@ -241,26 +241,27 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
                     <span className="runName">{ex.name}</span>
                   </label>
 
-                  <div className="runRowHeaderRight">
-                    {!expanded && (
+                  {!expanded && (
+                    <div className="runRowHeaderRight">
                       <div className="runMiniMeta" aria-label="Sets reps weight time summary">
                         {setsText} x {repsText} <span className="dot">•</span> {weightText} <span className="unit">lbs</span>
                       </div>
-                    )}
-                    {!expanded && miniThumbUrl ? <img className="runMiniThumb" src={miniThumbUrl} alt="" loading="lazy" /> : null}
-                    <button
-                      type="button"
-                      className="runExpandButton"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setExpanded(ex.id, !expanded)
-                      }}
-                      aria-label={expanded ? 'Minimize' : 'Expand'}
-                      title={expanded ? 'Minimize' : 'Expand'}
-                    >
-                      {expanded ? <ChevronDown /> : <ChevronRight />}
-                    </button>
-                  </div>
+                      {miniThumbUrl ? <img className="runMiniThumb" src={miniThumbUrl} alt="" loading="lazy" /> : null}
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    className="runExpandButton"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setExpanded(ex.id, !expanded)
+                    }}
+                    aria-label={expanded ? 'Minimize' : 'Expand'}
+                    title={expanded ? 'Minimize' : 'Expand'}
+                  >
+                    {expanded ? <ChevronDown /> : <ChevronRight />}
+                  </button>
                 </div>
 
                 {expanded ? (

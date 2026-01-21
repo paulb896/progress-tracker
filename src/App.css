@@ -1,6 +1,6 @@
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .app {
@@ -8,10 +8,12 @@
   margin: 0 auto;
   padding: 32px 24px;
   animation: fadeIn 0.5s ease-out;
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
 .app--wide {
-  max-width: none;
+  max-width: 100%;
   width: 100%;
   padding: 32px 48px; /* Slightly wider padding on large screens */
 }
@@ -19,6 +21,13 @@
 .content {
   display: grid;
   gap: 24px;
+  grid-template-columns: 100%; /* Force single column matching width */
+  min-width: 0;
+}
+
+.content > * {
+  min-width: 0; /* Allow grid items to shrink */
+  max-width: 100%;
 }
 
 /* -------------------------
@@ -36,6 +45,8 @@
   border: 1px solid rgba(255, 255, 255, 0.05); /* Very subtle border */
   border-radius: 32px;
   overflow: hidden;
+  /* Fix for Safari/Chrome overflow clipping with border-radius */
+  transform: translateZ(0);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
   min-height: 500px;
 }
@@ -359,12 +370,20 @@
   .heroCanvasWrapper {
     width: 100%;
     position: relative;
-    height: 300px;
+    right: auto; 
+    top: auto;
+    height: 260px;
     order: -1; 
   }
   
   .dashboardGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroCanvasWrapper {
+    height: 240px;
   }
 }
 
@@ -390,6 +409,7 @@
 
 .runPanel {
   overflow: visible;
+  max-width: 100vw;
 }
 
 .panelTitleRow {
@@ -1193,7 +1213,7 @@
 
 .runRowHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Align to top for multi-line stability */
   justify-content: space-between;
   gap: 12px;
   cursor: pointer;
@@ -1216,7 +1236,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 1 1 auto;
+  flex: 0 1 auto; /* Use natural width, can shrink */
   min-width: 0;
   justify-content: flex-end;
 }
@@ -1287,7 +1307,7 @@
 .runRowTop {
   display: flex;
   gap: 14px;
-  align-items: center;
+  align-items: flex-start; /* Checkbox top alignment */
   cursor: pointer;
   user-select: none;
   min-width: 0;
@@ -1489,7 +1509,7 @@
 
   .headerCube {
     width: 100%;
-    height: 150px;
+    height: 300px;
   }
 
   .title {
@@ -1583,19 +1603,24 @@
   }
 
   .runRowHeader {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
   }
 
   .runRowHeaderRight {
-    width: 100%;
-    justify-content: space-between;
+     display: flex;
+     width: auto;
+     justify-content: flex-end;
   }
-
+  
   .runMiniMeta {
-    white-space: normal;
-    line-height: 1.2;
+    display: none;
+  }
+  
+  .runMiniThumb {
+    width: 28px;
+    height: 28px;
   }
 
   .runMiniMeta .dot {
@@ -2109,12 +2134,13 @@
 }
 
 .runCheckboxInput {
-  margin: 0;
+  margin: 2px 0 0 0; /* Align with text baseline */
   width: 22px;
   height: 22px;
   border-radius: 6px;
   cursor: pointer;
   transition: transform 0.1s ease;
+  flex-shrink: 0;
 }
 
 .runCheckboxInput:active {

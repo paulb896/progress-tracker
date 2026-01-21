@@ -52,6 +52,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Box-sizing reset - Essentials for consistent layout */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -94,11 +99,17 @@ button {
 
 body {
   margin: 0;
+  width: 100%;
   min-width: 320px;
   min-height: 100vh;
   /* background handled in :root now */
   color: var(--text);
   transition: color 0.2s;
+  overflow-x: hidden;
+}
+
+html {
+  /* overflow-x handled in body */
 }
 
 button {

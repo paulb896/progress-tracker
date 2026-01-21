@@ -12,7 +12,7 @@ const isScenarioGifMode = (): boolean => {
   }
 }
 
-const DragOrbitCamera = () => {
+const DragOrbitCamera = ({ isNarrow }: { isNarrow: boolean }) => {
   const { camera, gl } = useThree()
 
   const isDraggingRef = React.useRef(false)
@@ -20,6 +20,13 @@ const DragOrbitCamera = () => {
 
   const thetaRef = React.useRef(0)
   const phiRef = React.useRef(0.32)
+
+  React.useEffect(() => {
+    if (isNarrow) {
+      phiRef.current = 0.22
+      thetaRef.current = 0
+    }
+  }, [isNarrow])
 
   React.useEffect(() => {
     const el = gl.domElement
@@ -74,8 +81,8 @@ const DragOrbitCamera = () => {
       thetaRef.current += delta * 0.25
     }
 
-    const radius = 3.1
-    const targetY = 0.55
+    const radius = isNarrow ? 2.45 : 3.1
+    const targetY = isNarrow ? -0.1 : 0.55
     const targetX = 0
     const targetZ = 0
 
@@ -369,6 +376,20 @@ const LiftedWeight = () => {
 
 export const ThreeDemo = () => {
   const isGif = isScenarioGifMode()
+  const [isNarrow, setIsNarrow] = React.useState(() => {
+    // Avoid layout shift by initializing with correct value if window exists
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 720
+    }
+    return false
+  })
+
+  React.useEffect(() => {
+    const update = () => setIsNarrow(window.innerWidth < 720)
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
 
   return (
     <Canvas
@@ -408,9 +429,9 @@ export const ThreeDemo = () => {
       />
       <directionalLight position={[-3.2, 2.8, -2.2]} intensity={0.6} />
 
-      <DragOrbitCamera />
+      <DragOrbitCamera isNarrow={isNarrow} />
 
-      <group position={[0, -0.2, 0]}>
+      <group position={[0, isNarrow ? -0.9 : -0.2, 0]}>
         {/* Invisible shadow catcher floor */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]} receiveShadow>
           <planeGeometry args={[10, 10]} />

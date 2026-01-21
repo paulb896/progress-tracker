@@ -14,7 +14,7 @@ const GIF_TEST_RESULTS_DIR = path.join(repoRoot, 'test-results-gifs')
 
 // Skip the first moments of the recording (WebGL warm-up, env map compilation, etc.)
 // so the resulting GIF starts at a clean, stable point.
-const GIF_START_TRIM_SECONDS = 4.2
+const GIF_START_TRIM_SECONDS = 5.2
 
 const run = (command, args, options = {}) => {
   const result = spawnSync(command, args, {

@@ -84,7 +84,17 @@ const createMouseHelpers = (page: Page) => {
 
   const moveTo = async (locator: Locator) => {
     if (!isScenarioGifRun) return
-    await locator.scrollIntoViewIfNeeded()
+
+    // Simulate real user smooth scrolling
+    try {
+      await locator.evaluate((el) => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+      })
+      await page.waitForTimeout(600)
+    } catch {
+      // Ignore if element is missing; subsequent boundingBox check will handle it.
+    }
+
     const box = await locator.boundingBox()
     if (!box) return
 
@@ -209,7 +219,7 @@ test.describe('Progress Tracker — BDD scenarios', () => {
 
     await test.step('And I can view completion details', async () => {
       const m = createMouseHelpers(page)
-      await page.getByRole('listitem', { name: /View completed routine: BDD Routine/ }).click({ force: true })
+      await page.getByRole('listitem', { name: /View completed routine: BDD Routine/ }).click()
       await pauseIfGif(page)
       await expect(page.getByText('Completed routine')).toBeVisible()
       await expect(page.getByText('BDD Routine')).toBeVisible()

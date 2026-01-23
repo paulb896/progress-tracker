@@ -146,12 +146,6 @@ const Plate = ({
           {/* Text rendering would go here, skipping for perf/simplicity */}
         </meshBasicMaterial>
       </mesh>
-
-      {/* Ridge details */}
-      <mesh rotation={[0, 0, Math.PI / 2]}>
-        <torusGeometry args={[0.18, 0.005, 16, 64]} />
-        <meshStandardMaterial color={color} roughness={0.9} />
-      </mesh>
     </group>
   )
 }
@@ -172,24 +166,42 @@ const Collar = ({ position }: { position: [number, number, number] }) => {
   )
 }
 
-const LiftedWeight = ({ onRepComplete: _ }: { onRepComplete: () => void }) => {
+const LiftedWeight = ({ onRepComplete }: { onRepComplete: () => void }) => {
   const knurlMap = useKnurlingMap()
   const radialMap = useRadialMap()
   const noiseMap = useNoiseMap()
 
   // Animation state
   const groupRef = React.useRef<Group>(null)
+  // State to track if we've counted the current rep
+  const repTriggered = React.useRef(false)
 
   useFrame((state) => {
     if (!groupRef.current) return
 
-    // Simple bobbing animation
+    // Animation Loop
     const t = state.clock.getElapsedTime()
-    const y = Math.sin(t * 2) * 0.1 + 0.1 // 0.1m amplitude
+    const speed = 2.5 // Slightly faster for a powerful lift
 
-    // Detect "rep" (simplified)
-    if (Math.sin(t * 2) > 0.99) {
-      // Peak
+    // Movement range: Floor (0.23m) to ~Chest/Overhead (1.6m)
+    const minHeight = 0.23
+    const maxHeight = 1.6
+    
+    // Normalized 0..1 cycle, starting at bottom
+    const rawSine = Math.sin(t * speed - Math.PI / 2)
+    const progress = (rawSine + 1) / 2 // 0 to 1
+
+    // Add some "pause" or shaping at the top for realism (power curve)
+    // Easing: easeOutCubic-ish for up, easeIn for down?
+    // Let's keep it simple but use the full range.
+    const y = minHeight + progress * (maxHeight - minHeight)
+
+    // Detect "rep" completion (at the bottom of the movement)
+    if (rawSine > 0.999 && !repTriggered.current) {
+      onRepComplete()
+      repTriggered.current = true
+    } else if (rawSine > 0.5) {
+      repTriggered.current = false // Reset trigger when well above floor
     }
 
     groupRef.current.position.y = y
@@ -298,13 +310,13 @@ const LiftedWeight = ({ onRepComplete: _ }: { onRepComplete: () => void }) => {
 
       {/* --- PLATES (Loaded) --- */}
       {/* Left Side */}
-      <Plate position={[-0.70, 0, 0]} color="#111" noiseMap={noiseMap} />
-      <Plate position={[-0.77, 0, 0]} color="#111" noiseMap={noiseMap} />
+      <Plate position={[-0.70, 0, 0]} color="#222" noiseMap={noiseMap} />
+      <Plate position={[-0.77, 0, 0]} color="#222" noiseMap={noiseMap} />
       <Collar position={[-0.66, 0, 0]} />
 
       {/* Right Side */}
-      <Plate position={[0.70, 0, 0]} color="#111" noiseMap={noiseMap} />
-      <Plate position={[0.77, 0, 0]} color="#111" noiseMap={noiseMap} />
+      <Plate position={[0.70, 0, 0]} color="#222" noiseMap={noiseMap} />
+      <Plate position={[0.77, 0, 0]} color="#222" noiseMap={noiseMap} />
       <Collar position={[0.66, 0, 0]} />
 
     </group>
@@ -402,8 +414,8 @@ const DragOrbitCamera = ({ isNarrow }: { isNarrow: boolean }) => {
       thetaRef.current += delta * 0.25
     }
 
-    const radius = isNarrow ? 2.45 : 3.1
-    const targetY = isNarrow ? -0.1 : 0.55
+    const radius = isNarrow ? 3.8 : 4.8
+    const targetY = isNarrow ? 0.6 : 0.9
     const targetX = 0
     const targetZ = 0
 
@@ -466,41 +478,12 @@ export function ThreeDemo() {
   }, [])
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>
-
-      {/* Overlay UI */}
-      <div style={{
-        position: 'absolute',
-        top: '20px',
-        left: '20px',
-        zIndex: 10,
-        pointerEvents: 'none'
-      }}>
-        <h1 style={{
-          margin: 0,
-          fontSize: '1.5rem',
-          fontWeight: 700,
-          color: '#e2e8f0',
-          letterSpacing: '-0.02em',
-        }}>
-          BARBELL <span style={{ color: '#38bdf8' }}>TRACKER</span>
-        </h1>
-        <div style={{
-          marginTop: '6px',
-          fontSize: '0.85rem',
-          color: '#94a3b8',
-          display: 'flex',
-          gap: '12px'
-        }}>
-          <span>LIVE FEED</span>
-          <span style={{ color: '#ef4444' }}>● REC</span>
-        </div>
-      </div>
+    <div style={{ width: '100%', height: '100%', position: 'relative', background: 'transparent' }}>
 
       <div style={{
         position: 'absolute',
-        bottom: '30px',
-        right: '30px',
+        bottom: '80px',
+        right: '120px', // Pulled in significantly to clear off-screen canvas edge
         zIndex: 10,
         textAlign: 'right',
         pointerEvents: 'none'
@@ -633,16 +616,19 @@ export function ThreeDemo() {
                   blur={[300, 100]}
                   resolution={1024}
                   mixBlur={1}
-                  mixStrength={40}
+                  mixStrength={15}
                   roughness={1}
                   depthScale={1.2}
                   minDepthThreshold={0.4}
                   maxDepthThreshold={1.4}
-                  color="#101010"
-                  metalness={0.5}
+                  color="#1c1c21"
+                  metalness={0.4}
                   mirror={0}
+                  transparent={true}
+                  opacity={0.0} // Fully transparent to let CSS gradient show
                 />
               </mesh>
+              {/* No fog needed if floor is transparent */}
               <ContactShadows
                 resolution={1024}
                 scale={20}

@@ -24,52 +24,8 @@ const clearAppStorage = async (page: Page) => {
 }
 
 const waitForThreeDemoToRender = async (page: Page) => {
-  if (!isScenarioGifRun) return
-
-  const readCenterPixel = async (): Promise<[number, number, number, number] | null> => {
-    return page.evaluate(() => {
-      const canvas = document.querySelector('.headerCube canvas') as HTMLCanvasElement | null
-      if (!canvas) return null
-
-      const gl =
-        (canvas.getContext('webgl2', { preserveDrawingBuffer: true }) as WebGL2RenderingContext | null) ||
-        (canvas.getContext('webgl', { preserveDrawingBuffer: true }) as WebGLRenderingContext | null)
-      if (!gl) return null
-
-      const x = Math.max(0, Math.floor(canvas.width / 2))
-      const y = Math.max(0, Math.floor(canvas.height / 2))
-      const px = new Uint8Array(4)
-      try {
-        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px)
-      } catch {
-        return null
-      }
-
-      return [px[0]!, px[1]!, px[2]!, px[3]!] as [number, number, number, number]
-    })
-  }
-
-  // Wait until we see a non-empty pixel AND it changes over time (animation is running).
-  const deadline = Date.now() + 7000
-  while (Date.now() < deadline) {
-    const a = await readCenterPixel()
-    if (!a) {
-      await page.waitForTimeout(150)
-      continue
-    }
-    const aNonEmpty = a[0] !== 0 || a[1] !== 0 || a[2] !== 0 || a[3] !== 0
-    if (!aNonEmpty) {
-      await page.waitForTimeout(150)
-      continue
-    }
-
-    await page.waitForTimeout(350)
-    const b = await readCenterPixel()
-    if (!b) continue
-
-    const changed = a[0] !== b[0] || a[1] !== b[1] || a[2] !== b[2] || a[3] !== b[3]
-    if (changed) return
-  }
+  // The Three.js scene is disabled during GIF generation to ensure stability.
+  return
 }
 
 const enableScenarioGifUi = async (page: Page) => {

@@ -41,9 +41,11 @@ function App() {
             navigate({ name: 'home' })
           }}
           headerRight={
-            <div className="headerCube" aria-label="3D lifting weight demo">
-              <ThreeDemo />
-            </div>
+            !(window as any).__PROGRESS_TRACKER_SCENARIO_GIF__ ? (
+              <div className="headerCube" aria-label="3D lifting weight demo">
+                <ThreeDemo />
+              </div>
+            ) : null
           }
         />
       ) : null}

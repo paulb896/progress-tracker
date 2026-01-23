@@ -9,7 +9,7 @@
   padding: 32px 24px;
   animation: fadeIn 0.5s ease-out;
   width: 100%;
-  overflow-x: hidden; /* Prevent horizontal overflow */
+  /* overflow-x: hidden; REMOVED to fix position:sticky */
 }
 
 .app--wide {
@@ -1061,13 +1061,17 @@
 
 .runSticky {
   position: sticky;
-  top: 0;
-  z-index: 50;
+  top: 32px; /* Stick to top of viewport with some spacing */
+  z-index: 90;
   background: var(--surface-glass);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-lg);
+  width: 100%; /* Ensure full width in flex container */
+  align-self: flex-start; /* Prevent flex stretching quirks */
+  border-radius: 14px 14px 0 0; /* look like top of panel */
+  margin-bottom: -1px; /* Fuse with content below */
 }
 
 .runStickyRight {
@@ -1740,7 +1744,7 @@
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 32px;
-  overflow: hidden;
+  overflow: visible; /* Allow sticky children to work */
   box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5);
 }
 

@@ -1,0 +1,47 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: Fitness App
+      - heading "Create your routines with custom exercises and achieve your fitness goals." [level=1] [ref=e7]:
+        - text: Create your routines
+        - text: with custom exercises
+        - text: and achieve your fitness goals.
+      - paragraph [ref=e8]: All of your completed workouts are tracked in one place, making it easy to monitor your progress over time.
+      - generic [ref=e9]:
+        - button "Start New Routine" [ref=e10] [cursor=pointer]
+        - button "How to Guides" [ref=e11] [cursor=pointer]
+    - generic "3D lifting weight demo" [ref=e13]:
+      - generic [ref=e14]:
+        - generic:
+          - generic: Reps Completed
+          - generic: "1"
+  - generic [ref=e18]:
+    - main [ref=e19]:
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - heading "Your Routines" [level=2] [ref=e22]
+          - button "Add routine" [ref=e23] [cursor=pointer]: +
+        - list [ref=e25]:
+          - listitem [ref=e26]:
+            - generic [ref=e27] [cursor=pointer]:
+              - img [ref=e29]
+              - generic [ref=e34]:
+                - generic [ref=e35]: Edit Completion Routine
+                - generic [ref=e36]: 1 exercises
+              - generic [ref=e37]: →
+            - generic [ref=e38]:
+              - button "Edit" [ref=e39] [cursor=pointer]
+              - button "Delete" [ref=e40] [cursor=pointer]
+    - complementary [ref=e41]:
+      - generic [ref=e42]:
+        - generic [ref=e43]: Recent Activity
+        - list [ref=e45]:
+          - 'listitem "View completed routine: Edit Completion Routine" [ref=e46] [cursor=pointer]':
+            - img [ref=e48]
+            - generic [ref=e50]:
+              - generic [ref=e51]: Edit Completion Routine
+              - generic [ref=e52]: Jan 22
+```

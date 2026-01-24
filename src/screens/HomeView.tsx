@@ -1,6 +1,8 @@
 import React from 'react'
 import type { Routine } from '../routines/types'
 import type { RoutineCompletion } from '../completions/types'
+import { HomeStats } from '../components/HomeStats'
+import { resolveImageUrl } from '../app/resolveImageUrl'
 
 type HomeViewProps = {
   routines: Routine[]
@@ -44,10 +46,8 @@ export const HomeView = ({
   return (
     <>
       <section className="heroSection">
+        <img src={resolveImageUrl('/logo.png')} alt="Progress Tracker" className="heroLogo" />
         <div className="heroContent">
-          <div className="heroBadge">
-            <span className="heroBadgeDot" /> Fitness App
-          </div>
           <h1 className="heroTitle">
             Create your routines <br />
             with <span className="textGradient">custom exercises</span> <br />
@@ -116,6 +116,8 @@ export const HomeView = ({
               )}
             </div>
           </section>
+
+          <HomeStats completions={completions} />
         </main>
 
         <aside className="sideColumn">

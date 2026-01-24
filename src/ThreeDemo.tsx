@@ -196,12 +196,12 @@ const LiftedWeight = ({ onRepComplete }: { onRepComplete: () => void }) => {
     // Let's keep it simple but use the full range.
     const y = minHeight + progress * (maxHeight - minHeight)
 
-    // Detect "rep" completion (at the bottom of the movement)
-    if (rawSine > 0.999 && !repTriggered.current) {
+    // Detect "rep" completion (at the top of the movement)
+    if (rawSine > 0.95 && !repTriggered.current) {
       onRepComplete()
       repTriggered.current = true
-    } else if (rawSine > 0.5) {
-      repTriggered.current = false // Reset trigger when well above floor
+    } else if (rawSine < 0) {
+      repTriggered.current = false // Reset trigger when going back down
     }
 
     groupRef.current.position.y = y
@@ -414,8 +414,8 @@ const DragOrbitCamera = ({ isNarrow }: { isNarrow: boolean }) => {
       thetaRef.current += delta * 0.25
     }
 
-    const radius = isNarrow ? 3.8 : 4.8
-    const targetY = isNarrow ? 0.6 : 0.9
+    const radius = isNarrow ? 7.0 : 4.8
+    const targetY = isNarrow ? 0 : 0.9
     const targetX = 0
     const targetZ = 0
 
@@ -467,11 +467,11 @@ export function ThreeDemo() {
   const isGif = window.location.hash === '#gif'
 
   // Use a simple media query check for "mobile" or "narrow" layout
-  const [isNarrow, setIsNarrow] = useState(window.innerWidth < 720)
+  const [isNarrow, setIsNarrow] = useState(window.innerWidth < 800)
 
   useEffect(() => {
     const handleResize = () => {
-      setIsNarrow(window.innerWidth < 720)
+      setIsNarrow(window.innerWidth < 800)
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
@@ -482,8 +482,9 @@ export function ThreeDemo() {
 
       <div style={{
         position: 'absolute',
-        bottom: '80px',
-        right: '120px', // Pulled in significantly to clear off-screen canvas edge
+        bottom: isNarrow ? undefined : '80px',
+        top: isNarrow ? '20px' : undefined,
+        right: isNarrow ? '20px' : '120px',
         zIndex: 10,
         textAlign: 'right',
         pointerEvents: 'none'
@@ -495,7 +496,7 @@ export function ThreeDemo() {
           color: '#64748b',
           marginBottom: '4px'
         }}>
-          Reps Completed
+          Reps
         </div>
         <div style={{
           fontSize: '2.2rem',

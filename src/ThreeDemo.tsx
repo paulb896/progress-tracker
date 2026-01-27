@@ -166,45 +166,166 @@ const Collar = ({ position }: { position: [number, number, number] }) => {
   )
 }
 
-const LiftedWeight = ({ onRepComplete }: { onRepComplete: () => void }) => {
+const LiftedWeight = ({ 
+  onRepComplete, 
+  isPointerDownRef 
+}: { 
+  onRepComplete: () => void
+  isPointerDownRef: React.MutableRefObject<boolean> 
+}) => {
   const knurlMap = useKnurlingMap()
   const radialMap = useRadialMap()
   const noiseMap = useNoiseMap()
 
   // Animation state
   const groupRef = React.useRef<Group>(null)
-  // State to track if we've counted the current rep
-  const repTriggered = React.useRef(false)
+  
+  // State machine for realistic physics
+  type Phase = 'LIFT' | 'HOLD' | 'LOWER' | 'BOTTOM'
+  const animState = React.useRef<{ phase: Phase; time: number }>({ 
+    phase: 'BOTTOM', 
+    time: 0 
+  })
 
-  useFrame((state) => {
+  useFrame((_state, delta) => {
     if (!groupRef.current) return
 
-    // Animation Loop
-    const t = state.clock.getElapsedTime()
-    const speed = 2.5 // Slightly faster for a powerful lift
+    // Time scaling:
+    // If pointer is down AND we are NOT in the HOLD phase, speed up time.
+    // If we ARE in the HOLD phase, normal time (or controlled by hold logic).
+    let timeScale = 1.0
+    if (isPointerDownRef.current && animState.current.phase !== 'HOLD') {
+      timeScale = 3.0 // 3x speed when clicking through non-hold phases
+    }
 
-    // Movement range: Floor (0.23m) to ~Chest/Overhead (1.6m)
+    // Update state time
+    animState.current.time += delta * timeScale
+    const { phase, time } = animState.current
+    const globalT = _state.clock.getElapsedTime()
+
+    // Physics constants
     const minHeight = 0.23
     const maxHeight = 1.6
     
-    // Normalized 0..1 cycle, starting at bottom
-    const rawSine = Math.sin(t * speed - Math.PI / 2)
-    const progress = (rawSine + 1) / 2 // 0 to 1
+    let targetY = minHeight
+    let shakeIntensity = 0
+    // let barBend = 0
 
-    // Add some "pause" or shaping at the top for realism (power curve)
-    // Easing: easeOutCubic-ish for up, easeIn for down?
-    // Let's keep it simple but use the full range.
-    const y = minHeight + progress * (maxHeight - minHeight)
+    // --- STATE MACHINE ---
 
-    // Detect "rep" completion (at the top of the movement)
-    if (rawSine > 0.95 && !repTriggered.current) {
-      onRepComplete()
-      repTriggered.current = true
-    } else if (rawSine < 0) {
-      repTriggered.current = false // Reset trigger when going back down
+    if (phase === 'LIFT') {
+      // Struggle Lift Logic
+      // 0.0 - 0.4s: Explosive start (0% -> 60%)
+      // 0.4 - 1.2s: The "Grind" / Struggle (60% -> 95%)
+      // 1.2 - 1.4s: Lockout (95% -> 100%)
+      
+      let progress = 0
+      
+      if (time < 0.4) {
+        // Fast start
+        const t = time / 0.4
+        progress = 0.6 * (1 - Math.pow(1 - t, 2)) // easeOutQuad
+      } else if (time < 1.2) {
+        // The Struggle (Grind)
+        const t = (time - 0.4) / 0.8
+        // Slow linear-ish progress with shake
+        progress = 0.6 + 0.35 * t
+        
+        // Struggle shake based on position in grind
+        shakeIntensity = 0.015 * Math.sin(t * Math.PI) // Peak shake in middle of grind
+      } else {
+        // Lockout snap
+        const t = Math.min((time - 1.2) / 0.2, 1)
+        progress = 0.95 + 0.05 * (1 - Math.pow(1 - t, 3)) // easeOutCubic
+      }
+
+      targetY = minHeight + progress * (maxHeight - minHeight)
+      
+      // Calculate bar bending effect (visual only via rotation or position adjustment if rig allowed, 
+      // but here we just do position shake).
+      
+      // Transition to HOLD
+      if (time >= 1.4) {
+        animState.current.phase = 'HOLD'
+        animState.current.time = 0
+        onRepComplete()
+      }
+    } 
+    else if (phase === 'HOLD') {
+      targetY = maxHeight
+      
+      // Minimum hold time 1s, OR as long as pointer is down
+      const minHold = 1.0
+      const isHolding = time < minHold || isPointerDownRef.current
+      
+      // Micro-movements breathing at top
+      const isUserHoldingAtTop = isPointerDownRef.current
+      const breath = Math.sin(time * 4) * 0.005
+
+      // When the user "holds it up", gradually add a subtle tremble (fatigue).
+      // Ramp up quickly so it reads as "straining", but keep it tasteful.
+      const trembleRamp = isUserHoldingAtTop ? Math.min(time / 0.6, 1) : 0
+      shakeIntensity = 0.002 + trembleRamp * 0.006
+
+      targetY += breath
+
+      if (!isHolding) {
+        animState.current.phase = 'LOWER'
+        animState.current.time = 0
+      }
+    }
+    else if (phase === 'LOWER') {
+      const duration = 1.8
+      const t = Math.min(time / duration, 1)
+      
+      // Controlled descent (easeInOut)
+      const progress = 1 - (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2)
+      targetY = minHeight + progress * (maxHeight - minHeight)
+
+      if (t >= 1) {
+        animState.current.phase = 'BOTTOM'
+        animState.current.time = 0
+      }
+    }
+    else if (phase === 'BOTTOM') {
+      targetY = minHeight
+      
+      // Impact bounce
+      if (time < 0.3) {
+        targetY -= Math.sin(time * 20) * 0.01 * (1 - time/0.3)
+      }
+
+      // Reset after pause
+      if (time >= 0.8) {
+        animState.current.phase = 'LIFT'
+        animState.current.time = 0
+      }
     }
 
-    groupRef.current.position.y = y
+    // Apply Transform
+    groupRef.current.position.y = targetY
+    
+    // Apply Shake
+    if (shakeIntensity > 0) {
+      // Use deterministic oscillation instead of per-frame randomness to avoid "sparkly" jitter.
+      const wobble =
+        (Math.sin(globalT * 17.3) + Math.sin(globalT * 23.7) * 0.5 + Math.sin(globalT * 31.1) * 0.25) / 1.75
+      const wobbleFast =
+        (Math.sin(globalT * 19.1 + 1.2) + Math.sin(globalT * 29.9 + 0.4) * 0.4 + Math.sin(globalT * 41.7) * 0.2) / 1.6
+
+      // Slightly stronger tremble at lockout when user is holding the pointer down.
+      const isUserHoldingAtTop = phase === 'HOLD' && isPointerDownRef.current
+      const topExtra = isUserHoldingAtTop ? 1.0 : 0.6
+
+      groupRef.current.position.x = wobble * shakeIntensity * 0.9 * topExtra
+      groupRef.current.position.y = targetY + wobbleFast * shakeIntensity * 0.35 * topExtra
+      groupRef.current.rotation.z = wobbleFast * shakeIntensity * 1.8 * topExtra
+      groupRef.current.rotation.x = wobble * shakeIntensity * 0.6 * topExtra
+    } else {
+      groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, 0, 0.1)
+      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0, 0.1)
+      groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, 0, 0.1)
+    }
   })
 
   // Bar dimensions: 2.2m length, 28mm grip, 50mm sleeve
@@ -468,6 +589,7 @@ export function ThreeDemo() {
 
   // Use a simple media query check for "mobile" or "narrow" layout
   const [isNarrow, setIsNarrow] = useState(window.innerWidth < 800)
+  const isPointerDownRef = React.useRef(false)
 
   useEffect(() => {
     const handleResize = () => {
@@ -478,7 +600,12 @@ export function ThreeDemo() {
   }, [])
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative', background: 'transparent' }}>
+    <div 
+      style={{ width: '100%', height: '100%', position: 'relative', background: 'transparent' }}
+      onPointerDown={() => { isPointerDownRef.current = true }}
+      onPointerUp={() => { isPointerDownRef.current = false }}
+      onPointerLeave={() => { isPointerDownRef.current = false }}
+    >
 
       <div style={{
         position: 'absolute',
@@ -575,7 +702,7 @@ export function ThreeDemo() {
                 <planeGeometry args={[15, 15]} />
                 <shadowMaterial transparent opacity={0.35} color="#000000" />
               </mesh>
-              <LiftedWeight onRepComplete={() => setRepCount(c => c + 1)} />
+              <LiftedWeight onRepComplete={() => setRepCount(c => c + 1)} isPointerDownRef={isPointerDownRef} />
             </group>
           </>
         ) : (
@@ -638,7 +765,7 @@ export function ThreeDemo() {
                 far={10}
                 color="#000000"
               />
-              <LiftedWeight onRepComplete={() => setRepCount(c => c + 1)} />
+              <LiftedWeight onRepComplete={() => setRepCount(c => c + 1)} isPointerDownRef={isPointerDownRef} />
             </group>
 
             <EffectComposer multisampling={8}>

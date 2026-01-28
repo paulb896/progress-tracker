@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { Environment, ContactShadows, PerspectiveCamera, MeshReflectorMaterial } from '@react-three/drei'
+import { ContactShadows, PerspectiveCamera, MeshReflectorMaterial } from '@react-three/drei'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment'
 // @ts-ignore
 import { RectAreaLightUniformsLib } from 'three/examples/jsm/lights/RectAreaLightUniformsLib'
@@ -708,7 +708,7 @@ export function ThreeDemo() {
         ) : (
           <>
             {/* --- DESKTOP: HYPER REAL --- */}
-            <Environment preset="city" blur={0.8} />
+            <StudioEnvironment />
             <ambientLight intensity={0.5} />
             <rectAreaLight
               width={5}

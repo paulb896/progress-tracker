@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { SCENARIO_GIFS, resolveScenarioGifUrl, type ScenarioGif } from '../scenarios/scenarioGifs'
+import { DataManagement } from '../components/DataManagement'
 
 type HowToViewProps = {
   onBack: () => void
@@ -155,6 +156,8 @@ export const HowToView = ({ onBack }: HowToViewProps) => {
           </div>
         </div>
       )}
+      
+      <DataManagement />
     </div>
   )
 }

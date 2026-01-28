@@ -3,6 +3,7 @@ import { ThreeDemo } from './ThreeDemo'
 import { usePathRoute } from './app/usePathRoute'
 import { HomeView } from './screens/HomeView'
 import { HowToView } from './screens/HowToView'
+import { StatsView } from './screens/StatsView'
 import { CreateRoutineView } from './screens/CreateRoutineView'
 import { RunRoutineView } from './screens/RunRoutineView'
 import { CompletionDetailView } from './screens/CompletionDetailView'
@@ -33,6 +34,7 @@ function App() {
           completions={completions}
           onCreate={() => navigate({ name: 'create' })}
           onHowTo={() => navigate({ name: 'howto' })}
+          onStats={() => navigate({ name: 'stats' })}
           onEdit={(routineId) => navigate({ name: 'edit', routineId })}
           onRun={(routineId) => navigate({ name: 'run', routineId })}
           onViewCompletion={(completionId) => navigate({ name: 'completed', completionId })}
@@ -53,6 +55,16 @@ function App() {
       {route.name === 'howto' ? (
         <main className="content">
           <HowToView onBack={() => navigate({ name: 'home' })} />
+        </main>
+      ) : null}
+
+      {route.name === 'stats' ? (
+        <main className="content">
+          <StatsView
+            completions={completions}
+            onBack={() => navigate({ name: 'home' })}
+            onViewCompletion={(completionId) => navigate({ name: 'completed', completionId })}
+          />
         </main>
       ) : null}
 

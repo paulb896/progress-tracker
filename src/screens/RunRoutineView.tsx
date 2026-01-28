@@ -3,6 +3,8 @@ import type { Routine } from '../routines/types'
 import { resolveImageUrl } from '../app/resolveImageUrl'
 import { formatDuration } from '../app/formatDuration'
 
+import { PlateCalculatorScene } from '../components/PlateCalculatorScene'
+
 type RunRoutineViewProps = {
   routine: Routine
   onBack: () => void
@@ -60,7 +62,6 @@ const ProgressGauge = ({ doneCount, totalCount, progress }: ProgressGaugeProps) 
     </div>
   )
 }
-
 const adjustOptionalPositiveInt = (current: number | undefined, delta: number): number | undefined => {
   const base = typeof current === 'number' && Number.isFinite(current) ? Math.trunc(current) : 0
   const next = base + delta
@@ -104,6 +105,7 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
   const [expandedByExerciseId, setExpandedByExerciseId] = React.useState<Record<string, boolean>>({})
   const [justCompletedExerciseId, setJustCompletedExerciseId] = React.useState<string | null>(null)
   const [allDonePulse, setAllDonePulse] = React.useState(false)
+  const [plateCalcWeight, setPlateCalcWeight] = React.useState<number | null>(null)
 
   const doneCount = routine.exercises.reduce((acc, ex) => acc + (doneByExerciseId[ex.id] ? 1 : 0), 0)
   const totalCount = routine.exercises.length
@@ -350,6 +352,16 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
                             +
                           </button>
                         </div>
+                        {typeof ex.weight === 'number' && ex.weight >= 45 && (
+                          <button
+                            type="button"
+                            className="textButton smallTextButton"
+                            style={{ marginTop: 8, width: '100%', justifyContent: 'center', fontSize: '0.8rem', opacity: 0.8 }}
+                            onClick={() => setPlateCalcWeight(ex.weight!)}
+                          >
+                            Visualize Plates
+                          </button>
+                        )}
                       </div>
 
                       <div className="runMetaPill">
@@ -398,6 +410,25 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
           })}
         </div>
       </div>
+
+      {plateCalcWeight !== null && (
+        <div className="modalOverlay" onClick={() => setPlateCalcWeight(null)}>
+          <div className="modalContent" onClick={(e) => e.stopPropagation()} style={{ width: '90%', maxWidth: 600, height: 400, padding: 0, overflow: 'hidden', background: '#000' }}>
+            <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10, background: 'rgba(0,0,0,0.6)', padding: '4px 12px', borderRadius: 12, backdropFilter: 'blur(4px)' }}>
+              <span style={{ color: '#fff', fontWeight: 600 }}>{plateCalcWeight} lbs</span>
+            </div>
+            <button 
+              type="button" 
+              className="iconButton" 
+              onClick={() => setPlateCalcWeight(null)}
+              style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, background: 'rgba(0,0,0,0.6)', color: '#fff' }}
+            >
+              ✕
+            </button>
+            <PlateCalculatorScene targetWeight={plateCalcWeight} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

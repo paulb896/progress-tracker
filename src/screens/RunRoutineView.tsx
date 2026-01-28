@@ -105,7 +105,7 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
   const [expandedByExerciseId, setExpandedByExerciseId] = React.useState<Record<string, boolean>>({})
   const [justCompletedExerciseId, setJustCompletedExerciseId] = React.useState<string | null>(null)
   const [allDonePulse, setAllDonePulse] = React.useState(false)
-  const [plateCalcWeight, setPlateCalcWeight] = React.useState<number | null>(null)
+  const [plateCalcExerciseId, setPlateCalcExerciseId] = React.useState<string | null>(null)
 
   const doneCount = routine.exercises.reduce((acc, ex) => acc + (doneByExerciseId[ex.id] ? 1 : 0), 0)
   const totalCount = routine.exercises.length
@@ -357,7 +357,7 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
                             type="button"
                             className="textButton smallTextButton"
                             style={{ marginTop: 8, width: '100%', justifyContent: 'center', fontSize: '0.8rem', opacity: 0.8 }}
-                            onClick={() => setPlateCalcWeight(ex.weight!)}
+                            onClick={() => setPlateCalcExerciseId(ex.id)}
                           >
                             Visualize Plates
                           </button>
@@ -411,24 +411,69 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
         </div>
       </div>
 
-      {plateCalcWeight !== null && (
-        <div className="modalOverlay" onClick={() => setPlateCalcWeight(null)}>
-          <div className="modalContent" onClick={(e) => e.stopPropagation()} style={{ width: '90%', maxWidth: 600, height: 400, padding: 0, overflow: 'hidden', background: '#000' }}>
-            <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10, background: 'rgba(0,0,0,0.6)', padding: '4px 12px', borderRadius: 12, backdropFilter: 'blur(4px)' }}>
-              <span style={{ color: '#fff', fontWeight: 600 }}>{plateCalcWeight} lbs</span>
+      {plateCalcExerciseId !== null && (() => {
+        const exercise = routine.exercises.find((e) => e.id === plateCalcExerciseId)
+        if (!exercise || typeof exercise.weight !== 'number') return null
+        
+        return (
+          <div className="modalOverlay" onClick={() => setPlateCalcExerciseId(null)}>
+            <div className="modalContent" onClick={(e) => e.stopPropagation()} style={{ width: '90%', maxWidth: 600, height: 400, padding: 0, overflow: 'hidden', background: '#000' }}>
+              
+              {/* Header Controls */}
+              <div className="plateCalcControls">
+                <div className="plateCalcPanel">
+                   <div className="plateCalcWeight">
+                      {exercise.weight} <span className="unit">LBS</span>
+                   </div>
+                   
+                   <div className="plateCalcButtonGroup">
+                      <button
+                        type="button"
+                        className="plateCalcBtn"
+                        onClick={() => updateExerciseMeta(exercise.id, { weight: adjustOptionalPositiveNumber(exercise.weight, -5) })}
+                        disabled={exercise.weight <= 5}
+                      >
+                        -5
+                      </button>
+                      <button
+                        type="button"
+                        className="plateCalcBtn"
+                        onClick={() => updateExerciseMeta(exercise.id, { weight: adjustOptionalPositiveNumber(exercise.weight, -1) })}
+                        disabled={exercise.weight <= 1}
+                      >
+                        -1
+                      </button>
+                      <button
+                        type="button"
+                        className="plateCalcBtn"
+                        onClick={() => updateExerciseMeta(exercise.id, { weight: adjustOptionalPositiveNumber(exercise.weight, 1) })}
+                      >
+                        +1
+                      </button>
+                      <button
+                        type="button"
+                        className="plateCalcBtn"
+                        onClick={() => updateExerciseMeta(exercise.id, { weight: adjustOptionalPositiveNumber(exercise.weight, 5) })}
+                      >
+                        +5
+                      </button>
+                   </div>
+                </div>
+
+                <button 
+                  type="button" 
+                  className="plateCalcClose" 
+                  onClick={() => setPlateCalcExerciseId(null)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <PlateCalculatorScene targetWeight={exercise.weight} />
             </div>
-            <button 
-              type="button" 
-              className="iconButton" 
-              onClick={() => setPlateCalcWeight(null)}
-              style={{ position: 'absolute', top: 16, right: 16, zIndex: 10, background: 'rgba(0,0,0,0.6)', color: '#fff' }}
-            >
-              ✕
-            </button>
-            <PlateCalculatorScene targetWeight={plateCalcWeight} />
           </div>
-        </div>
-      )}
+        )
+      })()}
     </div>
   )
 }

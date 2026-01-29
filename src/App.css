@@ -2543,3 +2543,264 @@
     font-size: 13px;
   }
 }
+
+/* -------------------------
+   HOME STATS (INFO HUB)
+   ------------------------- */
+
+.infoContainer {
+  margin-bottom: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 32px;
+  align-items: center;
+  position: relative;
+}
+
+/* SVG Connection Layer */
+.infoConnections {
+  position: absolute;
+  top: 0;
+  left: 150px;
+  width: 180px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+.infoLine {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 2;
+  transition: all 0.3s ease;
+  stroke-dasharray: 10;
+  opacity: 0.3;
+}
+
+.infoLine.active {
+  stroke: var(--accent);
+  stroke-width: 3;
+  opacity: 1;
+  stroke-dasharray: 0;
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+
+.infoLine.dimmed {
+  opacity: 0.1;
+}
+
+/* Central Hub */
+.infoHubWrapper {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.infoHub {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.infoHub:hover {
+  transform: scale(1.05);
+  border-color: var(--accent-soft);
+}
+
+.infoHub.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 32px rgba(45, 212, 191, 0.2);
+}
+
+.infoHubRing {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  animation: spin 60s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.infoHubInner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.infoHubIconWrapper {
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.infoHubValue {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.infoHubLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.infoHubGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.infoHubGlow.active {
+  opacity: 1;
+  width: 180%;
+  height: 180%;
+}
+
+/* Cards Column */
+.infoCardsCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.infoCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.infoCard:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px);
+}
+
+.infoCard.active, 
+.infoCard.selected {
+  background: var(--surface-2);
+  border-color: var(--accent-soft);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.infoCardIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  transition: all 0.2s ease;
+}
+
+.infoCard.active .infoCardIcon,
+.infoCard:hover .infoCardIcon {
+  background: var(--accent);
+  color: #000;
+}
+
+/* Card Variants (for slight accent hints if desired) */
+.infoCardPink.active .infoCardIcon { background: #f472b6; }
+.infoCardPurple.active .infoCardIcon { background: #a78bfa; }
+.infoCardOrange.active .infoCardIcon { background: #fb923c; }
+.infoCardTeal.active .infoCardIcon { background: #2dd4bf; }
+
+.infoCardContent {
+  flex: 1;
+}
+
+.infoCardLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.infoCardValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.infoCardValue .unit {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .infoConnections {
+    display: none; /* Hide SVG lines on mobile as layout changes */
+  }
+  
+  .infoHubWrapper {
+    margin-bottom: 0;
+  }
+  
+  .infoCardsCol {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .infoCardsCol {
+    grid-template-columns: 1fr;
+  }
+}

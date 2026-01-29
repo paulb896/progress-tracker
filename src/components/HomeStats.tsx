@@ -143,18 +143,17 @@ export const HomeStats = ({ completions }: { completions: RoutineCompletion[] })
         {/* Central Hub */}
         <div className="infoHubWrapper" onClick={() => setSelectedIndex(null)}>
            <div className={`infoHub ${isHubActive ? 'active' : ''}`}>
-             <div className="infoHubRing">
-               <div className="infoHubInner">
-                 <div className="infoHubIconWrapper">
-                   <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                     {hubContent.icon}
-                   </div>
+             <div className="infoHubRing"></div>
+             <div className="infoHubInner">
+               <div className="infoHubIconWrapper">
+                 <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                   {hubContent.icon}
                  </div>
-                 <div className="infoHubValue" key={hubContent.label}>
-                    <CountUp value={hubContent.value} />
-                 </div>
-                 <div className="infoHubLabel">{hubContent.label}</div>
                </div>
+               <div className="infoHubValue" key={hubContent.label}>
+                  <CountUp value={hubContent.value} />
+               </div>
+               <div className="infoHubLabel">{hubContent.label}</div>
              </div>
            </div>
            
@@ -162,22 +161,24 @@ export const HomeStats = ({ completions }: { completions: RoutineCompletion[] })
            <div className={`infoHubGlow ${isHubActive ? 'active' : ''}`} />
         </div>
         
-        {/* Connecting Lines SVG Layer - Moved to Grid container level */}
-        <svg className="infoConnections" viewBox="0 0 400 300" preserveAspectRatio="none">
+        {/* Connecting Lines SVG Layer */}
+        {/* We use a narrower viewBox to span the gap between hub and cards */}
+        <svg className="infoConnections" viewBox="0 0 200 300" preserveAspectRatio="none">
+           {/* Paths start at X=0 (hub center relative to SVG) and end at X=200 (cards start) */}
            <path 
-             d="M 180 150 C 230 150, 230 50, 280 50" 
+             d="M 0 150 C 100 150, 100 50, 200 50" 
              className={`infoLine ${activeIndex === 0 ? 'active' : ''} ${activeIndex !== null && activeIndex !== 0 ? 'dimmed' : ''}`} 
            />
            <path 
-             d="M 180 150 C 230 150, 230 115, 280 115" 
+             d="M 0 150 C 100 150, 100 115, 200 115" 
              className={`infoLine ${activeIndex === 1 ? 'active' : ''} ${activeIndex !== null && activeIndex !== 1 ? 'dimmed' : ''}`} 
            />
            <path 
-             d="M 180 150 C 230 150, 230 185, 280 185" 
+             d="M 0 150 C 100 150, 100 185, 200 185" 
              className={`infoLine ${activeIndex === 2 ? 'active' : ''} ${activeIndex !== null && activeIndex !== 2 ? 'dimmed' : ''}`} 
            />
            <path 
-             d="M 180 150 C 230 150, 230 250, 280 250" 
+             d="M 0 150 C 100 150, 100 250, 200 250" 
              className={`infoLine ${activeIndex === 3 ? 'active' : ''} ${activeIndex !== null && activeIndex !== 3 ? 'dimmed' : ''}`} 
            />
         </svg>

@@ -1,5 +1,6 @@
 import type { RoutineCompletion } from '../completions/types'
 import { HomeStats } from '../components/HomeStats'
+import { MuscleHeatmap } from '../components/MuscleHeatmap'
 import { ProgressCharts } from '../components/ProgressCharts'
 import { RecentActivity } from '../components/RecentActivity'
 
@@ -28,6 +29,7 @@ export const StatsView = ({ completions, onBack, onViewCompletion }: StatsViewPr
 
       <div style={{ display: 'grid', gap: 32 }}>
         <HomeStats completions={completions} />
+        <MuscleHeatmap completions={completions} />
         <ProgressCharts completions={completions} />
         <RecentActivity completions={completions} onViewCompletion={onViewCompletion} />
       </div>

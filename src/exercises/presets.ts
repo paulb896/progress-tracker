@@ -45,4 +45,10 @@ export const EXERCISE_PRESETS: ExercisePreset[] = [
   { name: 'Wall sit', imageUrl: 'exercises/wall-sit.webp', muscles: ['Quads', 'Core'] },
   { name: 'Superman', imageUrl: 'exercises/superman.webp', muscles: ['Back', 'Glutes'] },
   { name: 'Planks', imageUrl: 'exercises/planks.webp', muscles: ['Core'] },
+  { name: 'Dumbbell row', imageUrl: 'exercises/dumbbell-row.webp', muscles: ['Back', 'Biceps'] },
+  { name: 'Pullover cable', imageUrl: 'exercises/pullover-cable.jpg', muscles: ['Back', 'Chest'] },
+  { name: 'Seated row isometric', imageUrl: 'exercises/seated-row-isometric.webp', muscles: ['Back', 'Biceps'] },
+  { name: 'Lateral raise + Frontal raise super set', imageUrl: 'exercises/lateral-raise-frontal-raise.webp', muscles: ['Shoulders'] },
+  { name: 'Shoulder press + Reverse fly super set', imageUrl: 'exercises/shoulder-press-dumbbell.webp', muscles: ['Shoulders', 'Back', 'Triceps'] },
+  { name: 'Overhead triceps cable', imageUrl: 'exercises/triceps-cable.webp', muscles: ['Triceps'] },
 ]

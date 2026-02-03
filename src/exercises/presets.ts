@@ -47,8 +47,11 @@ export const EXERCISE_PRESETS: ExercisePreset[] = [
   { name: 'Planks', imageUrl: 'exercises/planks.webp', muscles: ['Core'] },
   { name: 'Dumbbell row', imageUrl: 'exercises/dumbbell-row.webp', muscles: ['Back', 'Biceps'] },
   { name: 'Pullover cable', imageUrl: 'exercises/pullover-cable.jpg', muscles: ['Back', 'Chest'] },
-  { name: 'Seated row isometric', imageUrl: 'exercises/seated-row-isometric.webp', muscles: ['Back', 'Biceps'] },
-  { name: 'Lateral raise + Frontal raise super set', imageUrl: 'exercises/lateral-raise-frontal-raise.webp', muscles: ['Shoulders'] },
+  { name: 'Seated row isometric', imageUrl: 'exercises/rowing-machine.webp', muscles: ['Back', 'Biceps'] },
+  { name: 'Lateral raise + Frontal raise super set', imageUrl: 'exercises/lateral-raise.webp', muscles: ['Shoulders'] },
   { name: 'Shoulder press + Reverse fly super set', imageUrl: 'exercises/shoulder-press-dumbbell.webp', muscles: ['Shoulders', 'Back', 'Triceps'] },
   { name: 'Overhead triceps cable', imageUrl: 'exercises/triceps-cable.webp', muscles: ['Triceps'] },
+  { name: 'Step Ups', imageUrl: 'step-ups.webp', muscles: ['Quads', 'Hamstrings'] },
+  { name: 'Squats with Smith', imageUrl: 'step-ups.webp', muscles: ['Quads', 'Hamstrings'] },
+  { name: 'reverse fly + face pull super set', imageUrl: 'exercises/reverse-fly.webp', muscles: ['Back', 'Shoulders']},
 ]

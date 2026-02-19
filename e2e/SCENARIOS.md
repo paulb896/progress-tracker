@@ -227,6 +227,19 @@ If the product changes, update this document first, then update/extend Playwrigh
   - When the exercise is expanded
   - Then the reference images are shown as thumbnails
 
+- Scenario: Start a routine, go back, and resume it from the workout bubble
+  - Given I started a routine run
+  - When I navigate to another page
+  - Then a floating "Resume workout" bubble is visible
+  - And clicking the bubble returns me to the same routine run
+  - And previously checked exercises are still checked
+
+- Scenario: Cancel active workout clears resumable state
+  - Given I started a routine run
+  - When I cancel the workout
+  - Then the active workout is cleared
+  - And the resume workout bubble is no longer visible
+
 ### Feature: Completion History
 
 - Scenario: Completing a routine creates a completion record

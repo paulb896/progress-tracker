@@ -295,4 +295,91 @@ test.describe('Progress Tracker — BDD scenarios', () => {
       await pauseIfGif(page)
     })
   })
+
+  test('Scenario: Start a routine, go back, and resume it from the workout bubble', async ({ page }) => {
+    await test.step('Given I started a routine run and checked an exercise', async () => {
+      const m = createMouseHelpers(page)
+      await page.goto('/')
+      await pauseIfGif(page)
+
+      await m.click(page.getByRole('button', { name: 'Start New Routine' }))
+      await pauseIfGif(page)
+      await m.fill(page.getByLabel('Routine name'), 'Resume Bubble Routine')
+      await pauseIfGif(page, 300)
+
+      const exerciseNameInputs = page.getByPlaceholder('Exercise name (e.g., Push-ups)')
+      await m.fill(exerciseNameInputs.nth(0), 'Bench Press')
+      await m.click(page.getByRole('button', { name: 'Add exercise' }))
+      await m.fill(exerciseNameInputs.nth(1), 'Planks')
+      await m.click(page.getByRole('button', { name: 'Save routine' }))
+      await pauseIfGif(page)
+
+      await m.check(page.getByRole('checkbox', { name: /Mark Bench Press done/ }))
+      await expect(page.getByRole('checkbox', { name: /Mark Bench Press not done/ })).toBeChecked()
+    })
+
+    await test.step('When I navigate to another page, I see a resume bubble', async () => {
+      const m = createMouseHelpers(page)
+      await m.click(page.getByRole('button', { name: 'Go back' }))
+      await pauseIfGif(page)
+
+      const resumeBubble = page.getByRole('button', { name: /Resume active workout: Resume Bubble Routine/ })
+      await expect(resumeBubble).toBeVisible()
+
+      await m.click(page.getByRole('button', { name: 'Progress Stats' }))
+      await pauseIfGif(page)
+      await expect(resumeBubble).toBeVisible()
+    })
+
+    await test.step('Then clicking the bubble returns to the same run with progress intact', async () => {
+      const m = createMouseHelpers(page)
+      const resumeBubble = page.getByRole('button', { name: /Resume active workout: Resume Bubble Routine/ })
+      await m.click(resumeBubble)
+      await pauseIfGif(page)
+
+      await expect(page.getByText('Active Session')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Resume Bubble Routine' })).toBeVisible()
+      await expect(page.getByRole('checkbox', { name: /Mark Bench Press not done/ })).toBeChecked()
+      await expect(page.getByRole('checkbox', { name: /Mark Planks done/ })).not.toBeChecked()
+    })
+  })
+
+  test('Scenario: Cancel active workout clears resumable state', async ({ page }) => {
+    await test.step('Given I started a routine run with progress', async () => {
+      const m = createMouseHelpers(page)
+      await page.goto('/')
+
+      await m.click(page.getByRole('button', { name: 'Start New Routine' }))
+      await m.fill(page.getByLabel('Routine name'), 'Cancelable Routine')
+
+      const exerciseNameInputs = page.getByPlaceholder('Exercise name (e.g., Push-ups)')
+      await m.fill(exerciseNameInputs.nth(0), 'Bench Press')
+      await m.click(page.getByRole('button', { name: 'Add exercise' }))
+      await m.fill(exerciseNameInputs.nth(1), 'Planks')
+      await m.click(page.getByRole('button', { name: 'Save routine' }))
+
+      await m.check(page.getByRole('checkbox', { name: /Mark Bench Press done/ }))
+      await expect(page.getByRole('checkbox', { name: /Mark Bench Press not done/ })).toBeChecked()
+    })
+
+    await test.step('When I cancel from the floating bubble, state is cleared', async () => {
+      const m = createMouseHelpers(page)
+      await m.click(page.getByRole('button', { name: 'Go back' }))
+
+      const resumeBubble = page.getByRole('button', { name: /Resume active workout: Cancelable Routine/ })
+      const cancelBubbleButton = page.getByRole('button', { name: /Cancel active workout: Cancelable Routine/ })
+
+      await expect(resumeBubble).toBeVisible()
+      await m.click(cancelBubbleButton)
+
+      await expect(resumeBubble).not.toBeVisible()
+    })
+
+    await test.step('Then restarting the routine begins with unchecked exercises', async () => {
+      const m = createMouseHelpers(page)
+      await m.click(page.getByText('Cancelable Routine').first())
+      await expect(page.getByRole('heading', { name: 'Cancelable Routine' })).toBeVisible()
+      await expect(page.getByRole('checkbox', { name: /Mark Bench Press done/ })).not.toBeChecked()
+    })
+  })
 })

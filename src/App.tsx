@@ -1,3 +1,4 @@
+import React from 'react'
 import './App.css'
 import { ThreeDemo } from './ThreeDemo'
 import { usePathRoute } from './app/usePathRoute'
@@ -11,19 +12,51 @@ import { useRoutines } from './routines/useRoutines'
 import { useCompletions } from './completions/useCompletions'
 import { makeId } from './routines/id'
 import { ScenarioGifCursor } from './components/ScenarioGifCursor'
+import { useCurrentWorkout } from './workout/useCurrentWorkout'
 
 function App() {
   const { route, navigate } = usePathRoute()
   const { routines, upsertRoutine, deleteRoutine } = useRoutines()
   const { completions, addCompletion, removeCompletion, updateCompletion } = useCompletions()
+  const { currentWorkout, startWorkout, updateWorkoutProgress, clearCurrentWorkout } = useCurrentWorkout()
 
   const routineForRun = route.name === 'run' ? routines.find((r) => r.id === route.routineId) ?? null : null
   const routineForEdit = route.name === 'edit' ? routines.find((r) => r.id === route.routineId) ?? null : null
+  const activeWorkoutRoutine = currentWorkout ? routines.find((r) => r.id === currentWorkout.routineId) ?? null : null
   const completionHistoryForEdit = routineForEdit ? completions.filter((c) => c.routineId === routineForEdit.id) : []
   const completionForView =
     route.name === 'completed' ? completions.find((c) => c.id === route.completionId) ?? null : null
 
   const isWide = route.name === 'run'
+  const activeWorkoutDoneCount = activeWorkoutRoutine
+    ? activeWorkoutRoutine.exercises.reduce((acc, ex) => acc + (currentWorkout?.doneByExerciseId[ex.id] ? 1 : 0), 0)
+    : 0
+  const activeWorkoutTotalCount = activeWorkoutRoutine?.exercises.length ?? 0
+  const showActiveWorkoutBubble = route.name !== 'run' && !!activeWorkoutRoutine
+
+  const cancelCurrentWorkout = React.useCallback(() => {
+    clearCurrentWorkout()
+    navigate({ name: 'home' })
+  }, [clearCurrentWorkout, navigate])
+
+  React.useEffect(() => {
+    if (route.name !== 'run') return
+
+    if (routineForRun) {
+      startWorkout(routineForRun.id)
+      return
+    }
+
+    if (currentWorkout?.routineId === route.routineId) {
+      clearCurrentWorkout()
+    }
+  }, [clearCurrentWorkout, currentWorkout, route, routineForRun, startWorkout])
+
+  React.useEffect(() => {
+    if (currentWorkout && !activeWorkoutRoutine) {
+      clearCurrentWorkout()
+    }
+  }, [activeWorkoutRoutine, clearCurrentWorkout, currentWorkout])
 
   return (
     <div className={`app ${isWide ? 'app--wide' : ''}`}>
@@ -40,6 +73,9 @@ function App() {
           onViewCompletion={(completionId) => navigate({ name: 'completed', completionId })}
           onDelete={(routineId) => {
             deleteRoutine(routineId)
+            if (currentWorkout?.routineId === routineId) {
+              clearCurrentWorkout()
+            }
             navigate({ name: 'home' })
           }}
           headerRight={
@@ -114,6 +150,7 @@ function App() {
             <RunRoutineView
               routine={routineForRun}
               onBack={() => navigate({ name: 'home' })}
+              onCancelWorkout={cancelCurrentWorkout}
               onComplete={() => {
                 addCompletion({
                   id: makeId(),
@@ -123,9 +160,13 @@ function App() {
                   exercises: routineForRun.exercises,
                   completedAt: new Date().toISOString(),
                 })
-                navigate({ name: 'home' })
+                cancelCurrentWorkout()
               }}
               onUpdateRoutine={(nextRoutine) => upsertRoutine(nextRoutine)}
+              initialDoneByExerciseId={
+                currentWorkout?.routineId === routineForRun.id ? currentWorkout.doneByExerciseId : {}
+              }
+              onDoneByExerciseIdChange={(doneByExerciseId) => updateWorkoutProgress(routineForRun.id, doneByExerciseId)}
             />
           ) : (
             <div className="panel">
@@ -171,6 +212,35 @@ function App() {
             </div>
           )}
         </main>
+      ) : null}
+
+      {showActiveWorkoutBubble && activeWorkoutRoutine ? (
+        <div className="currentWorkoutBubble" role="group" aria-label="Active workout actions">
+          <button
+            type="button"
+            className="currentWorkoutBubbleResume"
+            aria-label={`Resume active workout: ${activeWorkoutRoutine.name}`}
+            onClick={() => navigate({ name: 'run', routineId: activeWorkoutRoutine.id })}
+          >
+            <span className="currentWorkoutBubbleLabel">Resume workout</span>
+            <span className="currentWorkoutBubbleName">{activeWorkoutRoutine.name}</span>
+            <span className="currentWorkoutBubbleMeta">
+              {activeWorkoutDoneCount}/{activeWorkoutTotalCount} complete
+            </span>
+          </button>
+          <button
+            type="button"
+            className="currentWorkoutBubbleCancel"
+            onClick={() => {
+              const ok = window.confirm(`Cancel workout "${activeWorkoutRoutine.name}"? Your current progress will be lost.`)
+              if (!ok) return
+              cancelCurrentWorkout()
+            }}
+            aria-label={`Cancel active workout: ${activeWorkoutRoutine.name}`}
+          >
+            Cancel workout
+          </button>
+        </div>
       ) : null}
     </div>
   )

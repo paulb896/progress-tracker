@@ -18,6 +18,87 @@
   padding: 32px 48px; /* Slightly wider padding on large screens */
 }
 
+.currentWorkoutBubble {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 160;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 22%, transparent), transparent 72%),
+    var(--surface-glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  min-width: 210px;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
+}
+
+.currentWorkoutBubble:hover {
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border));
+}
+
+.currentWorkoutBubbleResume {
+  border: none;
+  background: transparent;
+  text-align: left;
+  color: var(--text);
+  display: grid;
+  gap: 2px;
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.currentWorkoutBubbleResume:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.currentWorkoutBubbleLabel {
+  color: var(--accent-hover);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.currentWorkoutBubbleName {
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.currentWorkoutBubbleMeta {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.currentWorkoutBubbleCancel {
+  width: 100%;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, var(--border));
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--danger-soft) 70%, transparent);
+  color: var(--danger);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.currentWorkoutBubbleCancel:hover {
+  background: color-mix(in srgb, var(--danger-soft) 100%, transparent);
+}
+
+@media (max-width: 700px) {
+  .currentWorkoutBubble {
+    right: 12px;
+    bottom: 12px;
+    max-width: calc(100vw - 24px);
+  }
+}
+
 .content {
   display: grid;
   gap: 24px;
@@ -1729,6 +1810,21 @@
 
 .runHeaderContent {
   flex: 1;
+}
+
+.runHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+@media (max-width: 760px) {
+  .runHeaderActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
 .runPageTitle {

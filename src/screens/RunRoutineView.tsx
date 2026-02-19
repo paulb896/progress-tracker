@@ -9,7 +9,10 @@ type RunRoutineViewProps = {
   routine: Routine
   onBack: () => void
   onComplete: () => void
+  onCancelWorkout?: () => void
   onUpdateRoutine: (routine: Routine) => void
+  initialDoneByExerciseId?: DoneState
+  onDoneByExerciseIdChange?: (doneByExerciseId: DoneState) => void
 }
 
 type DoneState = Record<string, boolean>
@@ -100,8 +103,34 @@ const ChevronRight = () => (
   </svg>
 )
 
-export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }: RunRoutineViewProps) => {
-  const [doneByExerciseId, setDoneByExerciseId] = React.useState<DoneState>({})
+const normalizeDoneState = (doneByExerciseId: DoneState, routine: Routine): DoneState => {
+  const allowedIds = new Set(routine.exercises.map((ex) => ex.id))
+  const next: DoneState = {}
+  for (const [exerciseId, done] of Object.entries(doneByExerciseId)) {
+    if (allowedIds.has(exerciseId) && done) next[exerciseId] = true
+  }
+  return next
+}
+
+const areDoneStatesEqual = (a: DoneState, b: DoneState): boolean => {
+  const aKeys = Object.keys(a)
+  const bKeys = Object.keys(b)
+  if (aKeys.length !== bKeys.length) return false
+  return aKeys.every((key) => a[key] === b[key])
+}
+
+export const RunRoutineView = ({
+  routine,
+  onBack,
+  onComplete,
+  onCancelWorkout,
+  onUpdateRoutine,
+  initialDoneByExerciseId = {},
+  onDoneByExerciseIdChange,
+}: RunRoutineViewProps) => {
+  const [doneByExerciseId, setDoneByExerciseId] = React.useState<DoneState>(() =>
+    normalizeDoneState(initialDoneByExerciseId, routine)
+  )
   const [expandedByExerciseId, setExpandedByExerciseId] = React.useState<Record<string, boolean>>({})
   const [justCompletedExerciseId, setJustCompletedExerciseId] = React.useState<string | null>(null)
   const [allDonePulse, setAllDonePulse] = React.useState(false)
@@ -129,6 +158,12 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
 
   const reset = () => setDoneByExerciseId({})
 
+  const cancelWorkout = () => {
+    const ok = window.confirm(`Cancel workout "${routine.name}"? Your current progress will be lost.`)
+    if (!ok) return
+    onCancelWorkout?.()
+  }
+
   const updateExerciseMeta = React.useCallback(
     (
       exerciseId: string,
@@ -142,6 +177,15 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
 
   const nextUndone = routine.exercises.find((ex) => !doneByExerciseId[ex.id]) ?? null
   const allDone = totalCount > 0 && doneCount === totalCount
+
+  React.useEffect(() => {
+    const normalized = normalizeDoneState(initialDoneByExerciseId, routine)
+    setDoneByExerciseId((prev) => (areDoneStatesEqual(prev, normalized) ? prev : normalized))
+  }, [initialDoneByExerciseId, routine])
+
+  React.useEffect(() => {
+    onDoneByExerciseIdChange?.(doneByExerciseId)
+  }, [doneByExerciseId, onDoneByExerciseIdChange])
 
   React.useEffect(() => {
     if (!justCompletedExerciseId) return
@@ -166,9 +210,14 @@ export const RunRoutineView = ({ routine, onBack, onComplete, onUpdateRoutine }:
            <div className="heroBadge">Active Session</div>
            <h1 className="runPageTitle textGradient">{routine.name}</h1>
         </div>
-        <button type="button" className="button secondary" onClick={reset}>
-          Reset
-        </button>
+        <div className="runHeaderActions">
+          <button type="button" className="button secondary" onClick={reset}>
+            Reset
+          </button>
+          <button type="button" className="button danger" onClick={cancelWorkout}>
+            Cancel workout
+          </button>
+        </div>
       </header>
 
       <div className="panel glassPanel runMainPanel">

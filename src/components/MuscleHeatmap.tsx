@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Html, RoundedBox, Sphere, Cylinder, Environment, ContactShadows, Decal } from '@react-three/drei'
+import { OrbitControls, Html, Environment, ContactShadows, Decal } from '@react-three/drei'
 import * as THREE from 'three'
 import type { RoutineCompletion } from '../completions/types'
 import { EXERCISE_PRESETS, type MuscleGroup } from '../exercises/presets'
 
-const VERSION_LABEL = "v3.8"
+const VERSION_LABEL = "v4.0"
 
 // --- Atlas mask textures ---
 type AtlasMaskKind = 'roundedRect' | 'capsule' | 'trapezoid' | 'kite' | 'pec' | 'teardrop'
@@ -240,171 +240,387 @@ const MuscleDecal = ({ muscle, completions, position, rotation, scale, labelOffs
   )
 }
 
-const HumanModel = ({ completions }: { completions: RoutineCompletion[] }) => {
-  const geo = useMemo(() => ({
-    upperArm: new THREE.CapsuleGeometry(0.055, 0.19, 16, 48),
-    forearmCone: new THREE.CylinderGeometry(0.048, 0.032, 0.22, 24),
-    elbowCap: new THREE.SphereGeometry(0.048, 24, 16),
-    wristCap: new THREE.SphereGeometry(0.032, 24, 16),
-    thigh: new THREE.CapsuleGeometry(0.075, 0.28, 16, 56),
-    calf: new THREE.CapsuleGeometry(0.06, 0.22, 16, 56),
-    torso: new THREE.CapsuleGeometry(0.158, 0.60, 22, 72),
-  }), [])
+// --- Procedural geometry helpers ---
 
-  // COORDINATE SYSTEM AUDIT (v3.4)
-  // Standard Height: ~1.75m
-  // HEAD: Top at 1.83m, Center at 1.72m
-  // NECK: Connection ~1.60m
-  // SHOULDERS: Clavicle height ~1.52m
-  // TORSO: Center 1.12m, Top 1.56m, Bottom 0.68m
-  // ARMS: Shoulder Joint at 1.50m
-  // HIPS: Center 0.86m (overlap torso bottom)
-  // LEGS: Hip Joint 0.80m, Knee 0.45m, Ankle 0.08m
+/** Create a LatheGeometry from a profile of [radius, height] pairs. 
+ *  Optionally scale X/Z independently for non-circular cross-sections. */
+const createLatheBodyPart = (
+  profile: [number, number][],
+  segments: number = 48,
+  scaleX: number = 1,
+  scaleZ: number = 1
+): THREE.LatheGeometry => {
+  const points = profile.map(([r, y]) => new THREE.Vector2(r, y))
+  const geo = new THREE.LatheGeometry(points, segments)
+  // Apply non-uniform scale baked into vertices for elliptical cross-section
+  if (scaleX !== 1 || scaleZ !== 1) {
+    const pos = geo.attributes.position
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i)
+      const z = pos.getZ(i)
+      const angle = Math.atan2(z, x)
+      const r = Math.sqrt(x * x + z * z)
+      pos.setX(i, Math.cos(angle) * r * scaleX)
+      pos.setZ(i, Math.sin(angle) * r * scaleZ)
+    }
+    pos.needsUpdate = true
+    geo.computeVertexNormals()
+  }
+  return geo
+}
+
+const BODY_MAT_PROPS = { color: '#2a2a2a', roughness: 0.55, metalness: 0.05 } as const
+
+const HumanModel = ({ completions }: { completions: RoutineCompletion[] }) => {
+  const geo = useMemo(() => {
+    // --- TORSO: Sculpted ribcage → waist → hip profile ---
+    // Profile: [radius, height] from bottom (pelvis) to top (collar)
+    const torsoProfile: [number, number][] = [
+      [0.00, -0.42],  // Bottom point (crotch closure)
+      [0.10, -0.40],  // Lower pelvis
+      [0.145, -0.34], // Hip widest
+      [0.14, -0.28],  // Hip
+      [0.125, -0.20], // Upper hip / iliac crest
+      [0.105, -0.12], // Waist narrowest
+      [0.110, -0.04], // Lower ribs start
+      [0.125, 0.04],  // Ribs expanding
+      [0.145, 0.12],  // Mid ribcage
+      [0.155, 0.20],  // Upper chest widest (nipple line)
+      [0.150, 0.28],  // Upper chest
+      [0.135, 0.34],  // Clavicle area
+      [0.10, 0.38],   // Shoulder base narrowing
+      [0.065, 0.42],  // Neck base
+      [0.00, 0.44],   // Top closure
+    ]
+    const torso = createLatheBodyPart(torsoProfile, 64, 1.0, 0.72)
+
+    // --- PELVIS / HIPS: Wider, flatter shape ---
+    const pelvisProfile: [number, number][] = [
+      [0.00, -0.10],
+      [0.13, -0.08],
+      [0.155, -0.04],
+      [0.16, 0.00],
+      [0.155, 0.04],
+      [0.13, 0.07],
+      [0.00, 0.09],
+    ]
+    const pelvis = createLatheBodyPart(pelvisProfile, 48, 1.0, 0.78)
+
+    // --- HEAD: Clean smooth mannequin head ---
+    const headProfile: [number, number][] = [
+      [0.00, -0.09],  // Chin
+      [0.040, -0.075],
+      [0.065, -0.05],
+      [0.082, -0.02],
+      [0.092, 0.01],
+      [0.096, 0.04],
+      [0.098, 0.07],  // Widest
+      [0.096, 0.10],
+      [0.090, 0.13],
+      [0.080, 0.16],
+      [0.065, 0.185],
+      [0.042, 0.205],
+      [0.00, 0.215],  // Top
+    ]
+    // Slightly narrower side-to-side, slightly deeper front-to-back
+    const head = createLatheBodyPart(headProfile, 48, 0.86, 1.0)
+
+    // --- NECK: Anatomical cylinder with SCM taper ---
+    const neckProfile: [number, number][] = [
+      [0.00, -0.08],
+      [0.052, -0.07],
+      [0.055, -0.04],
+      [0.050, 0.00],
+      [0.046, 0.04],
+      [0.043, 0.07],
+      [0.00, 0.08],
+    ]
+    const neck = createLatheBodyPart(neckProfile, 32, 1.0, 0.88)
+
+    // --- UPPER ARM: Subtle muscle belly ---
+    const upperArmProfile: [number, number][] = [
+      [0.00, -0.155],
+      [0.042, -0.14],
+      [0.052, -0.10],
+      [0.058, -0.04], // Belly of bicep/tricep
+      [0.060, 0.00],  // Thickest at mid
+      [0.058, 0.04],
+      [0.053, 0.08],
+      [0.048, 0.12],  // Deltoid insertion taper
+      [0.044, 0.14],
+      [0.00, 0.155],
+    ]
+    const upperArm = createLatheBodyPart(upperArmProfile, 32, 1.0, 0.92)
+
+    // --- FOREARM: Tapered with brachioradialis bulge ---
+    const forearmProfile: [number, number][] = [
+      [0.00, -0.135],
+      [0.028, -0.12],  // Wrist
+      [0.032, -0.08],
+      [0.036, -0.04],
+      [0.041, 0.00],
+      [0.047, 0.04],   // Brachioradialis belly
+      [0.050, 0.08],   // Near elbow - thickest
+      [0.048, 0.10],
+      [0.044, 0.12],
+      [0.00, 0.135],
+    ]
+    const forearm = createLatheBodyPart(forearmProfile, 28, 1.0, 0.88)
+
+    // --- HAND: Simplified anatomical ---
+    const hand = new THREE.BoxGeometry(0.06, 0.10, 0.03, 4, 4, 2)
+    // Round the hand vertices slightly
+    const handPos = hand.attributes.position
+    for (let i = 0; i < handPos.count; i++) {
+      const x = handPos.getX(i)
+      const y = handPos.getY(i)
+      const z = handPos.getZ(i)
+      // Taper toward fingers (top)
+      const taper = y > 0 ? 1.0 - y * 0.6 : 1.0
+      handPos.setX(i, x * taper)
+      handPos.setZ(i, z * taper)
+      // Round palm curvature
+      if (z > 0) handPos.setZ(i, z * 0.8)
+    }
+    handPos.needsUpdate = true
+    hand.computeVertexNormals()
+
+    // --- THIGH: Anatomical quad/hamstring taper ---
+    const thighProfile: [number, number][] = [
+      [0.00, -0.23],
+      [0.052, -0.21],  // Above knee - narrower
+      [0.062, -0.16],
+      [0.072, -0.10],
+      [0.080, -0.04],  // Mid thigh - thick
+      [0.084, 0.02],   // Upper thigh - thickest
+      [0.082, 0.08],
+      [0.076, 0.14],
+      [0.065, 0.19],   // Gluteal fold
+      [0.050, 0.22],
+      [0.00, 0.24],
+    ]
+    const thigh = createLatheBodyPart(thighProfile, 40, 1.0, 0.88)
+
+    // --- KNEE: Bony joint ---
+    const kneeProfile: [number, number][] = [
+      [0.00, -0.045],
+      [0.050, -0.04],
+      [0.056, -0.02],
+      [0.058, 0.00],   // Widest - patella
+      [0.056, 0.02],
+      [0.050, 0.04],
+      [0.00, 0.045],
+    ]
+    const knee = createLatheBodyPart(kneeProfile, 32, 1.0, 0.82)
+
+    // --- CALF: Gastrocnemius bulge ---
+    const calfProfile: [number, number][] = [
+      [0.00, -0.19],
+      [0.032, -0.17],  // Ankle
+      [0.035, -0.14],
+      [0.036, -0.10],  // Lower calf
+      [0.040, -0.04],
+      [0.050, 0.02],   // Gastrocnemius belly
+      [0.055, 0.06],   // Peak calf
+      [0.052, 0.10],
+      [0.046, 0.14],   // Below knee
+      [0.042, 0.17],
+      [0.00, 0.19],
+    ]
+    const calf = createLatheBodyPart(calfProfile, 32, 1.0, 0.85)
+
+    // --- FOOT: Block with anatomical taper ---
+    const foot = new THREE.BoxGeometry(0.08, 0.05, 0.22, 4, 2, 6)
+    const footPos = foot.attributes.position
+    for (let i = 0; i < footPos.count; i++) {
+      const z = footPos.getZ(i)
+      const y = footPos.getY(i)
+      // Taper toward toes
+      if (z > 0.05) {
+        const t = (z - 0.05) / 0.06
+        footPos.setX(i, footPos.getX(i) * (1.0 - t * 0.3))
+        footPos.setY(i, y * (1.0 - t * 0.3))
+      }
+      // Arch on bottom
+      if (y < -0.01) {
+        const arch = Math.sin((z + 0.11) / 0.22 * Math.PI) * 0.012
+        footPos.setY(i, y + arch)
+      }
+    }
+    footPos.needsUpdate = true
+    foot.computeVertexNormals()
+
+    // --- SHOULDER CAP (Deltoid) ---
+    const shoulderProfile: [number, number][] = [
+      [0.00, -0.06],
+      [0.055, -0.05],
+      [0.072, -0.02],
+      [0.076, 0.01],   // Widest - lateral deltoid
+      [0.070, 0.04],
+      [0.055, 0.06],
+      [0.00, 0.07],
+    ]
+    const shoulder = createLatheBodyPart(shoulderProfile, 28, 1.1, 0.9)
+
+    return {
+      torso, pelvis, head, neck,
+      upperArm, forearm, hand,
+      shoulder,
+      thigh, knee, calf, foot,
+    }
+  }, [])
+
+  // COORDINATE SYSTEM (v4.0 - 8-head proportions)
+  // Total height: ~1.78m, centered at ground
+  // HEAD top: 1.78m, center 1.68m
+  // NECK: 1.52-1.60m
+  // SHOULDERS: 1.52m
+  // TORSO: 0.86-1.52m (center ~1.19m)
+  // PELVIS: 0.80-0.96m
+  // HIP JOINT: 0.86m
+  // KNEE: 0.46m
+  // ANKLE: 0.08m
+  // GROUND: 0.0m
 
   return (
-    <group position={[0, -0.9, 0]}>
+    <group position={[0, -0.90, 0]}>
         {/* --- HEAD --- */}
-        <group position={[0, 1.72, 0]}>
-           <Sphere args={[0.11, 40, 40]} position={[0, 0.085, -0.02]} scale={[1, 1.16, 1.12]}><meshStandardMaterial color="#333333" roughness={0.6} /></Sphere>
-           <group position={[0, -0.15, -0.01]}>
-               {/* Neck - slightly thicker base */}
-               <Cylinder args={[0.06, 0.075, 0.15, 22]}><meshStandardMaterial color="#333333" roughness={0.6} /></Cylinder>
-               {/* Traps Connection */}
-               <Cylinder args={[0.015, 0.04, 0.12, 14]} position={[-0.04, -0.04, 0.02]} rotation={[0, 0, -0.4]}><meshStandardMaterial color="#333333" roughness={0.6} /></Cylinder>
-               <Cylinder args={[0.015, 0.04, 0.12, 14]} position={[0.04, -0.04, 0.02]} rotation={[0, 0, 0.4]}><meshStandardMaterial color="#333333" roughness={0.6} /></Cylinder>
-           </group>
+        <group position={[0, 1.68, 0]}>
+          <mesh geometry={geo.head} castShadow receiveShadow>
+            <meshStandardMaterial {...BODY_MAT_PROPS} />
+          </mesh>
+        </group>
+
+        {/* --- NECK --- */}
+        <group position={[0, 1.55, 0.005]}>
+          <mesh geometry={geo.neck} castShadow receiveShadow>
+            <meshStandardMaterial {...BODY_MAT_PROPS} />
+          </mesh>
         </group>
 
         {/* --- TORSO --- */}
-        {/* Raised slightly to 1.12 to meet neck better */}
-        <group position={[0, 1.12, 0]}>
-            <mesh geometry={geo.torso} position={[0, 0.16, -0.025]} rotation={[0.02, 0, 0]} scale={[1.04, 1.0, 0.76]} castShadow receiveShadow>
-              <meshStandardMaterial color="#333333" roughness={0.6} />
-              
-              // Shoulders - Moved UP to match 1.64m arms
-              <MuscleDecal muscle="Shoulders" completions={completions} position={[-0.23, 0.42, -0.02]} rotation={[0, 0, 0.4]} scale={[0.16, 0.22, 0.25]} mask="capsule" />
-              <MuscleDecal muscle="Shoulders" completions={completions} position={[0.23, 0.42, -0.02]} rotation={[0, 0, -0.4]} scale={[0.16, 0.22, 0.25]} mask="capsule" />
+        <group position={[0, 1.19, 0]}>
+          <mesh geometry={geo.torso} position={[0, 0, -0.015]} rotation={[0.015, 0, 0]} castShadow receiveShadow>
+            <meshStandardMaterial {...BODY_MAT_PROPS} />
 
-              {/* Chest (Pecs) - Moved UP with torso shift */}
-              <MuscleDecal muscle="Chest" completions={completions} position={[-0.09, 0.22, 0.14]} rotation={[0.05, 0.1, 0.05]} scale={[0.22, 0.24, 0.2]} flipX={true} mask="pec" />
-              <MuscleDecal muscle="Chest" completions={completions} position={[0.09, 0.22, 0.14]} rotation={[0.05, -0.1, -0.05]} scale={[0.22, 0.24, 0.2]} mask="pec" />
+            {/* Shoulders - Decals on torso */}
+            <MuscleDecal muscle="Shoulders" completions={completions} position={[-0.22, 0.32, -0.02]} rotation={[0, 0, 0.35]} scale={[0.14, 0.16, 0.22]} mask="capsule" />
+            <MuscleDecal muscle="Shoulders" completions={completions} position={[0.22, 0.32, -0.02]} rotation={[0, 0, -0.35]} scale={[0.14, 0.16, 0.22]} mask="capsule" />
 
-              {/* Abs - Shifted up */}
-              {[0.10, 0.01, -0.08].map((y, i) => (
-                <React.Fragment key={i}>
-                  <MuscleDecal muscle="Core" completions={completions} position={[-0.04, y, 0.145]} rotation={[0, 0, 0]} scale={[0.065, 0.07, 0.1]} mask="roundedRect" />
-                  <MuscleDecal muscle="Core" completions={completions} position={[0.04, y, 0.145]} rotation={[0, 0, 0]} scale={[0.065, 0.07, 0.1]} mask="roundedRect" />
-                </React.Fragment>
-              ))}
-              
-              {/* Obliques */}
-              <MuscleDecal muscle="Core" completions={completions} position={[-0.14, -0.02, 0.06]} rotation={[0, 0.8, 0.1]} scale={[0.12, 0.32, 0.2]} mask="trapezoid" />
-              <MuscleDecal muscle="Core" completions={completions} position={[0.14, -0.02, 0.06]} rotation={[0, -0.8, -0.1]} scale={[0.12, 0.32, 0.2]} mask="trapezoid" />
+            {/* Chest (Pecs) */}
+            <MuscleDecal muscle="Chest" completions={completions} position={[-0.08, 0.18, 0.12]} rotation={[0.05, 0.08, 0.03]} scale={[0.18, 0.18, 0.18]} flipX={true} mask="pec" />
+            <MuscleDecal muscle="Chest" completions={completions} position={[0.08, 0.18, 0.12]} rotation={[0.05, -0.08, -0.03]} scale={[0.18, 0.18, 0.18]} mask="pec" />
 
-              {/* Traps - Upper Back Diamond */}
-              <MuscleDecal muscle="Back" completions={completions} position={[0, 0.42, -0.14]} rotation={[0.1, Math.PI, 0]} scale={[0.34, 0.18, 0.2]} mask="kite" />
-              
-              {/* Lats */}
-              <MuscleDecal muscle="Back" completions={completions} position={[-0.20, 0.15, -0.10]} rotation={[0, Math.PI + 0.3, 0]} scale={[0.20, 0.32, 0.2]} mask="trapezoid" />
-              <MuscleDecal muscle="Back" completions={completions} position={[0.20, 0.15, -0.10]} rotation={[0, Math.PI - 0.3, 0]} scale={[0.20, 0.32, 0.2]} mask="trapezoid" />
+            {/* Abs - 3 rows of 2 */}
+            {[0.04, -0.04, -0.12].map((y, i) => (
+              <React.Fragment key={i}>
+                <MuscleDecal muscle="Core" completions={completions} position={[-0.035, y, 0.115]} rotation={[0, 0, 0]} scale={[0.055, 0.06, 0.08]} mask="roundedRect" />
+                <MuscleDecal muscle="Core" completions={completions} position={[0.035, y, 0.115]} rotation={[0, 0, 0]} scale={[0.055, 0.06, 0.08]} mask="roundedRect" />
+              </React.Fragment>
+            ))}
 
-              {/* Lower Back */}
-              <MuscleDecal muscle="Back" completions={completions} position={[0, -0.08, -0.13]} rotation={[0, Math.PI, 0]} scale={[0.18, 0.22, 0.2]} mask="kite" />
+            {/* Obliques */}
+            <MuscleDecal muscle="Core" completions={completions} position={[-0.12, -0.06, 0.05]} rotation={[0, 0.7, 0.08]} scale={[0.10, 0.26, 0.16]} mask="trapezoid" />
+            <MuscleDecal muscle="Core" completions={completions} position={[0.12, -0.06, 0.05]} rotation={[0, -0.7, -0.08]} scale={[0.10, 0.26, 0.16]} mask="trapezoid" />
+
+            {/* Traps */}
+            <MuscleDecal muscle="Back" completions={completions} position={[0, 0.36, -0.11]} rotation={[0.1, Math.PI, 0]} scale={[0.28, 0.14, 0.16]} mask="kite" />
+
+            {/* Lats */}
+            <MuscleDecal muscle="Back" completions={completions} position={[-0.18, 0.10, -0.08]} rotation={[0, Math.PI + 0.3, 0]} scale={[0.16, 0.28, 0.16]} mask="trapezoid" />
+            <MuscleDecal muscle="Back" completions={completions} position={[0.18, 0.10, -0.08]} rotation={[0, Math.PI - 0.3, 0]} scale={[0.16, 0.28, 0.16]} mask="trapezoid" />
+
+            {/* Lower Back / Erectors */}
+            <MuscleDecal muscle="Back" completions={completions} position={[0, -0.10, -0.10]} rotation={[0, Math.PI, 0]} scale={[0.16, 0.20, 0.16]} mask="kite" />
+          </mesh>
+        </group>
+
+        {/* --- PELVIS --- */}
+        <group position={[0, 0.86, 0.005]}>
+          <mesh geometry={geo.pelvis} castShadow receiveShadow>
+            <meshStandardMaterial {...BODY_MAT_PROPS} />
+            {/* Glutes */}
+            <MuscleDecal muscle="Glutes" completions={completions} position={[-0.07, 0.01, -0.10]} rotation={[0, Math.PI, -0.08]} scale={[0.14, 0.16, 0.16]} mask="capsule" />
+            <MuscleDecal muscle="Glutes" completions={completions} position={[0.07, 0.01, -0.10]} rotation={[0, Math.PI, 0.08]} scale={[0.14, 0.16, 0.16]} mask="capsule" />
+          </mesh>
+        </group>
+
+        {/* --- SHOULDER CAPS (Deltoids) --- */}
+        {[-1, 1].map((side) => (
+          <group key={`shoulder-${side}`} position={[side * 0.185, 1.50, -0.005]}>
+            <mesh geometry={geo.shoulder} rotation={[0, 0, side * 0.15]} castShadow receiveShadow>
+              <meshStandardMaterial {...BODY_MAT_PROPS} />
+              <MuscleDecal muscle="Shoulders" completions={completions} position={[side * 0.04, 0.01, 0.04]} rotation={[0, side * 0.4, 0]} scale={[0.12, 0.12, 0.14]} mask="capsule" />
             </mesh>
-        </group>
-
-        {/* --- HIPS --- */}
-        {/* Raised to meet Torso (0.82 -> 0.86) */}
-        <group position={[0, 0.86, 0]}>
-           <RoundedBox args={[0.3, 0.13, 0.19]} radius={0.06} smoothness={10} position={[0, 0.055, 0]} castShadow receiveShadow>
-              <meshStandardMaterial color="#333333" roughness={0.6} />
-              {/* Glutes */}
-              <MuscleDecal muscle="Glutes" completions={completions} position={[-0.09, 0.01, -0.12]} rotation={[0, Math.PI, -0.1]} scale={[0.16, 0.20, 0.2]} mask="trapezoid" />
-              <MuscleDecal muscle="Glutes" completions={completions} position={[0.09, 0.01, -0.12]} rotation={[0, Math.PI, 0.1]} scale={[0.16, 0.20, 0.2]} mask="trapezoid" />
-           </RoundedBox>
-        </group>
+          </group>
+        ))}
 
         {/* --- ARMS --- */}
-        {/* RAISED from 1.50 to 1.58 for proper shoulder alignment */}
         {[-1, 1].map((side) => (
-          <group key={side} position={[side * 0.19, 1.71, 0.02]}>
-              <group position={[side * 0.06, -0.22, 0]}>
-                  {/* Upper Arm */}
-                  <mesh geometry={geo.upperArm} position={[0, -0.02, 0]} rotation={[0, 0, side * 0.08]} castShadow receiveShadow>
-                    <meshStandardMaterial color="#333333" roughness={0.6} />
-                    <MuscleDecal muscle="Biceps" completions={completions} position={[0, 0.01, 0.06]} rotation={[0, 0, 0]} scale={[0.09, 0.24, 0.15]} mask="capsule" />
-                    <MuscleDecal muscle="Triceps" completions={completions} position={[0, 0.01, -0.06]} rotation={[0, Math.PI, 0]} scale={[0.10, 0.26, 0.15]} mask="capsule" />
-                  </mesh>
-                  {/* Forearm - Realistic Tapered Shape */}
-                  <group position={[0, -0.33, 0]} rotation={[0, 0, side * 0.06]}>
-                     {/* Cone */}
-                     <mesh geometry={geo.forearmCone} position={[0, 0.0, 0]} castShadow receiveShadow>
-                       <meshStandardMaterial color="#333333" roughness={0.6} />
-                       
-                       {/* Brachioradialis (Top-Outer) - The "Popeye" muscle */}
-                       <MuscleDecal muscle="Biceps" completions={completions} position={[side * 0.025, 0.04, 0.0]} rotation={[0, 0, side * -0.2]} scale={[0.08, 0.16, 0.15]} mask="capsule" />
-                       
-                       {/* Flexors (Inner Belly) */}
-                       <MuscleDecal muscle="Biceps" completions={completions} position={[side * -0.015, -0.02, 0.035]} rotation={[0, side * 0.5, 0]} scale={[0.07, 0.14, 0.12]} mask="capsule" />
+          <group key={`arm-${side}`} position={[side * 0.235, 1.48, -0.005]}>
+            {/* Upper Arm */}
+            <group position={[side * 0.02, -0.18, 0]} rotation={[0, 0, side * 0.04]}>
+              <mesh geometry={geo.upperArm} castShadow receiveShadow>
+                <meshStandardMaterial {...BODY_MAT_PROPS} />
+                <MuscleDecal muscle="Biceps" completions={completions} position={[0, 0.0, 0.055]} rotation={[0, 0, 0]} scale={[0.08, 0.22, 0.12]} mask="capsule" />
+                <MuscleDecal muscle="Triceps" completions={completions} position={[0, 0.01, -0.055]} rotation={[0, Math.PI, 0]} scale={[0.09, 0.24, 0.12]} mask="capsule" />
+              </mesh>
 
-                       {/* Extensors (Outer-Back) - Mapped to Triceps for posterior chain visual */}
-                       <MuscleDecal muscle="Triceps" completions={completions} position={[side * 0.02, -0.02, -0.03]} rotation={[0, side * 2.5, 0]} scale={[0.06, 0.16, 0.12]} mask="capsule" />
-                     </mesh>
-                     
-                     {/* Elbow Cap */}
-                     <mesh geometry={geo.elbowCap} position={[0, 0.11, 0]} castShadow receiveShadow>
-                        <meshStandardMaterial color="#333333" roughness={0.6} />
-                     </mesh>
+              {/* Forearm */}
+              <group position={[0, -0.33, 0]} rotation={[0, 0, side * 0.03]}>
+                <mesh geometry={geo.forearm} castShadow receiveShadow>
+                  <meshStandardMaterial {...BODY_MAT_PROPS} />
+                </mesh>
 
-                     {/* Wrist Cap */}
-                     <mesh geometry={geo.wristCap} position={[0, -0.11, 0]} castShadow receiveShadow>
-                        <meshStandardMaterial color="#333333" roughness={0.6} />
-                     </mesh>
-
-                     {/* Hand Block */}
-                     <RoundedBox args={[0.07, 0.09, 0.04]} radius={0.02} smoothness={10} position={[0, -0.16, 0]} castShadow receiveShadow>
-                        <meshStandardMaterial color="#333333" roughness={0.6} />
-                     </RoundedBox>
-                  </group>
+                {/* Hand */}
+                <mesh geometry={geo.hand} position={[0, -0.19, 0]} castShadow receiveShadow>
+                  <meshStandardMaterial {...BODY_MAT_PROPS} />
+                </mesh>
               </group>
+            </group>
           </group>
         ))}
 
         {/* --- LEGS --- */}
         {[-1, 1].map((side) => (
-          <group key={side} position={[side * 0.17, 0.92, 0]}> {/* Raised from 0.68 to 0.72 */}
-              {/* Thigh */}
-              <group position={[0, -0.25, 0]}>
-                  <mesh geometry={geo.thigh} position={[0, -0.04, 0]} rotation={[0, 0, side * 0.03]} castShadow receiveShadow>
-                    <meshStandardMaterial color="#333333" roughness={0.6} />
-                    
-                    {/* Quad Center (Rectus Femoris) - Thinner */}
-                    <MuscleDecal muscle="Quads" completions={completions} position={[0, 0.02, 0.10]} rotation={[0, 0, 0]} scale={[0.09, 0.38, 0.2]} mask="capsule" />
-                    {/* Quad Outer (Vastus Lateralis) - Large Sweep */}
-                    <MuscleDecal muscle="Quads" completions={completions} position={[side * 0.08, 0.06, 0.05]} rotation={[0, side * 0.6, 0]} scale={[0.12, 0.34, 0.2]} mask="trapezoid" />
-                    {/* Quad Inner (Vastus Medialis) - Higher Teardrop */}
-                    <MuscleDecal muscle="Quads" completions={completions} position={[side * -0.05, -0.10, 0.08]} rotation={[0, side * -0.3, 0]} scale={[0.09, 0.14, 0.1]} mask="teardrop" />
+          <group key={`leg-${side}`} position={[side * 0.10, 0.86, 0]}>
+            {/* Thigh */}
+            <group position={[0, -0.26, 0]}>
+              <mesh geometry={geo.thigh} rotation={[0, 0, side * 0.02]} castShadow receiveShadow>
+                <meshStandardMaterial {...BODY_MAT_PROPS} />
+                {/* Rectus Femoris */}
+                <MuscleDecal muscle="Quads" completions={completions} position={[0, 0.02, 0.08]} rotation={[0, 0, 0]} scale={[0.08, 0.34, 0.16]} mask="capsule" />
+                {/* Vastus Lateralis */}
+                <MuscleDecal muscle="Quads" completions={completions} position={[side * 0.07, 0.04, 0.04]} rotation={[0, side * 0.5, 0]} scale={[0.10, 0.30, 0.16]} mask="trapezoid" />
+                {/* Vastus Medialis */}
+                <MuscleDecal muscle="Quads" completions={completions} position={[side * -0.04, -0.10, 0.07]} rotation={[0, side * -0.25, 0]} scale={[0.07, 0.12, 0.10]} mask="teardrop" />
+                {/* Hamstrings */}
+                <MuscleDecal muscle="Hamstrings" completions={completions} position={[0, 0.0, -0.08]} rotation={[0, Math.PI, 0]} scale={[0.14, 0.32, 0.16]} mask="capsule" />
+              </mesh>
+            </group>
 
-                    {/* Hamstrings */}
-                    <MuscleDecal muscle="Hamstrings" completions={completions} position={[0, 0.0, -0.10]} rotation={[0, Math.PI, 0]} scale={[0.16, 0.35, 0.2]} mask="capsule" />
-                  </mesh>
-              </group>
+            {/* Knee */}
+            <group position={[0, -0.52, 0.01]}>
+              <mesh geometry={geo.knee} castShadow receiveShadow>
+                <meshStandardMaterial {...BODY_MAT_PROPS} />
+              </mesh>
+            </group>
 
-              <RoundedBox args={[0.11, 0.11, 0.11]} radius={0.04} smoothness={10} position={[0, -0.52, 0.02]} castShadow receiveShadow>
-                  <meshStandardMaterial color="#333333" roughness={0.6} />
-              </RoundedBox>
+            {/* Calf */}
+            <group position={[0, -0.74, -0.005]}>
+              <mesh geometry={geo.calf} rotation={[0.03, 0, side * 0.02]} castShadow receiveShadow>
+                <meshStandardMaterial {...BODY_MAT_PROPS} />
+                <MuscleDecal muscle="Calves" completions={completions} position={[side * 0.02, 0.06, -0.055]} rotation={[0, Math.PI, 0]} scale={[0.06, 0.16, 0.08]} mask="capsule" />
+                <MuscleDecal muscle="Calves" completions={completions} position={[side * -0.02, 0.06, -0.055]} rotation={[0, Math.PI, 0]} scale={[0.06, 0.16, 0.08]} mask="capsule" />
+              </mesh>
+            </group>
 
-              {/* Lower Leg */}
-              <group position={[0, -0.85, 0]}>
-                  <mesh geometry={geo.calf} position={[0, 0.02, -0.01]} rotation={[0.04, 0, side * 0.03]} castShadow receiveShadow>
-                    <meshStandardMaterial color="#333333" roughness={0.6} />
-                    <MuscleDecal muscle="Calves" completions={completions} position={[side * 0.03, 0.08, -0.07]} rotation={[0, Math.PI, 0]} scale={[0.07, 0.18, 0.1]} mask="capsule" />
-                    <MuscleDecal muscle="Calves" completions={completions} position={[side * -0.03, 0.08, -0.07]} rotation={[0, Math.PI, 0]} scale={[0.07, 0.18, 0.1]} mask="capsule" />
-                  </mesh>
-                  <RoundedBox args={[0.1, 0.06, 0.24]} radius={0.02} smoothness={10} position={[0, -0.28, 0.08]} castShadow receiveShadow>
-                      <meshStandardMaterial color="#333333" roughness={0.6} />
-                  </RoundedBox>
-              </group>
+            {/* Foot */}
+            <group position={[0, -0.94, 0.04]}>
+              <mesh geometry={geo.foot} castShadow receiveShadow>
+                <meshStandardMaterial {...BODY_MAT_PROPS} />
+              </mesh>
+            </group>
           </group>
         ))}
     </group>
@@ -412,6 +628,7 @@ const HumanModel = ({ completions }: { completions: RoutineCompletion[] }) => {
 }
 
 const MuscleSuggestions = ({ completions }: { completions: RoutineCompletion[] }) => {
+  const [expanded, setExpanded] = useState(false)
   const freshMuscles: string[] = []
   const muscleGroups: MuscleGroup[] = ['Chest', 'Back', 'Shoulders', 'Biceps', 'Triceps', 'Quads', 'Hamstrings', 'Glutes', 'Calves', 'Core']
 
@@ -422,50 +639,81 @@ const MuscleSuggestions = ({ completions }: { completions: RoutineCompletion[] }
     }
   }
 
+  // Collapsed: just a small legend strip at the bottom
+  if (!expanded) {
+    return (
+      <div
+        onClick={() => setExpanded(true)}
+        style={{
+          position: 'absolute',
+          bottom: 12,
+          right: 12,
+          background: 'rgba(0,0,0,0.8)',
+          padding: '8px 12px',
+          borderRadius: 8,
+          border: '1px solid #333',
+          color: 'white',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          fontSize: 12,
+        }}
+      >
+        <div style={{ display: 'flex', gap: 4 }}>
+          {['#4ade80', '#facc15', '#fb923c', '#ef4444'].map(c => (
+            <div key={c} style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />
+          ))}
+        </div>
+        <span style={{ opacity: 0.7 }}>Recovery ▸</span>
+      </div>
+    )
+  }
+
   return (
     <div style={{
       position: 'absolute',
-      top: 20,
-      right: 20,
-      background: 'rgba(0,0,0,0.8)',
-      padding: 20,
-      borderRadius: 12,
+      top: 12,
+      right: 12,
+      background: 'rgba(0,0,0,0.85)',
+      padding: '14px 16px',
+      borderRadius: 10,
       border: '1px solid #333',
       color: 'white',
-      maxWidth: 250,
-      maxHeight: 'calc(100% - 40px)',
-      overflowY: 'auto'
+      maxWidth: 220,
+      maxHeight: 'calc(100% - 24px)',
+      overflowY: 'auto',
+      zIndex: 10,
     }}>
-      <h3 style={{ margin: '0 0 12px 0', fontSize: 18, borderBottom: '1px solid #444', paddingBottom: 8 }}>Recovery Status</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <h3 style={{ margin: 0, fontSize: 15, borderBottom: 'none', paddingBottom: 0 }}>Recovery Status</h3>
+        <button
+          onClick={() => setExpanded(false)}
+          style={{
+            background: 'none', border: 'none', color: '#888', cursor: 'pointer',
+            fontSize: 18, lineHeight: 1, padding: '0 2px',
+          }}
+        >×</button>
+      </div>
       
-      <div style={{ display: 'grid', gap: 8, marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#4ade80' }}></div>
-          <span style={{ fontSize: 14 }}>Fresh (Ready)</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#facc15' }}></div>
-          <span style={{ fontSize: 14 }}>Recovering</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#fb923c' }}></div>
-          <span style={{ fontSize: 14 }}>Fatigued</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ef4444' }}></div>
-          <span style={{ fontSize: 14 }}>Very Fatigued</span>
-        </div>
+      <div style={{ display: 'grid', gap: 5, marginBottom: 14 }}>
+        {([['#4ade80', 'Fresh'], ['#facc15', 'Recovering'], ['#fb923c', 'Fatigued'], ['#ef4444', 'Very Fatigued']] as const).map(([c, label]) => (
+          <div key={c} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: c, flexShrink: 0 }} />
+            <span style={{ fontSize: 12 }}>{label}</span>
+          </div>
+        ))}
       </div>
 
-      <h4 style={{ margin: '0 0 8px 0', fontSize: 16, color: '#4ade80' }}>Fresh Muscles</h4>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+      <h4 style={{ margin: '0 0 6px 0', fontSize: 13, color: '#4ade80' }}>Fresh Muscles</h4>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
         {freshMuscles.length > 0 ? (
           freshMuscles.map(m => (
             <span key={m} style={{ 
-              fontSize: 12, 
+              fontSize: 11, 
               background: 'rgba(74, 222, 128, 0.15)', 
               color: '#4ade80', 
-              padding: '4px 8px', 
+              padding: '3px 6px', 
               borderRadius: 4,
               border: '1px solid rgba(74, 222, 128, 0.3)'
             }}>
@@ -473,7 +721,7 @@ const MuscleSuggestions = ({ completions }: { completions: RoutineCompletion[] }
             </span>
           ))
         ) : (
-          <span style={{ fontSize: 14, color: '#888', fontStyle: 'italic' }}>No fully fresh muscles yet!</span>
+          <span style={{ fontSize: 12, color: '#888', fontStyle: 'italic' }}>No fully fresh muscles yet!</span>
         )}
       </div>
     </div>
@@ -503,14 +751,14 @@ export const MuscleHeatmap = ({ completions }: { completions: RoutineCompletion[
           if ('toneMappingExposure' in r) (r as any).toneMappingExposure = 1.15
           if ('outputColorSpace' in r) (r as any).outputColorSpace = THREE.SRGBColorSpace
         }}
-        camera={{ position: [0, 0.85, 3.2], fov: 42, near: 0.1, far: 30 }}
+        camera={{ position: [0, 0.25, 3.2], fov: 42, near: 0.1, far: 30 }}
       >
         <color attach="background" args={['#1a1a1a']} />
         
-        <ambientLight intensity={0.28} />
+        <ambientLight intensity={0.30} />
         <directionalLight
           position={[3.5, 4.5, 3.0]}
-          intensity={2.0}
+          intensity={2.2}
           castShadow
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
@@ -521,8 +769,10 @@ export const MuscleHeatmap = ({ completions }: { completions: RoutineCompletion[
           shadow-camera-top={4}
           shadow-camera-bottom={-4}
         />
-        <directionalLight position={[-3.0, 2.0, 2.0]} intensity={0.7} color="#b7d7ff" />
-        <directionalLight position={[0.0, 2.5, -3.5]} intensity={0.55} color="#ffd1b8" />
+        <directionalLight position={[-3.0, 2.0, 2.0]} intensity={0.8} color="#b7d7ff" />
+        <directionalLight position={[0.0, 2.5, -3.5]} intensity={0.6} color="#ffd1b8" />
+        {/* Rim light for edge definition */}
+        <directionalLight position={[-2.0, 1.5, -2.5]} intensity={0.4} color="#8888ff" />
         <Environment preset="studio" />
 
         <HumanModel completions={completions} />
@@ -542,7 +792,7 @@ export const MuscleHeatmap = ({ completions }: { completions: RoutineCompletion[
           maxPolarAngle={Math.PI / 1.8}
           minDistance={2}
           maxDistance={6}
-          target={[0, 0.75, 0]}
+          target={[0, 0.15, 0]}
         />
       </Canvas>
       

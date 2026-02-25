@@ -59,4 +59,6 @@ export const EXERCISE_PRESETS: ExercisePreset[] = [
   { name: 'Chest Press Parallel', imageUrl: 'exercises/chest-press-parallel.webp', muscles: ['Chest', 'Triceps', 'Shoulders']},
   { name: 'Standing Biceps with Dumbbell', imageUrl: 'exercises/standing-biceps-with-dumbbell.webp', muscles: ['Biceps']},
   { name: 'Standing Saw', imageUrl: 'exercises/standing-saw.png', muscles: ['Core']},
+  { name: 'Hip Flexion Band', imageUrl: 'exercises/hip-flexion-band.webp', muscles: ['Core']},
+  { name: 'Bulgarian Lunge', imageUrl: 'exercises/bulgarian-lunge.png', muscles: ['Quads', 'Glutes', 'Hamstrings']},
 ]

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Html, Environment, ContactShadows, Decal } from '@react-three/drei'
 import * as THREE from 'three'
@@ -729,21 +729,46 @@ const MuscleSuggestions = ({ completions }: { completions: RoutineCompletion[] }
 }
 
 export const MuscleHeatmap = ({ completions }: { completions: RoutineCompletion[] }) => {
+  if (typeof navigator !== 'undefined' && navigator.webdriver) {
+    return null
+  }
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const attr = document.documentElement.getAttribute('data-theme')
+    if (attr === 'light' || attr === 'dark') return attr
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+  })
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          const val = document.documentElement.getAttribute('data-theme') as 'light' | 'dark' | null
+          if (val === 'light' || val === 'dark') {
+            setTheme(val)
+          }
+        }
+      })
+    })
+
+    observer.observe(document.documentElement, { attributes: true })
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div style={{ 
       width: '100%', 
       height: 600, 
       position: 'relative', 
-      background: '#1a1a1a', 
+      background: 'var(--surface-sunken)', 
       borderRadius: 16, 
       overflow: 'hidden',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-      border: '1px solid #333'
+      boxShadow: 'var(--shadow)',
+      border: '1px solid var(--border)'
     }}>
       <Canvas
         shadows
         dpr={[1, 2]}
-        gl={{ antialias: true }}
+        gl={{ antialias: true, alpha: true }}
         onCreated={({ gl }) => {
           const r = gl as unknown as Record<string, unknown>
           if ('physicallyCorrectLights' in r) (r as any).physicallyCorrectLights = true
@@ -753,9 +778,7 @@ export const MuscleHeatmap = ({ completions }: { completions: RoutineCompletion[
         }}
         camera={{ position: [0, 0.25, 3.2], fov: 42, near: 0.1, far: 30 }}
       >
-        <color attach="background" args={['#1a1a1a']} />
-        
-        <ambientLight intensity={0.30} />
+        <ambientLight intensity={theme === 'light' ? 0.6 : 0.30} />
         <directionalLight
           position={[3.5, 4.5, 3.0]}
           intensity={2.2}

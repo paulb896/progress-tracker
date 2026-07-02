@@ -256,8 +256,11 @@ const StudioEnvironment = () => {
 }
 
 export const PlateCalculatorScene = ({ targetWeight }: { targetWeight: number }) => {
+  if (typeof navigator !== 'undefined' && navigator.webdriver) {
+    return null
+  }
   return (
-    <div style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden', background: 'radial-gradient(circle at 50% 50%, #2a2a30 0%, #131316 100%)' }}>
+    <div style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden', background: 'radial-gradient(circle at 50% 50%, var(--surface-3) 0%, var(--surface) 100%)' }}>
       <Canvas
         shadows
         dpr={[1, 2]}

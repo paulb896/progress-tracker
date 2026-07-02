@@ -14,11 +14,61 @@ import { makeId } from './routines/id'
 import { ScenarioGifCursor } from './components/ScenarioGifCursor'
 import { useCurrentWorkout } from './workout/useCurrentWorkout'
 
+const ThemeToggle = ({ theme, onToggle }: { theme: 'light' | 'dark'; onToggle: () => void }) => {
+  return (
+    <button
+      type="button"
+      className="themeToggleBtn"
+      onClick={onToggle}
+      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+    >
+      {theme === 'light' ? (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+        </svg>
+      ) : (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+      )}
+    </button>
+  )
+}
+
 function App() {
   const { route, navigate } = usePathRoute()
   const { routines, upsertRoutine, deleteRoutine } = useRoutines()
   const { completions, addCompletion, removeCompletion, updateCompletion } = useCompletions()
   const { currentWorkout, startWorkout, updateWorkoutProgress, clearCurrentWorkout } = useCurrentWorkout()
+
+  const [theme, setTheme] = React.useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('theme')
+    if (saved === 'light' || saved === 'dark') return saved
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+  })
+
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+
+    const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver
+    if (isAutomated) {
+      document.documentElement.classList.add('is-automated')
+    }
+  }, [theme])
+
+  const toggleTheme = React.useCallback(() => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light'
+    const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver
+    if (!isAutomated && (document as any).startViewTransition) {
+      (document as any).startViewTransition(() => {
+        setTheme(nextTheme)
+      })
+    } else {
+      setTheme(nextTheme)
+    }
+  }, [theme])
 
   const routineForRun = route.name === 'run' ? routines.find((r) => r.id === route.routineId) ?? null : null
   const routineForEdit = route.name === 'edit' ? routines.find((r) => r.id === route.routineId) ?? null : null
@@ -32,7 +82,11 @@ function App() {
     ? activeWorkoutRoutine.exercises.reduce((acc, ex) => acc + (currentWorkout?.doneByExerciseId[ex.id] ? 1 : 0), 0)
     : 0
   const activeWorkoutTotalCount = activeWorkoutRoutine?.exercises.length ?? 0
-  const showActiveWorkoutBubble = route.name !== 'run' && !!activeWorkoutRoutine
+  const showActiveWorkoutBubble =
+    route.name !== 'run' &&
+    route.name !== 'edit' &&
+    route.name !== 'create' &&
+    !!activeWorkoutRoutine
 
   const cancelCurrentWorkout = React.useCallback(() => {
     clearCurrentWorkout()
@@ -60,6 +114,7 @@ function App() {
 
   return (
     <div className={`app ${isWide ? 'app--wide' : ''}`}>
+      <ThemeToggle theme={theme} onToggle={toggleTheme} />
       <ScenarioGifCursor />
       {route.name === 'home' ? (
         <HomeView
@@ -81,7 +136,7 @@ function App() {
           headerRight={
             !(window as any).__PROGRESS_TRACKER_SCENARIO_GIF__ ? (
               <div className="headerCube" aria-label="3D lifting weight demo">
-                <ThreeDemo />
+                <ThreeDemo theme={theme} />
               </div>
             ) : null
           }

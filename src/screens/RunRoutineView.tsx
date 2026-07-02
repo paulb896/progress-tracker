@@ -2,6 +2,7 @@ import React from 'react'
 import type { Routine } from '../routines/types'
 import { resolveImageUrl } from '../app/resolveImageUrl'
 import { formatDuration } from '../app/formatDuration'
+import { EXERCISE_PRESETS } from '../exercises/presets'
 
 import { PlateCalculatorScene } from '../components/PlateCalculatorScene'
 
@@ -167,9 +168,19 @@ export const RunRoutineView = ({
   const updateExerciseMeta = React.useCallback(
     (
       exerciseId: string,
-      patch: Partial<{ sets: number | undefined; reps: number | undefined; weight: number | undefined; timeSeconds: number | undefined }>
+      patch: Partial<{ sets: number | undefined; reps: number | undefined; weight: number | undefined; timeSeconds: number | undefined; supersetWeight: number | undefined }>
     ) => {
-      const nextExercises = routine.exercises.map((ex) => (ex.id === exerciseId ? { ...ex, ...patch } : ex))
+      const nextExercises = routine.exercises.map((ex) => {
+        if (ex.id !== exerciseId) return ex
+        const { supersetWeight, ...rest } = patch
+        const base = { ...ex, ...rest }
+        if (supersetWeight !== undefined && base.supersetWith) {
+          base.supersetWith = { ...base.supersetWith, weight: supersetWeight }
+        } else if (supersetWeight !== undefined && !base.supersetWith) {
+          // no-op
+        }
+        return base
+      })
       onUpdateRoutine({ ...routine, exercises: nextExercises })
     },
     [onUpdateRoutine, routine]
@@ -268,6 +279,12 @@ export const RunRoutineView = ({
             const setsText = typeof ex.sets === 'number' ? String(ex.sets) : '—'
             const repsText = typeof ex.reps === 'number' ? String(ex.reps) : '—'
             const weightText = typeof ex.weight === 'number' ? String(ex.weight) : '—'
+            const isSuperset = !!ex.supersetWith?.name
+            const supersetWeightText = typeof ex.supersetWith?.weight === 'number' ? String(ex.supersetWith.weight) : '—'
+            const supersetPreset = isSuperset ? EXERCISE_PRESETS.find(p => p.name === ex.supersetWith!.name) : null
+            const supersetThumbUrl = ex.supersetWith?.imageUrls?.[0]
+              ? resolveImageUrl(ex.supersetWith.imageUrls[0])
+              : supersetPreset?.imageUrl ? resolveImageUrl(supersetPreset.imageUrl) : null
             return (
               <div
                 key={ex.id}
@@ -289,15 +306,27 @@ export const RunRoutineView = ({
                       checked={checked}
                       onChange={() => toggle(ex.id)}
                     />
-                    <span className="runName">{ex.name}</span>
+                    <span className="runName">
+                      {ex.name}
+                      {isSuperset && <span className="supersetBadge">⚡ Superset</span>}
+                    </span>
                   </label>
 
                   {!expanded && (
                     <div className="runRowHeaderRight">
                       <div className="runMiniMeta" aria-label="Sets reps weight time summary">
-                        {setsText} x {repsText} <span className="dot">•</span> {weightText} <span className="unit">lbs</span>
+                        {setsText} x {repsText}
+                        {isSuperset ? (
+                          <>
+                            <span className="dot">•</span>
+                            <span>{weightText}</span> <span className="unit">/ {supersetWeightText}</span> <span className="unit">lbs</span>
+                          </>
+                        ) : (
+                          <><span className="dot">•</span> {weightText} <span className="unit">lbs</span></>
+                        )}
                       </div>
                       {miniThumbUrl ? <img className="runMiniThumb" src={miniThumbUrl} alt="" loading="lazy" /> : null}
+                      {isSuperset && supersetThumbUrl ? <img className="runMiniThumb" src={supersetThumbUrl} alt="" loading="lazy" /> : null}
                     </div>
                   )}
 
@@ -452,6 +481,77 @@ export const RunRoutineView = ({
                         ))}
                       </div>
                     ) : null}
+
+                    {isSuperset && ex.supersetWith ? (
+                      <div className="supersetExpandedSection">
+                        <div className="supersetExpandedDivider">
+                          <span className="supersetExpandedLabel">⚡ Superset: {ex.supersetWith.name}</span>
+                        </div>
+                        <div className="runMetaGrid">
+                          <div className="runMetaPill">
+                            <span className="runMetaLabel">WEIGHT (LBS)</span>
+                            <div className="runStepper">
+                              <button
+                                type="button"
+                                className="runStepperBtn"
+                                onClick={() => updateExerciseMeta(ex.id, { supersetWeight: adjustOptionalPositiveNumber(ex.supersetWith!.weight, -5) })}
+                                disabled={typeof ex.supersetWith.weight !== 'number' || ex.supersetWith.weight <= 5}
+                                title="-5"
+                              >
+                                −
+                              </button>
+                              <button
+                                type="button"
+                                className="runStepperBtn"
+                                onClick={() => updateExerciseMeta(ex.id, { supersetWeight: adjustOptionalPositiveNumber(ex.supersetWith!.weight, -1) })}
+                                disabled={typeof ex.supersetWith.weight !== 'number' || ex.supersetWith.weight <= 1}
+                                title="-1"
+                              >
+                                −
+                              </button>
+                              <div className="runStepperValue">
+                                {typeof ex.supersetWith.weight === 'number' ? ex.supersetWith.weight : '—'}
+                              </div>
+                              <button
+                                type="button"
+                                className="runStepperBtn"
+                                onClick={() => updateExerciseMeta(ex.id, { supersetWeight: adjustOptionalPositiveNumber(ex.supersetWith!.weight, 1) })}
+                                title="+1"
+                              >
+                                +
+                              </button>
+                              <button
+                                type="button"
+                                className="runStepperBtn"
+                                onClick={() => updateExerciseMeta(ex.id, { supersetWeight: adjustOptionalPositiveNumber(ex.supersetWith!.weight, 5) })}
+                                title="+5"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        {(() => {
+                          const urls = ex.supersetWith.imageUrls?.length
+                            ? ex.supersetWith.imageUrls
+                            : supersetThumbUrl ? [supersetPreset!.imageUrl!] : []
+                          return urls.length ? (
+                            <div className="runImagesGrid">
+                              {urls.map((url) => (
+                                <div key={url} className="runImageFrame">
+                                  <img
+                                    className="runImageFull"
+                                    src={resolveImageUrl(url)}
+                                    alt={`${ex.supersetWith!.name} reference`}
+                                    loading="lazy"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          ) : null
+                        })()}
+                      </div>
+                    ) : null}
                   </div>
                 ) : null}
               </div>
@@ -466,7 +566,7 @@ export const RunRoutineView = ({
         
         return (
           <div className="modalOverlay" onClick={() => setPlateCalcExerciseId(null)}>
-            <div className="modalContent" onClick={(e) => e.stopPropagation()} style={{ width: '90%', maxWidth: 600, height: 400, padding: 0, overflow: 'hidden', background: '#000' }}>
+            <div className="modalContent" onClick={(e) => e.stopPropagation()} style={{ width: '90%', maxWidth: 600, height: 400, padding: 0, overflow: 'hidden' }}>
               
               {/* Header Controls */}
               <div className="plateCalcControls">

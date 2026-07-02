@@ -265,7 +265,7 @@ test.describe('Progress Tracker — BDD scenarios', () => {
 
       await m.click(page.getByRole('button', { name: 'Back' }))
       await pauseIfGif(page)
-      await expect(page.getByText('Routine To Edit/Delete')).toBeVisible()
+      await expect(page.getByRole('listitem').getByText('Routine To Edit/Delete')).toBeVisible()
     })
 
     await test.step('When I edit the routine', async () => {

@@ -1,3 +1,9 @@
+export type SupersetPartner = {
+  name: string
+  weight?: number
+  imageUrls?: string[]
+}
+
 export type Exercise = {
   id: string
   name: string
@@ -6,6 +12,7 @@ export type Exercise = {
   reps?: number
   weight?: number
   timeSeconds?: number
+  supersetWith?: SupersetPartner
 }
 
 export type Routine = {

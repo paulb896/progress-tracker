@@ -23,7 +23,7 @@
     "@react-three/postprocessing": "^3.0.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "recharts": "^3.7.0",
+    "recharts": "^3.8.1",
     "three": "^0.179.1"
   },
   "devDependencies": {

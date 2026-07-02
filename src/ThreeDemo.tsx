@@ -173,6 +173,7 @@ const LiftedWeight = ({
   onRepComplete: () => void
   isPointerDownRef: React.MutableRefObject<boolean> 
 }) => {
+  const theme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-theme') || 'dark' : 'dark'
   const knurlMap = useKnurlingMap()
   const radialMap = useRadialMap()
   const noiseMap = useNoiseMap()
@@ -431,13 +432,13 @@ const LiftedWeight = ({
 
       {/* --- PLATES (Loaded) --- */}
       {/* Left Side */}
-      <Plate position={[-0.70, 0, 0]} color="#222" noiseMap={noiseMap} />
-      <Plate position={[-0.77, 0, 0]} color="#222" noiseMap={noiseMap} />
+      <Plate position={[-0.70, 0, 0]} color={theme === 'light' ? '#64748b' : '#222'} noiseMap={noiseMap} />
+      <Plate position={[-0.77, 0, 0]} color={theme === 'light' ? '#64748b' : '#222'} noiseMap={noiseMap} />
       <Collar position={[-0.66, 0, 0]} />
 
       {/* Right Side */}
-      <Plate position={[0.70, 0, 0]} color="#222" noiseMap={noiseMap} />
-      <Plate position={[0.77, 0, 0]} color="#222" noiseMap={noiseMap} />
+      <Plate position={[0.70, 0, 0]} color={theme === 'light' ? '#64748b' : '#222'} noiseMap={noiseMap} />
+      <Plate position={[0.77, 0, 0]} color={theme === 'light' ? '#64748b' : '#222'} noiseMap={noiseMap} />
       <Collar position={[0.66, 0, 0]} />
 
     </group>
@@ -583,7 +584,10 @@ const StudioEnvironment = () => {
   return null
 }
 
-export function ThreeDemo() {
+export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
+  if (typeof navigator !== 'undefined' && navigator.webdriver) {
+    return null
+  }
   const [repCount, setRepCount] = useState(0)
   const isGif = window.location.hash === '#gif'
 
@@ -668,19 +672,19 @@ export function ThreeDemo() {
           <>
             {/* --- MOBILE: CLASSIC LOOK --- */}
             <StudioEnvironment />
-            <ambientLight intensity={0.2} />
-            <hemisphereLight intensity={0.3} groundColor="#0b0b0c" color="#ffffff" />
+            <ambientLight intensity={theme === 'light' ? 0.5 : 0.2} />
+            <hemisphereLight intensity={theme === 'light' ? 0.6 : 0.3} groundColor={theme === 'light' ? "#f1f5f9" : "#0b0b0c"} color="#ffffff" />
             <rectAreaLight
               width={5}
               height={5}
               color="#ffffff"
-              intensity={6.0}
+              intensity={theme === 'light' ? 8.0 : 6.0}
               position={[2, 4, 3]}
               onUpdate={(self) => self.lookAt(0, 0, 0)}
             />
             <directionalLight
               position={[5, 8, 5]}
-              intensity={1.0}
+              intensity={theme === 'light' ? 2.0 : 1.0}
               castShadow
               shadow-bias={-0.0001}
               shadow-mapSize-width={1024}
@@ -691,11 +695,11 @@ export function ThreeDemo() {
               width={8}
               height={2}
               color="#e0f2fe"
-              intensity={2.0}
+              intensity={theme === 'light' ? 3.0 : 2.0}
               position={[-3, 0, 4]}
               onUpdate={(self) => self.lookAt(0, 0, 0)}
             />
-            <spotLight position={[-5, 5, -2]} intensity={5.0} angle={0.5} penumbra={1} color="#2dd4bf" />
+            <spotLight position={[-5, 5, -2]} intensity={theme === 'light' ? 10.0 : 5.0} angle={0.5} penumbra={1} color={theme === 'light' ? "#0d9488" : "#2dd4bf"} />
 
             <group position={[0, -0.9, 0]}>
               <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]} receiveShadow>
@@ -709,12 +713,12 @@ export function ThreeDemo() {
           <>
             {/* --- DESKTOP: HYPER REAL --- */}
             <StudioEnvironment />
-            <ambientLight intensity={0.5} />
+            <ambientLight intensity={theme === 'light' ? 1.0 : 0.5} />
             <rectAreaLight
               width={5}
               height={5}
               color="#ffffff"
-              intensity={4.0}
+              intensity={theme === 'light' ? 6.0 : 4.0}
               position={[2, 4, 3]}
               onUpdate={(self) => self.lookAt(0, 0, 0)}
             />
@@ -722,7 +726,7 @@ export function ThreeDemo() {
               position={[5, 8, 5]}
               angle={0.5}
               penumbra={0.5}
-              intensity={10.0}
+              intensity={theme === 'light' ? 20.0 : 10.0}
               castShadow
               shadow-bias={-0.0001}
               shadow-radius={4}
@@ -731,11 +735,11 @@ export function ThreeDemo() {
               width={8}
               height={2}
               color="#e0f2fe"
-              intensity={5.0}
+              intensity={theme === 'light' ? 8.0 : 5.0}
               position={[-3, 0, 4]}
               onUpdate={(self) => self.lookAt(0, 0, 0)}
             />
-            <spotLight position={[-5, 5, -2]} intensity={20.0} angle={0.5} penumbra={1} color="#2dd4bf" />
+            <spotLight position={[-5, 5, -2]} intensity={theme === 'light' ? 30.0 : 20.0} angle={0.5} penumbra={1} color={theme === 'light' ? "#0d9488" : "#2dd4bf"} />
 
             <group position={[0, -0.2, 0]}>
               <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
@@ -761,42 +765,44 @@ export function ThreeDemo() {
                 resolution={1024}
                 scale={20}
                 blur={1.5}
-                opacity={0.5}
+                opacity={theme === 'light' ? 0.3 : 0.5}
                 far={10}
                 color="#000000"
               />
               <LiftedWeight onRepComplete={() => setRepCount(c => c + 1)} isPointerDownRef={isPointerDownRef} />
             </group>
 
-            <EffectComposer multisampling={8}>
-              <SSAO
-                radius={0.4}
-                intensity={30}
-                luminanceInfluence={0.5}
-                color={new THREE.Color('black')}
-              />
-              <DepthOfField
-                target={[0, 0, 0]}
-                focalLength={0.02}
-                bokehScale={1.5}
-                height={480}
-              />
-              <Bloom
-                luminanceThreshold={1.1}
-                mipmapBlur
-                intensity={0.8}
-                radius={0.3}
-              />
-              <ChromaticAberration
-                offset={new THREE.Vector2(0.0005, 0.0005)}
-                radialModulation={false}
-                modulationOffset={0}
-              />
-              <Noise opacity={0.05} blendFunction={BlendFunction.OVERLAY} />
-              <Vignette eskil={false} offset={0.1} darkness={0.6} />
-              <BrightnessContrast brightness={0} contrast={0.15} />
-              <EffectToneMapping />
-            </EffectComposer>
+            {theme === 'dark' && (
+              <EffectComposer multisampling={8}>
+                <SSAO
+                  radius={0.4}
+                  intensity={30}
+                  luminanceInfluence={0.5}
+                  color={new THREE.Color('black')}
+                />
+                <DepthOfField
+                  target={[0, 0, 0]}
+                  focalLength={0.02}
+                  bokehScale={1.5}
+                  height={480}
+                />
+                <Bloom
+                  luminanceThreshold={1.1}
+                  mipmapBlur
+                  intensity={0.8}
+                  radius={0.3}
+                />
+                <ChromaticAberration
+                  offset={new THREE.Vector2(0.0005, 0.0005)}
+                  radialModulation={false}
+                  modulationOffset={0}
+                />
+                <Noise opacity={0.05} blendFunction={BlendFunction.OVERLAY} />
+                <Vignette eskil={false} offset={0.1} darkness={0.6} />
+                <BrightnessContrast brightness={0} contrast={0.15} />
+                <EffectToneMapping />
+              </EffectComposer>
+            )}
           </>
         )}
       </Canvas>

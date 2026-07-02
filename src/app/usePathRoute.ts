@@ -31,7 +31,14 @@ export const usePathRoute = (): {
     }
 
     const onPopState = (): void => {
-      setRoute(parsePathRoute(window.location.pathname, basePath))
+      const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver
+      if (!isAutomated && (document as any).startViewTransition) {
+        (document as any).startViewTransition(() => {
+          setRoute(parsePathRoute(window.location.pathname, basePath))
+        })
+      } else {
+        setRoute(parsePathRoute(window.location.pathname, basePath))
+      }
     }
 
     window.addEventListener('popstate', onPopState)
@@ -45,7 +52,14 @@ export const usePathRoute = (): {
       if (window.location.pathname !== nextPath) {
         window.history.pushState(null, '', nextPath)
       }
-      setRoute(next)
+      const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver
+      if (!isAutomated && (document as any).startViewTransition) {
+        (document as any).startViewTransition(() => {
+          setRoute(next)
+        })
+      } else {
+        setRoute(next)
+      }
     },
     [basePath]
   )

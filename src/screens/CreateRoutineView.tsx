@@ -14,6 +14,9 @@ type DraftExercise = {
   weight: string
   timeMins: string
   timeSecs: string
+  supersetName: string
+  supersetWeight: string
+  supersetImageUrl: string
 }
 
 type CreateRoutineViewProps = {
@@ -79,10 +82,13 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
         weight: typeof ex.weight === 'number' ? String(ex.weight) : '',
         timeMins: typeof ex.timeSeconds === 'number' ? String(Math.floor(ex.timeSeconds / 60)) : '',
         timeSecs: typeof ex.timeSeconds === 'number' ? String(Math.floor(ex.timeSeconds % 60)) : '',
+        supersetName: ex.supersetWith?.name ?? '',
+        supersetWeight: typeof ex.supersetWith?.weight === 'number' ? String(ex.supersetWith.weight) : '',
+        supersetImageUrl: ex.supersetWith?.imageUrls?.[0] ?? '',
       }))
     }
 
-    return [{ id: makeId(), name: '', imageUrl: '', sets: '', reps: '', weight: '', timeMins: '', timeSecs: '' }]
+    return [{ id: makeId(), name: '', imageUrl: '', sets: '', reps: '', weight: '', timeMins: '', timeSecs: '', supersetName: '', supersetWeight: '', supersetImageUrl: '' }]
   })
 
   const [dragExerciseId, setDragExerciseId] = React.useState<string | null>(null)
@@ -93,7 +99,7 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
   const [error, setError] = React.useState<string | null>(null)
 
   const addExercise = () => {
-    setExerciseDrafts((prev) => [...prev, { id: makeId(), name: '', imageUrl: '', sets: '', reps: '', weight: '', timeMins: '', timeSecs: '' }])
+    setExerciseDrafts((prev) => [...prev, { id: makeId(), name: '', imageUrl: '', sets: '', reps: '', weight: '', timeMins: '', timeSecs: '', supersetName: '', supersetWeight: '', supersetImageUrl: '' }])
   }
 
   const removeExercise = (id: string) => {
@@ -160,15 +166,25 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
     }
 
     const exercises = exerciseDrafts
-      .map((d) => ({
-        id: d.id,
-        name: d.name.trim(),
-        imageUrls: normalizeImageUrls(d.imageUrl),
-        sets: normalizeOptionalInt(d.sets),
-        reps: normalizeOptionalInt(d.reps),
-        weight: normalizeOptionalNumber(d.weight),
-        timeSeconds: normalizeOptionalDurationSeconds(d.timeMins, d.timeSecs),
-      }))
+      .map((d) => {
+        const supersetName = d.supersetName.trim()
+        return {
+          id: d.id,
+          name: d.name.trim(),
+          imageUrls: normalizeImageUrls(d.imageUrl),
+          sets: normalizeOptionalInt(d.sets),
+          reps: normalizeOptionalInt(d.reps),
+          weight: normalizeOptionalNumber(d.weight),
+          timeSeconds: normalizeOptionalDurationSeconds(d.timeMins, d.timeSecs),
+          supersetWith: supersetName
+            ? {
+                name: supersetName,
+                weight: normalizeOptionalNumber(d.supersetWeight),
+                imageUrls: normalizeImageUrls(d.supersetImageUrl),
+              }
+            : undefined,
+        }
+      })
       .filter((ex) => ex.name.length > 0)
 
     if (exercises.length === 0) {
@@ -366,6 +382,62 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
                     />
                   </label>
                 </div>
+
+                {/* Superset section */}
+                {ex.supersetName.trim() ? (
+                  <div className="supersetSection">
+                    <div className="supersetDivider">
+                      <span className="supersetLabel">⚡ Superset with</span>
+                      <button
+                        type="button"
+                        className="textButton smallTextButton"
+                        onClick={() => updateExercise(ex.id, { supersetName: '', supersetWeight: '', supersetImageUrl: '' })}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <input
+                      className="input"
+                      list="exercise-presets"
+                      value={ex.supersetName}
+                      onChange={(ev) => {
+                        const nextName = ev.target.value
+                        const preset = presetByName.get(nextName.trim().toLowerCase())
+                        updateExercise(ex.id, {
+                          supersetName: nextName,
+                          supersetImageUrl: !ex.supersetImageUrl && preset?.imageUrl ? preset.imageUrl : ex.supersetImageUrl,
+                        })
+                      }}
+                      placeholder="Second exercise name"
+                    />
+                    <input
+                      className="input"
+                      value={ex.supersetImageUrl}
+                      onChange={(ev) => updateExercise(ex.id, { supersetImageUrl: ev.target.value })}
+                      placeholder="Image URL (optional)"
+                    />
+                    <div className="exerciseMetaRow">
+                      <label className="metaField">
+                        <span className="metaLabel">Weight</span>
+                        <input
+                          className="input metaInput"
+                          inputMode="decimal"
+                          value={ex.supersetWeight}
+                          onChange={(ev) => updateExercise(ex.id, { supersetWeight: ev.target.value })}
+                          placeholder="Optional"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="textButton smallTextButton supersetAddBtn"
+                    onClick={() => updateExercise(ex.id, { supersetName: ' ' })}
+                  >
+                    + Add superset
+                  </button>
+                )}
               </div>
               <div className="exerciseRowActions">
                 <button

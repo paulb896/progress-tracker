@@ -13,18 +13,16 @@ type StatsViewProps = {
 export const StatsView = ({ completions, onBack, onViewCompletion }: StatsViewProps) => {
   return (
     <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%', paddingBottom: 64 }}>
-      <div className="headerRow animate-fade-in-up" style={{ marginBottom: 32, alignItems: 'center' }}>
-        <div>
-          <button type="button" className="button secondary" onClick={onBack} style={{ marginBottom: 16 }}>
-            ← Back
-          </button>
-          <h1 className="heroTitle" style={{ fontSize: '2.5rem', marginBottom: 8 }}>
-            Your <span className="textGradient">Progress</span>
-          </h1>
-          <p className="heroSubtitle" style={{ margin: 0, fontSize: '1rem', maxWidth: 600 }}>
-            Visualize your gains and track your workout history over time.
-          </p>
-        </div>
+      <div className="animate-fade-in-up" style={{ marginBottom: 40 }}>
+        <button type="button" className="button secondary" onClick={onBack} style={{ marginBottom: 20 }}>
+          ← Back
+        </button>
+        <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: 12 }}>
+          Your <span className="textGradient">Progress</span>
+        </h1>
+        <p style={{ margin: 0, fontSize: '1.05rem', color: 'var(--muted)', maxWidth: 520, lineHeight: 1.7, fontWeight: 400 }}>
+          Explore comprehensive analytics, volume tracking, and muscle recovery heatmap trends.
+        </p>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>

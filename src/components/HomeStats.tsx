@@ -144,6 +144,7 @@ export const HomeStats = ({ completions }: { completions: RoutineCompletion[] })
         <div className="infoHubWrapper" onClick={() => setSelectedIndex(null)}>
            <div className={`infoHub ${isHubActive ? 'active' : ''}`}>
              <div className="infoHubRing"></div>
+             <div className="infoHubRingOuter"></div>
              <div className="infoHubInner">
                <div className="infoHubIconWrapper">
                  <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

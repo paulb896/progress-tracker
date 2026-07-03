@@ -119,12 +119,12 @@ const Collar = ({ position }: { position: [number, number, number] }) => {
 
 // Available plates in lbs
 const AVAILABLE_PLATES = [
-  { weight: 45, color: '#222', radius: 0.225, width: 0.06 }, // Standard 45
-  { weight: 35, color: '#222', radius: 0.18, width: 0.05 },
-  { weight: 25, color: '#222', radius: 0.14, width: 0.045 },
-  { weight: 10, color: '#222', radius: 0.11, width: 0.035 },
-  { weight: 5, color: '#222', radius: 0.09, width: 0.025 },
-  { weight: 2.5, color: '#222', radius: 0.08, width: 0.02 },
+  { weight: 45, color: '#e63946', radius: 0.225, width: 0.06 }, // Red
+  { weight: 35, color: '#1d3557', radius: 0.18, width: 0.05 },  // Blue
+  { weight: 25, color: '#eab308', radius: 0.14, width: 0.045 }, // Yellow
+  { weight: 10, color: '#2a9d8f', radius: 0.11, width: 0.035 }, // Green
+  { weight: 5, color: '#f8f9fa', radius: 0.09, width: 0.025 },  // White
+  { weight: 2.5, color: '#457b9d', radius: 0.08, width: 0.02 }, // Steel Blue
 ]
 
 const calculatePlates = (targetWeight: number, barWeight = 45) => {

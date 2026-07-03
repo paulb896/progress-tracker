@@ -75,42 +75,44 @@ export const DataManagement = () => {
   }
 
   return (
-    <div className="glassPanel" style={{ borderRadius: 24, padding: 24, marginTop: 32 }}>
-      <h2 className="panelTitlePlain" style={{ marginBottom: 16 }}>Data Management</h2>
-      <p style={{ color: 'var(--muted)', marginBottom: 24 }}>
-        Export your data to back it up or transfer it to another device.
-      </p>
+    <div className="glassPanel subPanel" style={{ borderRadius: 24, padding: 24, marginTop: 32 }}>
+      <div>
+        <h2 className="panelTitlePlain" style={{ marginBottom: 16 }}>Data Management</h2>
+        <p style={{ color: 'var(--muted)', marginBottom: 24 }}>
+          Create a portable backup file (.json) to secure your workout history or sync to another device.
+        </p>
 
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        <button className="button secondary" onClick={handleExport}>
-            <span style={{ marginRight: 8 }}>↓</span> Export Backup
-        </button>
-        
-        <button className="button secondary" onClick={handleImportClick}>
-            <span style={{ marginRight: 8 }}>↑</span> Import Backup
-        </button>
-      </div>
-
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        accept=".json"
-        style={{ display: 'none' }}
-      />
-
-      {importStatus && (
-        <div style={{ 
-          marginTop: 16, 
-          padding: 12, 
-          borderRadius: 8, 
-          background: importStatus.type === 'success' ? 'rgba(45, 212, 191, 0.1)' : 'rgba(251, 113, 133, 0.1)',
-          color: importStatus.type === 'success' ? 'var(--accent)' : 'var(--danger)',
-          border: `1px solid ${importStatus.type === 'success' ? 'var(--accent)' : 'var(--danger)'}`
-        }}>
-          {importStatus.message}
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          <button className="button secondary" onClick={handleExport}>
+              <span style={{ marginRight: 8 }}>↓</span> Export Backup
+          </button>
+          
+          <button className="button secondary" onClick={handleImportClick}>
+              <span style={{ marginRight: 8 }}>↑</span> Import Backup
+          </button>
         </div>
-      )}
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept=".json"
+          style={{ display: 'none' }}
+        />
+
+        {importStatus && (
+          <div style={{ 
+            marginTop: 16, 
+            padding: 12, 
+            borderRadius: 8, 
+            background: importStatus.type === 'success' ? 'color-mix(in srgb, var(--accent) 12%, transparent)' : 'color-mix(in srgb, var(--danger) 12%, transparent)',
+            color: importStatus.type === 'success' ? 'var(--accent)' : 'var(--danger)',
+            border: `1px solid ${importStatus.type === 'success' ? 'color-mix(in srgb, var(--accent) 30%, transparent)' : 'color-mix(in srgb, var(--danger) 30%, transparent)'}`
+          }}>
+            {importStatus.message}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

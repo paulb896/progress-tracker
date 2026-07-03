@@ -6,6 +6,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
   Legend,
   Line,
   LineChart,
@@ -34,6 +35,7 @@ const PIE_COLORS = ['#ff4d85', '#b25aff', '#8c52ff', '#5b8cff', '#00e5ff', '#32c
 
 export const ProgressCharts = ({ completions }: ProgressChartsProps) => {
   const [selectedExercise, setSelectedExercise] = useState<string>('')
+  const [monthsRange, setMonthsRange] = useState<number>(3)
 
   // 1. Aggregate data for specific exercise charts (Volume & Max Weight)
   const { exerciseOptions, exerciseData } = useMemo(() => {
@@ -146,6 +148,51 @@ export const ProgressCharts = ({ completions }: ProgressChartsProps) => {
     return data
   }, [completions])
 
+  const repsWeightDailyData = useMemo(() => {
+    if (!selectedExercise) return []
+
+    const cutoffDate = new Date()
+    cutoffDate.setMonth(cutoffDate.getMonth() - monthsRange)
+
+    const dailyMap = new Map<string, { dateObj: Date; totalReps: number; maxWeight: number }>()
+
+    completions.forEach(c => {
+      const d = new Date(c.completedAt)
+      if (d < cutoffDate) return
+
+      const dateKey = d.toISOString().split('T')[0]
+
+      if (!c.exercises) return
+
+      c.exercises.forEach(ex => {
+        if (ex.name.trim() !== selectedExercise.trim()) return
+
+        const sets = ex.sets || 1
+        const reps = ex.reps || 0
+        const weight = ex.weight || 0
+        const totalReps = sets * reps
+
+        if (!dailyMap.has(dateKey)) {
+          dailyMap.set(dateKey, { dateObj: d, totalReps: 0, maxWeight: 0 })
+        }
+
+        const dayEntry = dailyMap.get(dateKey)!
+        dayEntry.totalReps += totalReps
+        if (weight > dayEntry.maxWeight) {
+          dayEntry.maxWeight = weight
+        }
+      })
+    })
+
+    return Array.from(dailyMap.values())
+      .sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime())
+      .map(entry => ({
+        dateLabel: entry.dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+        totalReps: entry.totalReps,
+        maxWeight: entry.maxWeight
+      }))
+  }, [completions, selectedExercise, monthsRange])
+
 
   if (completions.length === 0 || exerciseOptions.length === 0) return null
 
@@ -168,8 +215,14 @@ export const ProgressCharts = ({ completions }: ProgressChartsProps) => {
     <section className="panel glassPanel" style={{ marginTop: 24, overflow: 'hidden' }}>
       <div className="panelHeaderPlain" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ color: 'var(--accent)' }}><ChartIcon /></div>
-            <h2 className="panelTitlePlain">Progress Tracking</h2>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: 'var(--accent-soft)',
+              border: '1px solid color-mix(in srgb, var(--accent) 15%, transparent)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--accent)'
+            }}><ChartIcon /></div>
+            <h2 className="panelTitlePlain" style={{ letterSpacing: '-0.03em' }}>Progress Tracking</h2>
         </div>
       </div>
 
@@ -279,6 +332,46 @@ export const ProgressCharts = ({ completions }: ProgressChartsProps) => {
             </div>
         </div>
 
+        {/* --- ROW 3: Daily Reps & Weight Composed Timeline --- */}
+        <div className="subPanel" style={{ gridColumn: '1 / -1', background: 'var(--surface-sunken)', borderRadius: 16, padding: 20, marginTop: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+                <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--text)' }}>Daily Reps & Weight Timeline</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>Timeframe:</span>
+                    <select
+                        className="input"
+                        style={{ width: 'auto', padding: '6px 12px', fontSize: '0.85rem', borderRadius: 8 }}
+                        value={monthsRange}
+                        onChange={(e) => setMonthsRange(Number(e.target.value))}
+                    >
+                        <option value={1}>Last Month</option>
+                        <option value={3}>Last 3 Months</option>
+                        <option value={6}>Last 6 Months</option>
+                        <option value={12}>Last 12 Months</option>
+                    </select>
+                </div>
+            </div>
+            {repsWeightDailyData.length === 0 ? (
+                <div style={{ height: 260, display: 'grid', placeContent: 'center', color: 'var(--muted)', fontSize: '0.9rem' }}>
+                    No recorded logs for {selectedExercise} in the last {monthsRange} month(s).
+                </div>
+            ) : (
+                <div style={{ height: 280, width: '100%' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <ComposedChart data={repsWeightDailyData} margin={{ top: 10, right: -5, left: -20, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-2)" />
+                            <XAxis dataKey="dateLabel" tick={{ fill: 'var(--muted)', fontSize: 11 }} tickLine={false} axisLine={false} />
+                            <YAxis yAxisId="left" tick={{ fill: 'var(--muted)', fontSize: 11 }} tickLine={false} axisLine={false} label={{ value: 'Max Weight', angle: -90, position: 'insideLeft', offset: 10, style: { fill: 'var(--muted)', fontSize: 11, fontWeight: 600 } }} />
+                            <YAxis yAxisId="right" orientation="right" tick={{ fill: 'var(--muted)', fontSize: 11 }} tickLine={false} axisLine={false} label={{ value: 'Total Reps', angle: 90, position: 'insideRight', offset: 10, style: { fill: 'var(--muted)', fontSize: 11, fontWeight: 600 } }} />
+                            <Tooltip contentStyle={tooltipStyle} labelStyle={labelStyle} />
+                            <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 0 }} />
+                            <Bar yAxisId="right" dataKey="totalReps" name="Total Reps" fill="var(--accent)" radius={[4, 4, 0, 0]} maxBarSize={30} opacity={0.6} />
+                            <Line yAxisId="left" type="monotone" dataKey="maxWeight" name="Max Weight" stroke="#ff4d85" strokeWidth={3} dot={{ r: 4, strokeWidth: 0, fill: '#ff4d85' }} activeDot={{ r: 6 }} />
+                        </ComposedChart>
+                    </ResponsiveContainer>
+                </div>
+            )}
+        </div>
       </div>
     </section>
   )

@@ -36,18 +36,16 @@ export const HowToView = ({ onBack }: HowToViewProps) => {
 
   return (
     <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%' }}>
-      <div className="headerRow" style={{ marginBottom: 32, alignItems: 'center' }}>
-        <div>
-          <button type="button" className="button secondary" onClick={onBack} style={{ marginBottom: 16 }}>
-            ← Back
-          </button>
-          <h1 className="heroTitle" style={{ fontSize: '2.5rem', marginBottom: 8 }}>
-            How it <span className="textGradient">Works</span>
-          </h1>
-          <p className="heroSubtitle" style={{ margin: 0, fontSize: '1rem', maxWidth: 600 }}>
-            Short visual guides to help you get the most out of your workout tracking.
-          </p>
-        </div>
+      <div className="animate-fade-in-up" style={{ marginBottom: 40 }}>
+        <button type="button" className="button secondary" onClick={onBack} style={{ marginBottom: 20 }}>
+          ← Back
+        </button>
+        <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: 12 }}>
+          How it <span className="textGradient">Works</span>
+        </h1>
+        <p style={{ margin: 0, fontSize: '1.05rem', color: 'var(--muted)', maxWidth: 520, lineHeight: 1.7, fontWeight: 400 }}>
+          Interactive visual demonstrations to master your routine creation and tracking workflow.
+        </p>
       </div>
 
       {SCENARIO_GIFS.length === 0 ? (
@@ -92,7 +90,7 @@ export const HowToView = ({ onBack }: HowToViewProps) => {
                     <div style={{ 
                         width: 24, height: 24, flex: '0 0 auto', 
                         background: isActive ? 'var(--accent)' : 'var(--surface-3)', 
-                        color: isActive ? '#000' : 'inherit',
+                        color: isActive ? 'var(--on-accent)' : 'inherit',
                         borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'
                       }}>
                       {isActive ? <PlayIcon /> : <span style={{ fontSize: 12, fontWeight: 700 }}>{SCENARIO_GIFS.indexOf(s) + 1}</span>}

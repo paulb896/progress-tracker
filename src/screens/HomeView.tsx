@@ -45,13 +45,13 @@ export const HomeView = ({
       <section className="heroSection">
         <img src={resolveImageUrl('/logo.png')} alt="Progress Tracker" className="heroLogo" />
         <div className="heroContent">
-          <h1 className="heroTitle">
-            Create your routines <br />
-            with <span className="textGradient">custom exercises</span> <br />
-            and achieve your fitness goals.
+          <h1 className="heroTitle" aria-label="Create your routines with custom exercises and achieve your fitness goals.">
+            Design your routines. <br />
+            Log your power. <br />
+            Track your <span className="textGradient">progress.</span>
           </h1>
           <p className="heroSubtitle">
-            All of your completed workouts are tracked in one place, making it easy to monitor your progress over time.
+            A premium, offline-first dashboard designed to visualize your muscle recovery, plate loading, and training volume progression over time.
           </p>
 
           <div className="heroActions">
@@ -112,7 +112,7 @@ export const HomeView = ({
                   ))}
                 </div>
               ) : (
-                <div className="empty">No routines yet. Create one to get started.</div>
+                <div className="empty">No training routines found. Create your first routine to start logging workouts.</div>
               )}
             </div>
           </section>

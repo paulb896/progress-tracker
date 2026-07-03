@@ -173,7 +173,6 @@ const LiftedWeight = ({
   onRepComplete: () => void
   isPointerDownRef: React.MutableRefObject<boolean> 
 }) => {
-  const theme = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-theme') || 'dark' : 'dark'
   const knurlMap = useKnurlingMap()
   const radialMap = useRadialMap()
   const noiseMap = useNoiseMap()
@@ -432,13 +431,13 @@ const LiftedWeight = ({
 
       {/* --- PLATES (Loaded) --- */}
       {/* Left Side */}
-      <Plate position={[-0.70, 0, 0]} color={theme === 'light' ? '#64748b' : '#222'} noiseMap={noiseMap} />
-      <Plate position={[-0.77, 0, 0]} color={theme === 'light' ? '#64748b' : '#222'} noiseMap={noiseMap} />
+      <Plate position={[-0.70, 0, 0]} color="#e63946" noiseMap={noiseMap} />
+      <Plate position={[-0.77, 0, 0]} color="#1d3557" noiseMap={noiseMap} />
       <Collar position={[-0.66, 0, 0]} />
 
       {/* Right Side */}
-      <Plate position={[0.70, 0, 0]} color={theme === 'light' ? '#64748b' : '#222'} noiseMap={noiseMap} />
-      <Plate position={[0.77, 0, 0]} color={theme === 'light' ? '#64748b' : '#222'} noiseMap={noiseMap} />
+      <Plate position={[0.70, 0, 0]} color="#e63946" noiseMap={noiseMap} />
+      <Plate position={[0.77, 0, 0]} color="#1d3557" noiseMap={noiseMap} />
       <Collar position={[0.66, 0, 0]} />
 
     </group>
@@ -614,8 +613,8 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
       <div style={{
         position: 'absolute',
         bottom: isNarrow ? undefined : '80px',
-        top: isNarrow ? '20px' : undefined,
-        right: isNarrow ? '20px' : '120px',
+        top: isNarrow ? '24px' : undefined,
+        right: isNarrow ? '84px' : '120px',
         zIndex: 10,
         textAlign: 'right',
         pointerEvents: 'none'
@@ -624,7 +623,7 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
           fontSize: '0.75rem',
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
-          color: '#64748b',
+          color: 'var(--muted)',
           marginBottom: '4px'
         }}>
           Reps
@@ -633,7 +632,7 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
           fontSize: '2.2rem',
           fontWeight: 800,
           fontVariantNumeric: 'tabular-nums',
-          color: '#f8fafc',
+          color: 'var(--text)',
           lineHeight: 1,
         }}>
           {repCount}

@@ -44,7 +44,7 @@ export const RecentActivity = ({ completions, onViewCompletion }: RecentActivity
             ))}
           </div>
         ) : (
-          <div className="emptyMini">No history yet.</div>
+          <div className="emptyMini">No completed workouts logged yet.</div>
         )}
       </div>
     </section>

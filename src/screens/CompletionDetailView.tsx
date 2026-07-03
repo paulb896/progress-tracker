@@ -106,7 +106,7 @@ export const CompletionDetailView = ({ completion, onBack, onDelete, onUpdate }:
   }
 
   return (
-    <div className="panel">
+    <div className="panel glassPanel">
       <div className="panelTitleRow">
         <div>
           <div className="panelTitle">Completed routine</div>
@@ -392,7 +392,7 @@ export const CompletionDetailView = ({ completion, onBack, onDelete, onUpdate }:
           </div>
         ) : (
           <div className="empty" style={{ marginTop: 12 }}>
-            No exercise snapshot was saved for this completion.
+            No exercise records were saved for this workout.
           </div>
         )}
       </div>

@@ -210,7 +210,7 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
   }
 
   return (
-    <div className="panel createPanel">
+    <div className="panel glassPanel createPanel">
       <div className="panelTitleRow">
         <div className="panelTitle">{isEdit ? 'Edit routine' : 'Create routine'}</div>
         <button type="button" className="button secondary" onClick={onCancel}>
@@ -240,7 +240,7 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
         <div className="rowBetween">
           <div>
             <div className="fieldLabel">Exercises</div>
-            <div className="hint">Optionally add an image URL for reference (you can expand this later to multiple images).</div>
+            <div className="hint">Provide reference image URLs (optional) to visually guide you during workout execution.</div>
           </div>
         </div>
 

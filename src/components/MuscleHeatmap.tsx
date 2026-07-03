@@ -648,16 +648,19 @@ const MuscleSuggestions = ({ completions }: { completions: RoutineCompletion[] }
           position: 'absolute',
           bottom: 12,
           right: 12,
-          background: 'rgba(0,0,0,0.8)',
+          background: 'var(--surface-glass)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
           padding: '8px 12px',
           borderRadius: 8,
-          border: '1px solid #333',
-          color: 'white',
+          border: '1px solid var(--border-2)',
+          color: 'var(--text)',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           gap: 8,
           fontSize: 12,
+          boxShadow: 'var(--shadow-sm)'
         }}
       >
         <div style={{ display: 'flex', gap: 4 }}>
@@ -675,22 +678,25 @@ const MuscleSuggestions = ({ completions }: { completions: RoutineCompletion[] }
       position: 'absolute',
       top: 12,
       right: 12,
-      background: 'rgba(0,0,0,0.85)',
+      background: 'var(--surface-glass)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
       padding: '14px 16px',
       borderRadius: 10,
-      border: '1px solid #333',
-      color: 'white',
+      border: '1px solid var(--border-2)',
+      color: 'var(--text)',
       maxWidth: 220,
       maxHeight: 'calc(100% - 24px)',
       overflowY: 'auto',
       zIndex: 10,
+      boxShadow: 'var(--shadow-lg)'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
         <h3 style={{ margin: 0, fontSize: 15, borderBottom: 'none', paddingBottom: 0 }}>Recovery Status</h3>
         <button
           onClick={() => setExpanded(false)}
           style={{
-            background: 'none', border: 'none', color: '#888', cursor: 'pointer',
+            background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer',
             fontSize: 18, lineHeight: 1, padding: '0 2px',
           }}
         >×</button>
@@ -705,23 +711,26 @@ const MuscleSuggestions = ({ completions }: { completions: RoutineCompletion[] }
         ))}
       </div>
 
-      <h4 style={{ margin: '0 0 6px 0', fontSize: 13, color: '#4ade80' }}>Fresh Muscles</h4>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+      <h4 style={{ margin: '0 0 6px 0', fontSize: 13, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 700 }}>Fresh Muscles</h4>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
         {freshMuscles.length > 0 ? (
           freshMuscles.map(m => (
             <span key={m} style={{ 
-              fontSize: 11, 
-              background: 'rgba(74, 222, 128, 0.15)', 
-              color: '#4ade80', 
-              padding: '3px 6px', 
-              borderRadius: 4,
-              border: '1px solid rgba(74, 222, 128, 0.3)'
+              fontSize: 10, 
+              fontWeight: 700,
+              background: 'color-mix(in srgb, var(--accent) 12%, transparent)', 
+              color: 'var(--accent)', 
+              padding: '4px 8px', 
+              borderRadius: 6,
+              border: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.02em'
             }}>
               {m}
             </span>
           ))
         ) : (
-          <span style={{ fontSize: 12, color: '#888', fontStyle: 'italic' }}>No fully fresh muscles yet!</span>
+          <span style={{ fontSize: 12, color: 'var(--muted)', fontStyle: 'italic' }}>No fully fresh muscles yet!</span>
         )}
       </div>
     </div>

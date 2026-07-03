@@ -45,6 +45,12 @@ const ProgressGauge = ({ doneCount, totalCount, progress }: ProgressGaugeProps) 
       aria-valuenow={percent}
     >
       <svg className="runGaugeSvg" viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+        <defs>
+          <linearGradient id="runGaugeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="var(--accent)" />
+            <stop offset="100%" stopColor="var(--accent-hover)" />
+          </linearGradient>
+        </defs>
         <circle className="runGaugeTrack" cx={size / 2} cy={size / 2} r={radius} strokeWidth={stroke} fill="none" />
         <circle
           className="runGaugeValue"
@@ -53,6 +59,7 @@ const ProgressGauge = ({ doneCount, totalCount, progress }: ProgressGaugeProps) 
           r={radius}
           strokeWidth={stroke}
           fill="none"
+          stroke="url(#runGaugeGrad)"
           strokeDasharray={`${circumference}`}
           strokeDashoffset={`${dashOffset}`}
         />
@@ -239,20 +246,26 @@ export const RunRoutineView = ({
               <div className="runStatusTitle">
                 {doneCount} / {totalCount} completed
               </div>
-              <div className="hint">
+              <div className="runNextContainer">
                 {nextUndone ? (
                   <>
-                    Next up: <span className="runNextName">{nextUndone.name}</span>
+                    <span className="runNextBadge">Next Up</span>
+                    <span className="runNextName">{nextUndone.name}</span>
                   </>
                 ) : (
-                  <span>All done.</span>
+                  <span className="runAllDoneBadge">✓ Routine Completed</span>
                 )}
               </div>
             </div>
 
             <div className="runStickyRight" aria-label={`Progress ${progressPercent}%`}>
               <ProgressGauge doneCount={doneCount} totalCount={totalCount} progress={progress} />
-              <button type="button" className="button primary" onClick={onComplete} disabled={!allDone}>
+              <button
+                type="button"
+                className={allDone ? 'button primary runCompleteBtnPulse' : 'button primary'}
+                onClick={onComplete}
+                disabled={!allDone}
+              >
                 Complete routine
               </button>
             </div>

@@ -901,7 +901,7 @@ export const GameView = ({ onBack }: GameViewProps) => {
             <div style={{ 
               position: 'absolute', 
               inset: 0, 
-              background: 'rgba(5, 5, 10, 0.9)', 
+              background: 'transparent', 
               display: 'flex', 
               flexDirection: 'column', 
               alignItems: 'center', 
@@ -946,7 +946,7 @@ export const GameView = ({ onBack }: GameViewProps) => {
                   </p>
                   
                   <div style={{ width: '100%', maxWidth: 440, margin: '0 auto 24px', textAlign: 'left' }}>
-                    <div style={{ border: '1px solid var(--border-2)', padding: 12, borderRadius: 4, background: 'rgba(255,255,255,0.02)' }}>
+                    <div style={{ border: '1px solid var(--border-2)', padding: 12, borderRadius: 4, background: 'transparent' }}>
                       <div style={{ fontSize: 10, fontWeight: 'bold', color: 'var(--accent)', textTransform: 'uppercase' }}>SINGLE BUTTON ACTION (SPACEBAR OR TAP SCREEN)</div>
                       <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>
                         • **ON HILL CRESTS**: Tap/Release to **JUMP** for massive distance!<br/>

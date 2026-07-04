@@ -52,9 +52,9 @@
   --danger-soft: rgba(251, 113, 133, 0.12);
 
   /* Hero Section Theme Styles */
-  --hero-bg: radial-gradient(ellipse at 70% 40%, rgba(124, 58, 237, 0.18) 0%, rgba(6, 6, 11, 0.95) 60%);
-  --hero-border: rgba(255, 255, 255, 0.06);
-  --hero-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  --hero-bg: transparent;
+  --hero-border: transparent;
+  --hero-shadow: none;
   --hero-title-color: #ffffff;
   --hero-subtitle-color: rgba(241, 245, 249, 0.65);
   --hero-btn-primary-bg: linear-gradient(135deg, #34d399, #22d3ee);
@@ -123,9 +123,9 @@ button {
   --danger-soft: rgba(225, 29, 72, 0.08);
 
   /* Hero Section Theme overrides */
-  --hero-bg: radial-gradient(circle at 70% 50%, #e0e7ff 0%, #fafaff 70%);
-  --hero-border: rgba(99, 102, 241, 0.08);
-  --hero-shadow: 0 16px 40px rgba(99, 102, 241, 0.08);
+  --hero-bg: transparent;
+  --hero-border: transparent;
+  --hero-shadow: none;
   --hero-title-color: #1e1b4b;
   --hero-subtitle-color: rgba(30, 27, 75, 0.75);
 
@@ -178,9 +178,9 @@ button {
     --danger-soft: rgba(225, 29, 72, 0.08);
 
     /* Hero Section Theme overrides */
-    --hero-bg: radial-gradient(circle at 70% 50%, #e0e7ff 0%, #fafaff 70%);
-    --hero-border: rgba(99, 102, 241, 0.08);
-    --hero-shadow: 0 16px 40px rgba(99, 102, 241, 0.08);
+    --hero-bg: transparent;
+    --hero-border: transparent;
+    --hero-shadow: none;
     --hero-title-color: #1e1b4b;
     --hero-subtitle-color: rgba(30, 27, 75, 0.75);
 

@@ -37,13 +37,18 @@ We have successfully migrated the application style system to a unique, scientif
 - **Throttled State Synced**: Distance, score, combo, velocity, and time HUD states are updated back to the React UI context at a throttled low frequency (every 2m or 8 frames), ensuring smooth stats reporting without any performance lag.
 - **Game Key Refresh**: Incremented a React `gameKey` state upon starting or restarting, forcing a clean R3F scene graph recreation only once per session.
 
-### 4. High-Performance Optimization (Buttery Smooth 60 FPS)
+### 4. Transparent Dashboard Hero Backdrop
+- **Seamless Three.js Weight Lifting Visualizer**: Set `--hero-bg` and `--hero-border` theme variables to `transparent` and `--hero-shadow` to `none` across both dark and light modes.
+- **Floating 3D Scene**: This removes the solid box container panel and gradient overlay behind the hero title, subtitle, and action buttons on the home screen. The 3D weight lifting visualizer scene now floats natively and blends seamlessly directly on top of the main global page backdrop.
+- **Transparent Instruction overlays**: Removed the solid dark mask on the mini-game start screen instruction box (`background: transparent`), allowing the 3D chrome sphere rider tracks to be fully visible behind the instructions before launching.
+
+### 5. High-Performance Optimization (Buttery Smooth 60 FPS)
 - **Segment Length Multiplied by 5**: Increased the procedural track segment step size from `0.8` meters to `4.0` meters. This yields a massive **5x reduction** in active segment nodes (dropping the segment count from ~370 to just ~85), dramatically lowering React reconciler and CPU overhead.
 - **Removed Structural Pillars and Lower Decks**: Removed the heavy deck boxes and vertical bridge columns from the scene graph. The track is now rendered purely as floating neon rails and crossbar ties, cutting down the overall draw call count by an additional **50%**.
 - **Disabled WebGL Real-time Shadows**: Completely removed the expensive `shadows` rendering map from the `<Canvas>` tag and deactivated `castShadow`/`receiveShadow` parameters on the player sphere mesh. This reduces rendering load on both CPU and GPU by **300% to 500%**, preventing lag spikes.
 - **Low-Polygon Hoops**: Reduced hoop torus geometry segments from `8 x 24` to a lightweight `4 x 12`, making them extremely fast to compute and render.
 
-### 5. Visual Polish & Audio Synthesis (Game Feel)
+### 6. Visual Polish & Audio Synthesis (Game Feel)
 - **Skeletal Double-Rail Marble Coaster Track**:
   - Migrated the flat monorail deck to a floating **double-rail GraviTrax-style coaster track**.
   - Renders two parallel neon cyan pipe rails (`Z = 0.28` and `Z = -0.28`, offset slightly down) running along the hills.
@@ -65,7 +70,7 @@ We have successfully migrated the application style system to a unique, scientif
 - **Victory Confetti Shower**: Added a physics-emulated falling emoji shower (`🎉`, `🏆`, `💪`, `🔥`, `🏁`) cascading across the screen upon victory.
 - **Immediate Speedometer Reset**: Wired a reactive velocity state variable to the speedometer UI gauge. Momentum velocity resets immediately to initial levels on reset, resolving stale speedometer caching.
 
-### 6. Endless Milestone Checkpoints & Time Bonuses
+### 7. Endless Milestone Checkpoints & Time Bonuses
 - **Time Bonuses**:
   - The countdown timer ticks down continuously. Players can sustain their run indefinitely by scoring landings:
     - **Perfect Downhill Boost**: Awards `+3 seconds` to the clock.

@@ -3,6 +3,7 @@ import type { RoutineCompletion } from '../completions/types'
 import { resolveImageUrl } from '../app/resolveImageUrl'
 import { formatDuration } from '../app/formatDuration'
 import { EXERCISE_PRESETS } from '../exercises/presets'
+import { getPeriodicElement } from '../app/periodicTable'
 
 type DraftExercise = {
   id: string
@@ -242,7 +243,26 @@ export const CompletionDetailView = ({ completion, onBack, onDelete, onUpdate }:
             {exercises.map((ex) => (
               <div key={ex.id} className="runRow">
                 <div className="runRowTop">
-                  <span className="completionBullet" aria-hidden="true" />
+                  {(() => {
+                    const exName = isEditing
+                      ? (draftExercises.find((d) => d.id === ex.id)?.name ?? '').trim() || ex.name
+                      : ex.name;
+                    const el = getPeriodicElement(exName);
+                    return (
+                      <span 
+                        className="pt-mini-symbol" 
+                        style={{ 
+                          '--element-color': el.color,
+                          marginRight: 12,
+                          width: 32,
+                          height: 32,
+                          fontSize: 12
+                        } as React.CSSProperties}
+                      >
+                        {el.symbol}
+                      </span>
+                    );
+                  })()}
                   <span className="runName">
                     {isEditing
                       ? (draftExercises.find((d) => d.id === ex.id)?.name ?? '').trim() || ex.name

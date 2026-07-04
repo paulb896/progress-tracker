@@ -6,6 +6,7 @@ export type Route =
   | { name: 'run'; routineId: string }
   | { name: 'completed'; completionId: string }
   | { name: 'stats' }
+  | { name: 'game' }
 
 const normalizeBasePath = (basePath: string): string => {
   let normalized = (basePath || '/').trim()
@@ -30,6 +31,7 @@ export const parsePathRoute = (pathname: string, basePath: string): Route => {
   if (path === 'how-to') return { name: 'howto' }
   if (path === 'create') return { name: 'create' }
   if (path === 'stats') return { name: 'stats' }
+  if (path === 'game') return { name: 'game' }
 
   const editMatch = path.match(/^edit\/([^/]+)$/)
   if (editMatch) return { name: 'edit', routineId: editMatch[1] }
@@ -55,6 +57,8 @@ export const toPath = (route: Route, basePath: string): string => {
         return 'create'
       case 'stats':
         return 'stats'
+      case 'game':
+        return 'game'
       case 'edit':
         return `edit/${route.routineId}`
       case 'run':

@@ -3,6 +3,7 @@ import type { Routine } from '../routines/types'
 import { makeId } from '../routines/id'
 import type { RoutineCompletion } from '../completions/types'
 import { EXERCISE_PRESETS } from '../exercises/presets'
+import { getPeriodicElement } from '../app/periodicTable'
 import { resolveImageUrl } from '../app/resolveImageUrl'
 
 type DraftExercise = {
@@ -266,26 +267,39 @@ export const CreateRoutineView = ({ initialRoutine = null, completionHistory = [
                 setDragOverExerciseId(null)
               }}
             >
-              <div
-                className="exerciseIndex exerciseDragHandle"
-                draggable
-                role="button"
-                tabIndex={0}
-                aria-label="Drag to reorder"
-                title="Drag to reorder"
-                onDragStart={(ev) => {
-                  setDragExerciseId(ex.id)
-                  setDragOverExerciseId(ex.id)
-                  ev.dataTransfer.effectAllowed = 'move'
-                  ev.dataTransfer.setData('text/plain', ex.id)
-                }}
-                onDragEnd={() => {
-                  setDragExerciseId(null)
-                  setDragOverExerciseId(null)
-                }}
-              >
-                {index + 1}
-              </div>
+              {(() => {
+                const el = getPeriodicElement(ex.name || 'Exercise')
+                return (
+                  <div
+                    className="exerciseIndex exerciseDragHandle pt-mini-symbol"
+                    style={{ 
+                      '--element-color': el.color,
+                      width: 44,
+                      height: 44,
+                      fontSize: 13,
+                      cursor: 'grab',
+                      background: 'color-mix(in srgb, var(--element-color) 12%, transparent)'
+                    } as React.CSSProperties}
+                    draggable
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Drag to reorder"
+                    title="Drag to reorder"
+                    onDragStart={(ev) => {
+                      setDragExerciseId(ex.id)
+                      setDragOverExerciseId(ex.id)
+                      ev.dataTransfer.effectAllowed = 'move'
+                      ev.dataTransfer.setData('text/plain', ex.id)
+                    }}
+                    onDragEnd={() => {
+                      setDragExerciseId(null)
+                      setDragOverExerciseId(null)
+                    }}
+                  >
+                    {el.symbol}
+                  </div>
+                )
+              })()}
               <div className="exerciseFields">
                 <input
                   className="input"

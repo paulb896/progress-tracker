@@ -5,6 +5,8 @@ import { resolveImageUrl } from '../app/resolveImageUrl'
 
 import { RecentActivity } from '../components/RecentActivity'
 
+import { getPeriodicElement } from '../app/periodicTable'
+
 type HomeViewProps = {
   routines: Routine[]
   completions: RoutineCompletion[]
@@ -15,24 +17,16 @@ type HomeViewProps = {
   onDelete: (routineId: string) => void
   onViewCompletion: (completionId: string) => void
   onStats: () => void
+  onPlayGame: () => void
   headerRight?: React.ReactNode
 }
-
-const DumbbellIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M7 12h10" />
-    <rect x="2" y="6" width="3" height="12" rx="1" />
-    <rect x="5" y="8" width="2" height="8" rx="1" />
-    <rect x="17" y="8" width="2" height="8" rx="1" />
-    <rect x="19" y="6" width="3" height="12" rx="1" />
-  </svg>
-)
 
 export const HomeView = ({
   routines,
   completions,
   onCreate,
   onHowTo,
+  onPlayGame,
   onEdit,
   onRun,
   onDelete,
@@ -86,21 +80,44 @@ export const HomeView = ({
             </div>
             
             <div className="panelBody">
-              {routines.length ? (
-                <div className="routineGrid" role="list">
-                  {routines.map((r) => (
-                    <div key={r.id} className="summaryCard" role="listitem">
-                      <div className="summaryCardInner" onClick={() => onRun(r.id)}>
-                        <div className="summaryIcon">
-                          <DumbbellIcon />
-                        </div>
-                        <div className="summaryContent">
-                          <div className="routineName">{r.name}</div>
-                          <div className="hint">{r.exercises.length} exercises</div>
-                        </div>
-                        <div className="summaryArrow">→</div>
+              <div className="pt-routine-grid" role="list">
+                {/* Gym Press simulator element */}
+                <div
+                  className="pt-cell"
+                  style={{ '--element-color': 'var(--accent)' } as React.CSSProperties}
+                  onClick={onPlayGame}
+                >
+                  <div className="pt-header">
+                    <span className="pt-number">100</span>
+                    <span className="pt-group">GYM LAB • ACTIVE</span>
+                  </div>
+                  <div className="pt-symbol">Gp</div>
+                  <div className="pt-footer">
+                    <span className="pt-name">Gym Press Simulator</span>
+                    <span className="pt-mass">3D Balance Game</span>
+                  </div>
+                </div>
+
+                {routines.map((r) => {
+                  const el = getPeriodicElement(r.name)
+                  return (
+                    <div
+                      key={r.id}
+                      className="pt-cell summaryCard"
+                      role="listitem"
+                      style={{ '--element-color': el.color } as React.CSSProperties}
+                      onClick={() => onRun(r.id)}
+                    >
+                      <div className="pt-header">
+                        <span className="pt-number">{el.atomicNumber}</span>
+                        <span className="pt-group">{el.groupName}</span>
                       </div>
-                      <div className="summaryFooter">
+                      <div className="pt-symbol">{el.symbol}</div>
+                      <div className="pt-footer">
+                        <span className="pt-name" title={r.name}>{r.name}</span>
+                        <span className="pt-mass">{r.exercises.length} exercises</span>
+                      </div>
+                      <div className="summaryFooter" style={{ marginTop: 8, padding: 0, justifyContent: 'center', gap: 12 }}>
                          <button className="textButton" onClick={(e) => { e.stopPropagation(); onEdit(r.id); }}>Edit</button>
                          <button className="textButton dangerText" onClick={(e) => { 
                            e.stopPropagation(); 
@@ -109,10 +126,12 @@ export const HomeView = ({
                          }}>Delete</button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="empty">No training routines found. Create your first routine to start logging workouts.</div>
+                  )
+                })}
+              </div>
+
+              {!routines.length && (
+                <div className="empty" style={{ marginTop: 16 }}>No training routines found. Create your first routine to start logging workouts.</div>
               )}
             </div>
           </section>

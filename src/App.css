@@ -3437,3 +3437,15 @@
 .themeToggleBtn:active {
   transform: scale(0.95);
 }
+
+.gameResponsiveGrid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .gameResponsiveGrid {
+    grid-template-columns: 1fr !important;
+  }
+}

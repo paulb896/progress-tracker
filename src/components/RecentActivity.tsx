@@ -5,11 +5,9 @@ type RecentActivityProps = {
   onViewCompletion: (completionId: string) => void
 }
 
-const CheckIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-)
+
+
+import { getPeriodicElement } from '../app/periodicTable'
 
 export const RecentActivity = ({ completions, onViewCompletion }: RecentActivityProps) => {
   return (
@@ -18,30 +16,37 @@ export const RecentActivity = ({ completions, onViewCompletion }: RecentActivity
       <div className="panelBody scrollableBody">
         {completions.length ? (
           <div className="activityList" role="list">
-            {completions.slice(0, 10).map((c) => (
-              <div
-                key={c.id}
-                className="activityItem"
-                role="listitem"
-                aria-label={`View completed routine: ${c.routineName}`}
-                onClick={() => onViewCompletion(c.id)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault()
-                    onViewCompletion(c.id)
-                  }
-                }}
-                tabIndex={0}
-              >
-                <div className="activityIcon"><CheckIcon /></div>
-                <div className="activityInfo">
-                  <div className="activityName">{c.routineName}</div>
-                  <div className="activityDate">
-                    {new Date(c.completedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+            {completions.slice(0, 10).map((c) => {
+              const el = getPeriodicElement(c.routineName)
+              return (
+                <div
+                  key={c.id}
+                  className="pt-mini-cell"
+                  role="listitem"
+                  style={{ '--element-color': el.color } as React.CSSProperties}
+                  aria-label={`View completed routine: ${c.routineName}`}
+                  onClick={() => onViewCompletion(c.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      onViewCompletion(c.id)
+                    }
+                  }}
+                  tabIndex={0}
+                >
+                  <div className="pt-mini-symbol">{el.symbol}</div>
+                  <div className="activityInfo" style={{ flex: 1 }}>
+                    <div className="activityName" style={{ fontWeight: 700 }}>{c.routineName}</div>
+                    <div className="activityDate">
+                      {new Date(c.completedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--muted)', opacity: 0.8 }}>
+                    #{el.atomicNumber}
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <div className="emptyMini">No completed workouts logged yet.</div>

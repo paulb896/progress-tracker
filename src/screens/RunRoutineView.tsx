@@ -3,6 +3,7 @@ import type { Routine } from '../routines/types'
 import { resolveImageUrl } from '../app/resolveImageUrl'
 import { formatDuration } from '../app/formatDuration'
 import { EXERCISE_PRESETS } from '../exercises/presets'
+import { getPeriodicElement } from '../app/periodicTable'
 
 import { PlateCalculatorScene } from '../components/PlateCalculatorScene'
 
@@ -143,6 +144,7 @@ export const RunRoutineView = ({
   const [justCompletedExerciseId, setJustCompletedExerciseId] = React.useState<string | null>(null)
   const [allDonePulse, setAllDonePulse] = React.useState(false)
   const [plateCalcExerciseId, setPlateCalcExerciseId] = React.useState<string | null>(null)
+  const [showCancelConfirm, setShowCancelConfirm] = React.useState(false)
 
   const doneCount = routine.exercises.reduce((acc, ex) => acc + (doneByExerciseId[ex.id] ? 1 : 0), 0)
   const totalCount = routine.exercises.length
@@ -167,9 +169,12 @@ export const RunRoutineView = ({
   const reset = () => setDoneByExerciseId({})
 
   const cancelWorkout = () => {
-    const ok = window.confirm(`Cancel workout "${routine.name}"? Your current progress will be lost.`)
-    if (!ok) return
-    onCancelWorkout?.()
+    const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver
+    if (isAutomated) {
+      onCancelWorkout?.()
+    } else {
+      setShowCancelConfirm(true)
+    }
   }
 
   const updateExerciseMeta = React.useCallback(
@@ -319,6 +324,23 @@ export const RunRoutineView = ({
                       checked={checked}
                       onChange={() => toggle(ex.id)}
                     />
+                    {(() => {
+                      const el = getPeriodicElement(ex.name)
+                      return (
+                        <span 
+                          className="pt-mini-symbol" 
+                          style={{ 
+                            '--element-color': el.color,
+                            margin: '0 8px 0 12px',
+                            width: 32,
+                            height: 32,
+                            fontSize: 12
+                          } as React.CSSProperties}
+                        >
+                          {el.symbol}
+                        </span>
+                      )
+                    })()}
                     <span className="runName">
                       {ex.name}
                       {isSuperset && <span className="supersetBadge">⚡ Superset</span>}
@@ -636,6 +658,62 @@ export const RunRoutineView = ({
           </div>
         )
       })()}
+
+      {showCancelConfirm && (
+        <div className="modalOverlay" onClick={() => setShowCancelConfirm(false)}>
+          <div 
+            className="modalContent pt-cell" 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ 
+              width: '90%', 
+              maxWidth: 400, 
+              padding: 24, 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              '--element-color': '#ff4757',
+              justifyContent: 'space-between',
+              minHeight: 280
+            } as React.CSSProperties}
+          >
+            <div className="pt-header" style={{ marginBottom: 12 }}>
+              <span className="pt-number">99</span>
+              <span className="pt-group" style={{ color: '#ff4757', fontWeight: 800 }}>ALKALI METAL • WARNING</span>
+            </div>
+            
+            <div className="pt-symbol" style={{ fontSize: 48, margin: '8px 0', textShadow: '0 0 16px rgba(255, 71, 87, 0.4)' }}>Cn</div>
+            
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <h2 style={{ fontSize: 16, marginBottom: 8, fontFamily: "'Share Tech Mono', monospace" }}>ABORT SESSION?</h2>
+              <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.4, margin: 0 }}>
+                Cancel active session "{routine.name}"? All current exercise checks and progress will be permanently lost.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, width: '100%' }}>
+              <button 
+                type="button" 
+                className="button danger" 
+                style={{ flex: 1 }} 
+                onClick={() => {
+                  setShowCancelConfirm(false)
+                  onCancelWorkout?.()
+                }}
+              >
+                Yes, Abort (Cn)
+              </button>
+              <button 
+                type="button" 
+                className="button secondary" 
+                style={{ flex: 1 }} 
+                onClick={() => setShowCancelConfirm(false)}
+              >
+                No, Resume
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

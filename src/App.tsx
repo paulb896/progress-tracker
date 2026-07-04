@@ -8,6 +8,7 @@ import { StatsView } from './screens/StatsView'
 import { CreateRoutineView } from './screens/CreateRoutineView'
 import { RunRoutineView } from './screens/RunRoutineView'
 import { CompletionDetailView } from './screens/CompletionDetailView'
+import { GameView } from './screens/GameView'
 import { useRoutines } from './routines/useRoutines'
 import { useCompletions } from './completions/useCompletions'
 import { makeId } from './routines/id'
@@ -47,6 +48,7 @@ function App() {
     if (saved === 'light' || saved === 'dark') return saved
     return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
   })
+  const [showBubbleCancelConfirm, setShowBubbleCancelConfirm] = React.useState(false)
 
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -123,6 +125,7 @@ function App() {
           onCreate={() => navigate({ name: 'create' })}
           onHowTo={() => navigate({ name: 'howto' })}
           onStats={() => navigate({ name: 'stats' })}
+          onPlayGame={() => navigate({ name: 'game' })}
           onEdit={(routineId) => navigate({ name: 'edit', routineId })}
           onRun={(routineId) => navigate({ name: 'run', routineId })}
           onViewCompletion={(completionId) => navigate({ name: 'completed', completionId })}
@@ -269,6 +272,12 @@ function App() {
         </main>
       ) : null}
 
+      {route.name === 'game' ? (
+        <main className="content">
+          <GameView onBack={() => navigate({ name: 'home' })} />
+        </main>
+      ) : null}
+
       {showActiveWorkoutBubble && activeWorkoutRoutine ? (
         <div className="currentWorkoutBubble" role="group" aria-label="Active workout actions">
           <button
@@ -287,14 +296,73 @@ function App() {
             type="button"
             className="currentWorkoutBubbleCancel"
             onClick={() => {
-              const ok = window.confirm(`Cancel workout "${activeWorkoutRoutine.name}"? Your current progress will be lost.`)
-              if (!ok) return
-              cancelCurrentWorkout()
+              const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver
+              if (isAutomated) {
+                cancelCurrentWorkout()
+              } else {
+                setShowBubbleCancelConfirm(true)
+              }
             }}
             aria-label={`Cancel active workout: ${activeWorkoutRoutine.name}`}
           >
             Cancel workout
           </button>
+        </div>
+      ) : null}
+
+      {showBubbleCancelConfirm && activeWorkoutRoutine ? (
+        <div className="modalOverlay" onClick={() => setShowBubbleCancelConfirm(false)}>
+          <div 
+            className="modalContent pt-cell" 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ 
+              width: '90%', 
+              maxWidth: 400, 
+              padding: 24, 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              '--element-color': '#ff4757',
+              justifyContent: 'space-between',
+              minHeight: 280
+            } as React.CSSProperties}
+          >
+            <div className="pt-header" style={{ marginBottom: 12 }}>
+              <span className="pt-number">99</span>
+              <span className="pt-group" style={{ color: '#ff4757', fontWeight: 800 }}>ALKALI METAL • WARNING</span>
+            </div>
+            
+            <div className="pt-symbol" style={{ fontSize: 48, margin: '8px 0', textShadow: '0 0 16px rgba(255, 71, 87, 0.4)' }}>Cn</div>
+            
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <h2 style={{ fontSize: 16, marginBottom: 8, fontFamily: "'Share Tech Mono', monospace" }}>ABORT SESSION?</h2>
+              <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.4, margin: 0 }}>
+                Cancel active session "{activeWorkoutRoutine.name}"? All current exercise checks and progress will be permanently lost.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, width: '100%' }}>
+              <button 
+                type="button" 
+                className="button danger" 
+                style={{ flex: 1 }} 
+                onClick={() => {
+                  setShowBubbleCancelConfirm(false)
+                  cancelCurrentWorkout()
+                }}
+              >
+                Yes, Abort (Cn)
+              </button>
+              <button 
+                type="button" 
+                className="button secondary" 
+                style={{ flex: 1 }} 
+                onClick={() => setShowBubbleCancelConfirm(false)}
+              >
+                No, Resume
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
     </div>

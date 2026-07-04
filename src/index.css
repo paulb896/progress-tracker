@@ -1,15 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap');
 
 :root {
   /* Typography */
-  font-family: 'Plus Jakarta Sans', Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'JetBrains Mono', 'Share Tech Mono', monospace;
   line-height: 1.5;
   font-weight: 400;
 
   /* Spacing & Layout */
-  --radius-sm: 8px;
-  --radius-md: 16px;
-  --radius-lg: 24px; 
+  --radius-sm: 0px;
+  --radius-md: 2px;
+  --radius-lg: 4px; 
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -345,5 +345,143 @@ a:hover {
   animation: none !important;
   transition: none !important;
   backdrop-filter: none !important;
+}
+
+/* ==========================================
+   PERIODIC TABLE ELEMENTS STYLE SYSTEM
+   ========================================== */
+
+/* The main container representing a cell in the periodic table */
+.pt-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid var(--border-2);
+  background: var(--surface-glass);
+  padding: 12px;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+  min-height: 130px;
+  cursor: pointer;
+  border-top: 4px solid var(--element-color, var(--accent));
+  border-radius: var(--radius-md);
+}
+
+.pt-cell:hover {
+  transform: translateY(-2px);
+  border-color: var(--element-color, var(--accent));
+  box-shadow: 0 8px 24px -4px color-mix(in srgb, var(--element-color, var(--accent)) 30%, transparent),
+              0 0 12px -2px color-mix(in srgb, var(--element-color, var(--accent)) 15%, transparent);
+  background: color-mix(in srgb, var(--element-color, var(--accent)) 6%, var(--surface-glass));
+}
+
+/* Top bar with Atomic Number and Group classification */
+.pt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.pt-number {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--element-color, var(--accent));
+  opacity: 0.8;
+}
+
+.pt-group {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.5;
+  color: var(--text);
+}
+
+/* Large atomic symbol in center */
+.pt-symbol {
+  font-size: 28px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--text);
+  margin: 4px 0;
+  letter-spacing: -0.05em;
+  text-shadow: 0 0 10px color-mix(in srgb, var(--element-color, var(--accent)) 25%, transparent);
+}
+
+/* Sub-details (name and mass/weight) at the bottom */
+.pt-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  border-top: 1px dashed var(--border);
+  padding-top: 6px;
+  margin-top: 4px;
+}
+
+.pt-name {
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+
+.pt-mass {
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
+  margin-top: 2px;
+}
+
+/* Special styles for routine card layout */
+.pt-routine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.pt-mini-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--element-color, var(--accent));
+  background: var(--surface-2);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  margin-bottom: 8px;
+}
+
+.pt-mini-cell:hover {
+  border-color: var(--element-color, var(--accent));
+  background: color-mix(in srgb, var(--element-color, var(--accent)) 6%, var(--surface-2));
+  transform: translateX(4px);
+}
+
+.pt-mini-symbol {
+  font-size: 13px;
+  font-weight: 800;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--element-color, var(--accent));
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--element-color, var(--accent));
+  background: color-mix(in srgb, var(--element-color, var(--accent)) 10%, transparent);
+  flex-shrink: 0;
 }
 

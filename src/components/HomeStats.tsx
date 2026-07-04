@@ -36,27 +36,6 @@ const CountUp = ({ value, duration = 1000 }: { value: number; duration?: number 
   return <>{formatNumber(displayValue)}</>
 }
 
-// Icons
-const WeightIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 5h12"/><rect x="4" y="5" width="2" height="14" rx="1"/><rect x="18" y="5" width="2" height="14" rx="1"/><path d="M6 19h12"/></svg>
-)
-
-const RepsIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
-)
-
-const SetsIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
-)
-
-const FireIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.115.385-2.256 1-3.5 1.072 2.143 2.224 4.054 2 6Z"/></svg>
-)
-
-const TrophyIcon = () => (
-  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-)
-
 export const HomeStats = ({ completions }: { completions: RoutineCompletion[] }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
@@ -105,31 +84,46 @@ export const HomeStats = ({ completions }: { completions: RoutineCompletion[] })
         return {
           value: stats.totalVolume,
           label: 'Lbs Lifted',
-          icon: <WeightIcon />
+          symbol: 'We',
+          number: 74,
+          group: 'TRANSITION METAL',
+          color: '#ff6b6b'
         }
       case 1: // Reps
         return {
           value: stats.totalReps,
           label: 'Total Reps',
-          icon: <RepsIcon />
+          symbol: 'Re',
+          number: 75,
+          group: 'TRANSITION METAL',
+          color: '#a55eed'
         }
       case 2: // Streak
         return {
           value: stats.weeklyCount,
           label: 'Weekly Streak',
-          icon: <FireIcon />
+          symbol: 'St',
+          number: 16,
+          group: 'NONMETAL',
+          color: '#ff9f43'
         }
       case 3: // Sets
         return {
           value: stats.totalSets,
           label: 'Total Sets',
-          icon: <SetsIcon />
+          symbol: 'Se',
+          number: 34,
+          group: 'NONMETAL',
+          color: '#00d2d3'
         }
       default: // Sessions (Default)
         return {
           value: stats.totalWorkouts,
           label: 'Sessions',
-          icon: <TrophyIcon />
+          symbol: 'Wo',
+          number: 8,
+          group: 'REACTIVE ELEMENT',
+          color: 'var(--accent)'
         }
     }
   }
@@ -141,25 +135,30 @@ export const HomeStats = ({ completions }: { completions: RoutineCompletion[] })
     <section className="infoContainer">
       <div className="infoGrid">
         {/* Central Hub */}
-        <div className="infoHubWrapper" onClick={() => setSelectedIndex(null)}>
-           <div className={`infoHub ${isHubActive ? 'active' : ''}`}>
-             <div className="infoHubRing"></div>
-             <div className="infoHubRingOuter"></div>
-             <div className="infoHubInner">
-               <div className="infoHubIconWrapper">
-                 <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                   {hubContent.icon}
-                 </div>
-               </div>
-               <div className="infoHubValue" key={hubContent.label}>
-                  <CountUp value={hubContent.value} />
-               </div>
-               <div className="infoHubLabel">{hubContent.label}</div>
-             </div>
-           </div>
-           
-           {/* Glow effect behind hub */}
-           <div className={`infoHubGlow ${isHubActive ? 'active' : ''}`} />
+        <div className="infoHubWrapper" onClick={() => setSelectedIndex(null)} style={{ border: 'none', background: 'none', display: 'flex', justifyContent: 'center' }}>
+          <div 
+            className={`pt-cell ${isHubActive ? 'active' : ''}`} 
+            style={{ 
+              width: '100%', 
+              maxWidth: 200, 
+              minHeight: 180, 
+              padding: 16,
+              alignSelf: 'center', 
+              '--element-color': hubContent.color || 'var(--accent)'
+            } as React.CSSProperties}
+          >
+            <div className="pt-header">
+              <span className="pt-number">{hubContent.number}</span>
+              <span className="pt-group">{hubContent.group}</span>
+            </div>
+            <div className="pt-symbol" style={{ fontSize: 44, margin: '12px 0' }}>{hubContent.symbol}</div>
+            <div className="pt-footer">
+              <div className="pt-name" style={{ fontSize: 13 }}>{hubContent.label}</div>
+              <div className="pt-mass" style={{ fontSize: 18, fontWeight: 800, marginTop: 4 }}>
+                <CountUp value={hubContent.value} />
+              </div>
+            </div>
+          </div>
         </div>
         
         {/* Connecting Lines SVG Layer */}
@@ -185,66 +184,78 @@ export const HomeStats = ({ completions }: { completions: RoutineCompletion[] })
         </svg>
 
         {/* Info Cards Column */}
-        <div className="infoCardsCol">
+        <div className="infoCardsCol" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           
           <div 
-            className={`infoCard infoCardPink ${activeIndex === 0 ? 'active' : ''} ${selectedIndex === 0 ? 'selected' : ''}`}
+            className={`pt-cell ${activeIndex === 0 ? 'active' : ''} ${selectedIndex === 0 ? 'selected' : ''}`}
+            style={{ '--element-color': '#ff6b6b', minHeight: 'auto', padding: 8 } as React.CSSProperties}
             onMouseEnter={() => setHoveredIndex(0)}
             onMouseLeave={() => setHoveredIndex(null)}
             onClick={() => setSelectedIndex(selectedIndex === 0 ? null : 0)}
           >
-            <div className="infoCardIcon"><WeightIcon /></div>
-            <div className="infoCardContent">
-              <div className="infoCardLabel">Total Weight Lifted</div>
-              <div className="infoCardValue"><CountUp value={stats.totalVolume} /> <span className="unit">lbs</span></div>
+            <div className="pt-header">
+              <span className="pt-number">74</span>
+              <span className="pt-group">TRANSITION METAL</span>
             </div>
-            <div className="infoCardDecor" />
-            <div className="infoCardShine" />
+            <div className="pt-symbol" style={{ fontSize: 22, margin: '2px 0' }}>We</div>
+            <div className="pt-footer">
+              <div className="pt-name" style={{ fontSize: 10 }}>Weight Lifted</div>
+              <div className="pt-mass" style={{ fontSize: 12, fontWeight: 700 }}><CountUp value={stats.totalVolume} /> lbs</div>
+            </div>
           </div>
 
           <div 
-            className={`infoCard infoCardPurple ${activeIndex === 1 ? 'active' : ''} ${selectedIndex === 1 ? 'selected' : ''}`}
+            className={`pt-cell ${activeIndex === 1 ? 'active' : ''} ${selectedIndex === 1 ? 'selected' : ''}`}
+            style={{ '--element-color': '#a55eed', minHeight: 'auto', padding: 8 } as React.CSSProperties}
             onMouseEnter={() => setHoveredIndex(1)}
             onMouseLeave={() => setHoveredIndex(null)}
             onClick={() => setSelectedIndex(selectedIndex === 1 ? null : 1)}
           >
-            <div className="infoCardIcon"><RepsIcon /></div>
-            <div className="infoCardContent">
-              <div className="infoCardLabel">Total Reps</div>
-              <div className="infoCardValue"><CountUp value={stats.totalReps} /></div>
+            <div className="pt-header">
+              <span className="pt-number">75</span>
+              <span className="pt-group">TRANSITION METAL</span>
             </div>
-            <div className="infoCardDecor" />
-            <div className="infoCardShine" />
+            <div className="pt-symbol" style={{ fontSize: 22, margin: '2px 0' }}>Re</div>
+            <div className="pt-footer">
+              <div className="pt-name" style={{ fontSize: 10 }}>Total Reps</div>
+              <div className="pt-mass" style={{ fontSize: 12, fontWeight: 700 }}><CountUp value={stats.totalReps} /></div>
+            </div>
           </div>
 
           <div 
-            className={`infoCard infoCardOrange ${activeIndex === 2 ? 'active' : ''} ${selectedIndex === 2 ? 'selected' : ''}`}
+            className={`pt-cell ${activeIndex === 2 ? 'active' : ''} ${selectedIndex === 2 ? 'selected' : ''}`}
+            style={{ '--element-color': '#ff9f43', minHeight: 'auto', padding: 8 } as React.CSSProperties}
             onMouseEnter={() => setHoveredIndex(2)}
             onMouseLeave={() => setHoveredIndex(null)}
             onClick={() => setSelectedIndex(selectedIndex === 2 ? null : 2)}
           >
-            <div className="infoCardIcon"><FireIcon /></div>
-            <div className="infoCardContent">
-              <div className="infoCardLabel">Weekly Streak</div>
-              <div className="infoCardValue">{stats.weeklyCount} <span className="unit">/ 4</span></div>
+            <div className="pt-header">
+              <span className="pt-number">16</span>
+              <span className="pt-group">NONMETAL</span>
             </div>
-            <div className="infoCardDecor" />
-            <div className="infoCardShine" />
+            <div className="pt-symbol" style={{ fontSize: 22, margin: '2px 0' }}>St</div>
+            <div className="pt-footer">
+              <div className="pt-name" style={{ fontSize: 10 }}>Weekly Streak</div>
+              <div className="pt-mass" style={{ fontSize: 12, fontWeight: 700 }}>{stats.weeklyCount} / 4</div>
+            </div>
           </div>
 
           <div 
-            className={`infoCard infoCardTeal ${activeIndex === 3 ? 'active' : ''} ${selectedIndex === 3 ? 'selected' : ''}`}
+            className={`pt-cell ${activeIndex === 3 ? 'active' : ''} ${selectedIndex === 3 ? 'selected' : ''}`}
+            style={{ '--element-color': '#00d2d3', minHeight: 'auto', padding: 8 } as React.CSSProperties}
             onMouseEnter={() => setHoveredIndex(3)}
             onMouseLeave={() => setHoveredIndex(null)}
             onClick={() => setSelectedIndex(selectedIndex === 3 ? null : 3)}
           >
-            <div className="infoCardIcon"><SetsIcon /></div>
-            <div className="infoCardContent">
-              <div className="infoCardLabel">Total Sets</div>
-              <div className="infoCardValue"><CountUp value={stats.totalSets} /></div>
+            <div className="pt-header">
+              <span className="pt-number">34</span>
+              <span className="pt-group">NONMETAL</span>
             </div>
-            <div className="infoCardDecor" />
-            <div className="infoCardShine" />
+            <div className="pt-symbol" style={{ fontSize: 22, margin: '2px 0' }}>Se</div>
+            <div className="pt-footer">
+              <div className="pt-name" style={{ fontSize: 10 }}>Total Sets</div>
+              <div className="pt-mass" style={{ fontSize: 12, fontWeight: 700 }}><CountUp value={stats.totalSets} /></div>
+            </div>
           </div>
 
         </div>

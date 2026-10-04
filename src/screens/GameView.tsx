@@ -781,7 +781,263 @@ export const GameView = ({ onBack }: GameViewProps) => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minHeight: '80vh', padding: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, minHeight: '80vh', padding: '24px 28px' }}>
+      {/* Scoped Game Styles */}
+      <style>{`
+        @keyframes bounce-pop {
+          0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+          50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+          75% { transform: translate(-50%, -50%) scale(0.95); opacity: 1; }
+          100% { transform: translate(-50%, -50%) scale(1.0); opacity: 1; }
+        }
+        @keyframes victory-confetti {
+          0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
+        }
+        @keyframes glow-pulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.15), 0 0 60px rgba(6, 182, 212, 0.05), inset 0 1px 0 rgba(255,255,255,0.04); }
+          50% { box-shadow: 0 0 30px rgba(6, 182, 212, 0.25), 0 0 80px rgba(6, 182, 212, 0.08), inset 0 1px 0 rgba(255,255,255,0.06); }
+        }
+        @keyframes neon-text-pulse {
+          0%, 100% { text-shadow: 0 0 10px rgba(6, 182, 212, 0.6), 0 0 30px rgba(6, 182, 212, 0.3), 0 0 60px rgba(6, 182, 212, 0.1); }
+          50% { text-shadow: 0 0 14px rgba(6, 182, 212, 0.8), 0 0 40px rgba(6, 182, 212, 0.4), 0 0 80px rgba(6, 182, 212, 0.15); }
+        }
+        @keyframes speed-bar-fill {
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
+        }
+        @keyframes subtle-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-3px); }
+        }
+        .game-canvas-frame {
+          position: relative;
+          border: 1px solid rgba(6, 182, 212, 0.2);
+          background: #020207;
+          min-height: 480;
+          border-radius: 20px;
+          overflow: hidden;
+          touch-action: none;
+          animation: glow-pulse 4s ease-in-out infinite;
+        }
+        .game-canvas-frame::before {
+          content: '';
+          position: absolute;
+          inset: -1px;
+          border-radius: 21px;
+          background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(168, 85, 247, 0.15), rgba(52, 211, 153, 0.2));
+          z-index: -1;
+          filter: blur(1px);
+        }
+        .game-hud-glass {
+          position: absolute;
+          top: 16px;
+          left: 16px;
+          z-index: 15;
+          background: rgba(2, 2, 12, 0.75);
+          backdrop-filter: blur(16px) saturate(1.4);
+          -webkit-backdrop-filter: blur(16px) saturate(1.4);
+          padding: 12px 18px;
+          border-radius: 14px;
+          border: 1px solid rgba(6, 182, 212, 0.15);
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .game-overlay-frost {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(ellipse at 50% 40%, rgba(2, 2, 12, 0.7) 0%, rgba(2, 2, 12, 0.88) 70%);
+          backdrop-filter: blur(8px) saturate(1.2);
+          -webkit-backdrop-filter: blur(8px) saturate(1.2);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 32px;
+          text-align: center;
+          z-index: 30;
+        }
+        .game-title-neon {
+          font-family: 'Share Tech Mono', monospace;
+          font-size: 28px;
+          font-weight: 900;
+          letter-spacing: 0.08em;
+          color: #e0f2fe;
+          animation: neon-text-pulse 3s ease-in-out infinite;
+          margin-bottom: 16px;
+        }
+        .game-btn-primary {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 14px 40px;
+          font-size: 14px;
+          font-weight: 800;
+          font-family: 'Share Tech Mono', monospace;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          color: #020207;
+          background: linear-gradient(135deg, #06b6d4, #34d399);
+          border: none;
+          border-radius: 14px;
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+          box-shadow: 0 4px 24px rgba(6, 182, 212, 0.35), 0 0 0 1px rgba(6, 182, 212, 0.15);
+        }
+        .game-btn-primary:hover {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 0 8px 32px rgba(6, 182, 212, 0.5), 0 0 60px rgba(52, 211, 153, 0.15);
+          background: linear-gradient(135deg, #22d3ee, #6ee7b7);
+        }
+        .game-btn-primary:active {
+          transform: translateY(0) scale(0.98);
+        }
+        .game-instruction-card {
+          border: 1px solid rgba(6, 182, 212, 0.12);
+          padding: 16px 20px;
+          border-radius: 14px;
+          background: rgba(6, 182, 212, 0.04);
+          backdrop-filter: blur(6px);
+          -webkit-backdrop-filter: blur(6px);
+        }
+        .game-instruction-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          padding: 6px 0;
+          font-size: 12px;
+          color: rgba(241, 245, 249, 0.7);
+          line-height: 1.5;
+        }
+        .game-instruction-icon {
+          flex-shrink: 0;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          font-size: 12px;
+          background: rgba(6, 182, 212, 0.1);
+          border: 1px solid rgba(6, 182, 212, 0.15);
+        }
+        .game-hud-card {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          border: 1px solid rgba(6, 182, 212, 0.12);
+          background: rgba(2, 6, 20, 0.65);
+          backdrop-filter: blur(16px) saturate(1.3);
+          -webkit-backdrop-filter: blur(16px) saturate(1.3);
+          padding: 16px;
+          font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+          border-radius: 20px;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+        .game-hud-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, #06b6d4, #a855f7, #34d399);
+          opacity: 0.7;
+        }
+        .game-hud-card:hover {
+          border-color: rgba(6, 182, 212, 0.25);
+          box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 20px rgba(6, 182, 212, 0.08), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .game-hud-label {
+          font-size: 9px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          color: rgba(148, 163, 184, 0.8);
+        }
+        .game-hud-value {
+          font-size: 22px;
+          font-weight: 800;
+          font-variant-numeric: tabular-nums;
+        }
+        .game-stat-row {
+          display: flex;
+          width: 100%;
+          justify-content: space-between;
+          margin-top: 14px;
+          padding-top: 12px;
+          border-top: 1px solid rgba(255,255,255,0.06);
+        }
+        .game-stat-col {
+          text-align: center;
+          flex: 1;
+        }
+        .game-pump-btn {
+          flex: 1;
+          padding: 16px 0;
+          font-size: 13px;
+          font-weight: 800;
+          font-family: 'Share Tech Mono', monospace;
+          letter-spacing: 0.04em;
+          border-radius: 14px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          border: 1px solid rgba(6, 182, 212, 0.15);
+          background: rgba(255,255,255,0.02);
+          color: rgba(241, 245, 249, 0.8);
+        }
+        .game-pump-btn.active {
+          background: linear-gradient(135deg, #06b6d4, #34d399);
+          color: #020207;
+          border-color: transparent;
+          box-shadow: 0 0 24px rgba(6, 182, 212, 0.4), 0 0 60px rgba(52, 211, 153, 0.15);
+        }
+        .game-over-card {
+          background: rgba(2, 6, 20, 0.8);
+          backdrop-filter: blur(20px) saturate(1.4);
+          -webkit-backdrop-filter: blur(20px) saturate(1.4);
+          border: 1px solid rgba(6, 182, 212, 0.15);
+          border-radius: 24px;
+          padding: 32px;
+          max-width: 380px;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 40px rgba(6, 182, 212, 0.08);
+        }
+        .game-over-card.victory {
+          border-color: rgba(52, 211, 153, 0.3);
+          box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 60px rgba(52, 211, 153, 0.12);
+        }
+        .game-over-card.victory::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, #34d399, #6ee7b7, #34d399);
+        }
+        .game-speed-bar {
+          height: 3px;
+          border-radius: 2px;
+          background: rgba(255,255,255,0.06);
+          overflow: hidden;
+          margin-top: 6px;
+        }
+        .game-speed-bar-fill {
+          height: 100%;
+          border-radius: 2px;
+          transition: width 0.15s ease;
+        }
+      `}</style>
+
       {/* Header */}
       <header className="runHeader" style={{ marginBottom: 0 }}>
         <button type="button" className="iconButton" onClick={onBack} aria-label="Go back">
@@ -794,22 +1050,10 @@ export const GameView = ({ onBack }: GameViewProps) => {
       </header>
 
       {/* Main Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20, flex: 1 }} className="gameResponsiveGrid">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24, flex: 1 }} className="gameResponsiveGrid">
         
-        {/* Left Side: 3D Side Scrolling Canvas Container */}
-        <div 
-          id="game-canvas-container"
-          style={{ 
-            position: 'relative', 
-            border: '1px solid var(--border-2)', 
-            background: '#020207', 
-            minHeight: 460, 
-            borderRadius: 'var(--radius-lg)', 
-            overflow: 'hidden',
-            touchAction: 'none'
-          }}
-        >
-          {/* Active 3D Render Canvas */}
+        {/* Left Side: 3D Canvas */}
+        <div id="game-canvas-container" className="game-canvas-frame">
           <GameCanvas 
             key={gameKey}
             isPlaying={isPlaying}
@@ -819,47 +1063,50 @@ export const GameView = ({ onBack }: GameViewProps) => {
             onGameOver={handleGameOver}
           />
 
-          {/* Speed / Pump hud gauge overlays */}
+          {/* Velocity HUD */}
           {isPlaying && (
-            <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 15, background: 'rgba(0,0,0,0.85)', padding: '8px 16px', borderRadius: 4, border: '1px solid var(--border-2)', display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.08em' }}>VELOCITY</div>
-              <div style={{ fontSize: 18, fontWeight: 'bold', fontFamily: 'monospace', color: velocity > 12 ? '#34d399' : '#ffffff' }}>
-                {Math.floor(velocity * 4)} km/h
+            <div className="game-hud-glass">
+              <div className="game-hud-label">VELOCITY</div>
+              <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Share Tech Mono', monospace", fontVariantNumeric: 'tabular-nums', color: velocity > 12 ? '#34d399' : '#e0f2fe', transition: 'color 0.2s ease' }}>
+                {Math.floor(velocity * 4)} <span style={{ fontSize: 11, opacity: 0.6 }}>km/h</span>
               </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: isPumping ? '#34d399' : '#1e293b', boxShadow: isPumping ? '0 0 8px #34d399' : 'none' }} />
-                <span style={{ fontSize: 9, color: isPumping ? '#34d399' : 'var(--muted)' }}>PUMP ACTIVE</span>
+              <div className="game-speed-bar">
+                <div className="game-speed-bar-fill" style={{ width: `${Math.min(100, (velocity / 22) * 100)}%`, background: velocity > 15 ? 'linear-gradient(90deg, #34d399, #22d3ee)' : velocity > 10 ? '#06b6d4' : 'rgba(148, 163, 184, 0.4)' }} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: isPumping ? '#34d399' : 'rgba(30, 41, 59, 0.8)', boxShadow: isPumping ? '0 0 10px #34d399, 0 0 20px rgba(52, 211, 153, 0.3)' : 'none', transition: 'all 0.15s ease' }} />
+                <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.08em', color: isPumping ? '#34d399' : 'rgba(148, 163, 184, 0.6)' }}>PUMP {isPumping ? 'ON' : 'OFF'}</span>
               </div>
             </div>
           )}
 
-          {/* Local CSS Animations */}
-          <style>{`
-            @keyframes bounce-pop {
-              0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
-              50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
-              75% { transform: translate(-50%, -50%) scale(0.95); opacity: 1; }
-              100% { transform: translate(-50%, -50%) scale(1.0); opacity: 1; }
-            }
-            @keyframes victory-confetti {
-              0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
-              100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
-            }
-          `}</style>
+          {/* In-game time/score mini-HUD */}
+          {isPlaying && (
+            <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 15, display: 'flex', gap: 10 }}>
+              <div style={{ background: 'rgba(2, 2, 12, 0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: 12, padding: '8px 14px', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+                <div style={{ fontSize: 8, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(148, 163, 184, 0.7)', textTransform: 'uppercase' }}>Time</div>
+                <div style={{ fontSize: 18, fontWeight: 800, fontFamily: "'Share Tech Mono', monospace", fontVariantNumeric: 'tabular-nums', color: timeLeft < 10 ? '#ef4444' : '#e0f2fe', textShadow: timeLeft < 10 ? '0 0 12px rgba(239, 68, 68, 0.5)' : 'none' }}>{timeLeft}s</div>
+              </div>
+              <div style={{ background: 'rgba(2, 2, 12, 0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: 12, padding: '8px 14px', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+                <div style={{ fontSize: 8, fontWeight: 600, letterSpacing: '0.1em', color: 'rgba(148, 163, 184, 0.7)', textTransform: 'uppercase' }}>Score</div>
+                <div style={{ fontSize: 18, fontWeight: 800, fontFamily: "'Share Tech Mono', monospace", fontVariantNumeric: 'tabular-nums', color: '#e0f2fe' }}>{score}</div>
+              </div>
+            </div>
+          )}
 
-          {/* Landing / Collision Feedback */}
+          {/* Landing Feedback */}
           {feedback && (
             <div style={{
               position: 'absolute',
-              top: '40%',
+              top: '38%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
               color: feedback.color,
-              fontSize: 24,
+              fontSize: 26,
               fontFamily: "'Share Tech Mono', monospace",
               fontWeight: 900,
-              textShadow: `0 0 16px ${feedback.color}`,
+              letterSpacing: '0.04em',
+              textShadow: `0 0 20px ${feedback.color}, 0 0 40px ${feedback.color}40`,
               pointerEvents: 'none',
               zIndex: 20,
               animation: 'bounce-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both'
@@ -868,7 +1115,7 @@ export const GameView = ({ onBack }: GameViewProps) => {
             </div>
           )}
 
-          {/* Victory Celebration Confetti */}
+          {/* Victory Confetti */}
           {isGameOver && isVictory && (
             <div style={{ position: 'absolute', inset: 0, zIndex: 25, pointerEvents: 'none', overflow: 'hidden' }}>
               {Array.from({ length: 24 }).map((_, idx) => {
@@ -878,17 +1125,7 @@ export const GameView = ({ onBack }: GameViewProps) => {
                 const delay = Math.random() * 3
                 const duration = 2.5 + Math.random() * 2
                 return (
-                  <span
-                    key={idx}
-                    style={{
-                      position: 'absolute',
-                      left: `${left}%`,
-                      top: -40,
-                      fontSize: 24,
-                      animation: `victory-confetti ${duration}s linear ${delay}s infinite`,
-                      zIndex: 26
-                    }}
-                  >
+                  <span key={idx} style={{ position: 'absolute', left: `${left}%`, top: -40, fontSize: 24, animation: `victory-confetti ${duration}s linear ${delay}s infinite`, zIndex: 26 }}>
                     {emoji}
                   </span>
                 )
@@ -896,68 +1133,63 @@ export const GameView = ({ onBack }: GameViewProps) => {
             </div>
           )}
 
-          {/* Start Screen Overlay */}
+          {/* Start / Game Over Overlay */}
           {!isPlaying && (
-            <div style={{ 
-              position: 'absolute', 
-              inset: 0, 
-              background: 'transparent', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              padding: 24,
-              textAlign: 'center',
-              zIndex: 30
-            }}>
+            <div className="game-overlay-frost">
               {isGameOver ? (
                 <>
-                  <div className="pt-cell" style={{ '--element-color': isVictory ? '#34d399' : 'var(--accent)', padding: 20, maxWidth: 360, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' } as React.CSSProperties}>
-                    <div className="pt-header">
-                      <span className="pt-number">100</span>
-                      <span className="pt-group">{isVictory ? 'NEW RECORD' : 'SESSION OVER'}</span>
+                  <div className={`game-over-card${isVictory ? ' victory' : ''}`} style={{ position: 'relative' }}>
+                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: isVictory ? '#34d399' : 'rgba(148, 163, 184, 0.6)', marginBottom: 8 }}>
+                      {isVictory ? '✦ NEW RECORD ✦' : 'SESSION COMPLETE'}
                     </div>
-                    <div className="pt-symbol" style={{ fontSize: 40, margin: '8px 0', color: isVictory ? '#34d399' : 'inherit' }}>{isVictory ? 'Hs' : 'Gp'}</div>
-                    <div className="pt-footer">
-                      <div className="pt-name" style={{ fontSize: 13, color: isVictory ? '#34d399' : 'var(--accent)', fontWeight: 800 }}>
-                        {isVictory ? '🏆 NEW HIGH SCORE! 🏆' : 'CHALLENGE FINISHED'}
+                    <div style={{ fontSize: 48, fontWeight: 900, fontFamily: "'Share Tech Mono', monospace", color: isVictory ? '#34d399' : '#e0f2fe', lineHeight: 1, margin: '8px 0 4px', textShadow: isVictory ? '0 0 20px rgba(52, 211, 153, 0.4)' : 'none' }}>
+                      {isVictory ? 'Hs' : 'Gp'}
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: isVictory ? '#6ee7b7' : '#06b6d4', marginBottom: 20 }}>
+                      {isVictory ? '🏆 NEW HIGH SCORE! 🏆' : 'CHALLENGE FINISHED'}
+                    </div>
+                    <div style={{ display: 'flex', width: '100%', gap: 16 }}>
+                      <div style={{ flex: 1, textAlign: 'center', padding: '12px 0', background: 'rgba(255,255,255,0.03)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div className="game-hud-label">DISTANCE</div>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: '#e0f2fe', marginTop: 4, fontFamily: "'Share Tech Mono', monospace" }}>{distance}m</div>
                       </div>
-                      <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', marginTop: 12 }}>
-                        <div>
-                          <div style={{ fontSize: 9, color: 'var(--muted)' }}>DISTANCE</div>
-                          <div style={{ fontSize: 20, fontWeight: 800 }}>{distance}m</div>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 9, color: 'var(--muted)' }}>SCORE</div>
-                          <div style={{ fontSize: 20, fontWeight: 800 }}>{score}</div>
-                        </div>
+                      <div style={{ flex: 1, textAlign: 'center', padding: '12px 0', background: 'rgba(255,255,255,0.03)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div className="game-hud-label">SCORE</div>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: '#e0f2fe', marginTop: 4, fontFamily: "'Share Tech Mono', monospace" }}>{score}</div>
                       </div>
                     </div>
                   </div>
-                  <button className="button" onClick={resetGame} style={{ marginTop: 24, padding: '12px 32px' }}>
-                    Ride Again (Space)
+                  <button className="game-btn-primary" onClick={resetGame} style={{ marginTop: 28 }}>
+                    ↻ Ride Again
                   </button>
                 </>
               ) : (
                 <>
-                  <h2 style={{ fontFamily: "'Share Tech Mono', monospace", marginBottom: 12 }}>CHROME SPHERE RIDER</h2>
-                  <p style={{ maxWidth: 450, color: 'var(--muted)', fontSize: 12, lineHeight: 1.5, marginBottom: 20 }}>
-                    Roll a giant reflecting chrome sphere down hilly slopes! Tap or press Spacebar to pump downhills to build speed momentum. Release to jump off hill crests, and press in mid-air to dive down quickly!
+                  <div className="game-title-neon">CHROME SPHERE RIDER</div>
+                  <p style={{ maxWidth: 420, color: 'rgba(148, 163, 184, 0.75)', fontSize: 13, lineHeight: 1.7, marginBottom: 24, fontWeight: 400 }}>
+                    Roll a chrome sphere down endless hilly slopes. Pump downhills for speed, launch off crests, and dive to land perfectly!
                   </p>
                   
-                  <div style={{ width: '100%', maxWidth: 440, margin: '0 auto 24px', textAlign: 'left' }}>
-                    <div style={{ border: '1px solid var(--border-2)', padding: 12, borderRadius: 4, background: 'transparent' }}>
-                      <div style={{ fontSize: 10, fontWeight: 'bold', color: 'var(--accent)', textTransform: 'uppercase' }}>SINGLE BUTTON ACTION (SPACEBAR OR TAP SCREEN)</div>
-                      <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>
-                        • **ON HILL CRESTS**: Tap/Release to **JUMP** for massive distance!<br/>
-                        • **GOING DOWNHILL**: Hold/Press to **PUMP** and gain speed momentum!<br/>
-                        • **IN MID-AIR**: Hold/Press to **DIVE PUMP** down onto downhill landing slopes!
+                  <div style={{ width: '100%', maxWidth: 400, margin: '0 auto 28px', textAlign: 'left' }}>
+                    <div className="game-instruction-card">
+                      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: '#06b6d4', textTransform: 'uppercase', marginBottom: 10 }}>CONTROLS — SINGLE BUTTON</div>
+                      <div className="game-instruction-row">
+                        <div className="game-instruction-icon">🏔️</div>
+                        <div><strong style={{ color: '#e0f2fe' }}>Hill Crests</strong> — Tap to <span style={{ color: '#06b6d4' }}>jump</span> for massive distance</div>
+                      </div>
+                      <div className="game-instruction-row">
+                        <div className="game-instruction-icon">⚡</div>
+                        <div><strong style={{ color: '#e0f2fe' }}>Downhill</strong> — Hold to <span style={{ color: '#34d399' }}>pump</span> and gain speed</div>
+                      </div>
+                      <div className="game-instruction-row">
+                        <div className="game-instruction-icon">🎯</div>
+                        <div><strong style={{ color: '#e0f2fe' }}>Mid-Air</strong> — Hold to <span style={{ color: '#a855f7' }}>dive</span> onto downhill slopes</div>
                       </div>
                     </div>
                   </div>
 
-                  <button className="button" onClick={resetGame} style={{ padding: '12px 36px', fontWeight: 'bold' }}>
-                    Begin Ride
+                  <button className="game-btn-primary" onClick={resetGame}>
+                    ▶ Begin Ride
                   </button>
                 </>
               )}
@@ -965,88 +1197,73 @@ export const GameView = ({ onBack }: GameViewProps) => {
           )}
         </div>
 
-        {/* Info Column (Periodic HUD) */}
+        {/* Info Column — Glassmorphic HUD Cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           
-          {/* Main Game Element HUD Card */}
-          <div className="pt-cell" style={{ '--element-color': 'var(--accent)', flex: 1, minHeight: 220 } as React.CSSProperties}>
-            <div className="pt-header">
-              <span className="pt-number">100</span>
-              <span className="pt-group">FERMIUM • MOMENTUM LAB</span>
+          {/* Momentum HUD */}
+          <div className="game-hud-card" style={{ flex: 1, minHeight: 240 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#06b6d4', opacity: 0.8 }}>Fm · 100</span>
+              <span className="game-hud-label">MOMENTUM LAB</span>
             </div>
             
-            {/* Combo Display */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '6px 0' }}>
-              <div style={{ fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Landing Multiplier</div>
+            {/* Combo */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '12px 0', flex: 1, justifyContent: 'center' }}>
+              <div className="game-hud-label" style={{ marginBottom: 4 }}>LANDING MULTIPLIER</div>
               <div style={{ 
-                fontSize: 48, 
+                fontSize: 56, 
                 fontWeight: 900, 
-                color: combo > 1 ? 'var(--accent)' : 'var(--text)',
-                textShadow: combo > 1 ? '0 0 16px var(--accent)' : 'none',
-                transition: 'all 0.1s ease-out'
+                lineHeight: 1,
+                color: combo > 1 ? '#06b6d4' : '#e0f2fe',
+                textShadow: combo > 1 ? '0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.2)' : 'none',
+                transition: 'all 0.15s ease-out'
               }}>
                 x{combo}
               </div>
             </div>
 
-            <div className="pt-footer">
-              <div className="pt-name" style={{ fontSize: 13 }}>Gym Press</div>
-              <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', marginTop: 12, borderTop: '1px dotted var(--border-2)', paddingTop: 10 }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 9, color: 'var(--muted)' }}>Distance</div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent)' }}>{distance}m</div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 9, color: 'var(--muted)' }}>Time Left</div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: timeLeft < 10 ? '#ef4444' : 'var(--text)' }}>{timeLeft}s</div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 9, color: 'var(--muted)' }}>Score</div>
-                  <div style={{ fontSize: 20, fontWeight: 800 }}>{score}</div>
-                </div>
+            {/* Stats Row */}
+            <div className="game-stat-row">
+              <div className="game-stat-col">
+                <div className="game-hud-label">Distance</div>
+                <div className="game-hud-value" style={{ color: '#06b6d4' }}>{distance}m</div>
+              </div>
+              <div className="game-stat-col">
+                <div className="game-hud-label">Time</div>
+                <div className="game-hud-value" style={{ color: timeLeft < 10 ? '#ef4444' : '#e0f2fe', textShadow: timeLeft < 10 ? '0 0 10px rgba(239,68,68,0.4)' : 'none' }}>{timeLeft}s</div>
+              </div>
+              <div className="game-stat-col">
+                <div className="game-hud-label">Score</div>
+                <div className="game-hud-value" style={{ color: '#e0f2fe' }}>{score}</div>
               </div>
             </div>
           </div>
 
-          {/* High Score & Controls Box */}
-          <div className="pt-cell" style={{ '--element-color': 'var(--border)', minHeight: 180 } as React.CSSProperties}>
-            <div className="pt-header">
-              <span className="pt-number">HI</span>
-              <span className="pt-group">RECORD STATUS</span>
+          {/* High Score & Controls */}
+          <div className="game-hud-card" style={{ minHeight: 180 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#a855f7', opacity: 0.8 }}>Hi</span>
+              <span className="game-hud-label">RECORD</span>
             </div>
             
-            <div style={{ padding: '8px 0', textAlign: 'center' }}>
-              <div style={{ fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase' }}>Current High Score</div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--text)', margin: '4px 0' }}>{highScore}</div>
+            <div style={{ padding: '12px 0', textAlign: 'center' }}>
+              <div className="game-hud-label">ALL-TIME HIGH SCORE</div>
+              <div style={{ fontSize: 38, fontWeight: 900, color: '#e0f2fe', margin: '6px 0', fontVariantNumeric: 'tabular-nums', textShadow: '0 0 10px rgba(168, 85, 247, 0.2)' }}>{highScore}</div>
             </div>
 
-            <div className="pt-footer" style={{ borderTop: '1px dotted var(--border-2)', paddingTop: 10 }}>
-              <div className="hint" style={{ fontSize: 10, textAlign: 'center' }}>TOUCH & RIDE</div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button 
-                  type="button" 
-                  className="button" 
-                  style={{ 
-                    flex: 1, 
-                    padding: '14px 0', 
-                    fontSize: 12, 
-                    fontWeight: 'bold', 
-                    background: isPumping ? 'var(--accent)' : 'rgba(255,255,255,0.03)', 
-                    border: '1px solid var(--border-2)',
-                    color: isPumping ? '#000000' : 'var(--text)',
-                    boxShadow: isPumping ? '0 0 16px var(--accent)' : 'none',
-                    transition: 'all 0.1s ease'
-                  }}
-                  onTouchStart={() => { window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space' })); setIsPumping(true); }}
-                  onTouchEnd={() => { window.dispatchEvent(new KeyboardEvent('keyup', { code: 'Space' })); setIsPumping(false); }}
-                  onMouseDown={() => { window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space' })); setIsPumping(true); }}
-                  onMouseUp={() => { window.dispatchEvent(new KeyboardEvent('keyup', { code: 'Space' })); setIsPumping(false); }}
-                >
-                  {isPumping ? '⚡ PUMPING ⚡' : 'HOLD TO PUMP / TAP TO JUMP'}
-                </button>
-              </div>
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 14 }}>
+              <div className="game-hud-label" style={{ textAlign: 'center', marginBottom: 10 }}>TOUCH CONTROLS</div>
+              <button 
+                type="button" 
+                className={`game-pump-btn${isPumping ? ' active' : ''}`}
+                onTouchStart={() => { window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space' })); setIsPumping(true); }}
+                onTouchEnd={() => { window.dispatchEvent(new KeyboardEvent('keyup', { code: 'Space' })); setIsPumping(false); }}
+                onMouseDown={() => { window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space' })); setIsPumping(true); }}
+                onMouseUp={() => { window.dispatchEvent(new KeyboardEvent('keyup', { code: 'Space' })); setIsPumping(false); }}
+              >
+                {isPumping ? '⚡ PUMPING ⚡' : 'HOLD TO PUMP · TAP TO JUMP'}
+              </button>
             </div>
-
           </div>
 
         </div>

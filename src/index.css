@@ -7,9 +7,9 @@
   font-weight: 400;
 
   /* Spacing & Layout */
-  --radius-sm: 0px;
-  --radius-md: 2px;
-  --radius-lg: 4px; 
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px; 
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);

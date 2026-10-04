@@ -225,6 +225,7 @@ function App() {
                 currentWorkout?.routineId === routineForRun.id ? currentWorkout.doneByExerciseId : {}
               }
               onDoneByExerciseIdChange={(doneByExerciseId) => updateWorkoutProgress(routineForRun.id, doneByExerciseId)}
+              startedAt={currentWorkout?.routineId === routineForRun.id ? currentWorkout.startedAt : undefined}
             />
           ) : (
             <div className="panel">

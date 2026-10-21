@@ -13,7 +13,7 @@ const ChevronDown = () => (
 )
 
 const PlayIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none">
     <path d="M8 5v14l11-7z" />
   </svg>
 )
@@ -29,23 +29,53 @@ export const HowToView = ({ onBack }: HowToViewProps) => {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  // On large screens, play the selected one in a large view.
-  // On small screens, keep the accordion list but maybe style it better?
-  // The user asked for "larger version ... on larger screens".
-  // Let's implement a master-detail view for large screens.
-
   return (
-    <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%' }}>
-      <div className="animate-fade-in-up" style={{ marginBottom: 40 }}>
-        <button type="button" className="button secondary" onClick={onBack} style={{ marginBottom: 20 }}>
-          ← Back
-        </button>
-        <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: 12 }}>
-          How it <span className="textGradient">Works</span>
-        </h1>
-        <p style={{ margin: 0, fontSize: '1.05rem', color: 'var(--muted)', maxWidth: 520, lineHeight: 1.7, fontWeight: 400 }}>
-          Interactive visual demonstrations to master your routine creation and tracking workflow.
-        </p>
+    <div className="statsPageShell">
+      <div className="statsHeroBanner animate-fade-in-up">
+        <div className="statsHeroTopRow">
+          <button type="button" className="button secondary" onClick={onBack}>
+            ← Back
+          </button>
+          <span className="heroBadge statsBadgePill">
+            <span className="heroBadgeDot" aria-hidden="true" />
+            OPERATIONS MANUAL • ELEMENT #02 He
+          </span>
+        </div>
+
+        <div className="statsHeroMain">
+          <div className="statsHeroTile" aria-hidden="true">
+            <span className="statsHeroTileNum">#02</span>
+            <span className="statsHeroTileSym">Gd</span>
+            <span className="statsHeroTileMass">MANUAL</span>
+          </div>
+
+          <div className="statsHeroCopy">
+            <h1 className="statsHeroTitle">
+              How it <span className="textGradient">Works</span>
+            </h1>
+            <p className="statsHeroSubtitle">
+              Interactive visual demonstrations, lab workflow shortcuts, and local data backup controls to master your training console.
+            </p>
+          </div>
+        </div>
+
+        <div className="howToQuickTipsGrid" aria-label="Workflow highlights">
+          <div className="howToTipCard">
+            <span className="howToTipCode">01 · FORMULAS</span>
+            <strong>Periodic Element Synthesis</strong>
+            <p>Every routine and exercise automatically synthesizes a Periodic Table symbol, atomic mass, and muscle group tags.</p>
+          </div>
+          <div className="howToTipCard">
+            <span className="howToTipCode">02 · LIVE SETS</span>
+            <strong>Inline Set & Plate Tracking</strong>
+            <p>Check off individual sets during a session to calculate live volume and view 2D/3D Olympic barbell plate stacks.</p>
+          </div>
+          <div className="howToTipCard">
+            <span className="howToTipCode">03 · 2D MINI-GAME</span>
+            <strong>Iron Press Power Rack</strong>
+            <p>Switch between Bench, OHP, and Deadlift on the home deck, time Sweet-Spot 2× Crits, and run 30s AMRAP blitzes.</p>
+          </div>
+        </div>
       </div>
 
       {SCENARIO_GIFS.length === 0 ? (
@@ -55,14 +85,18 @@ export const HowToView = ({ onBack }: HowToViewProps) => {
           </div>
         </div>
       ) : isLargeScreen ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: 32, alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 28, alignItems: 'start' }}>
           {/* Sidebar */}
           <div className="glassPanel" style={{ borderRadius: 24, overflow: 'hidden' }}>
-            <div className="panelTitle" style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
-              Guides
+            <div className="panelHeaderPlain">
+              <div className="panelHeaderTitleGroup">
+                <span className="panelEyebrow">VISUAL PROTOCOLS</span>
+                <div className="panelTitlePlain">Interactive Guides</div>
+              </div>
+              <span className="panelCountBadge">{SCENARIO_GIFS.length}</span>
             </div>
             <div style={{ padding: 12, display: 'grid', gap: 8 }}>
-              {SCENARIO_GIFS.map((s) => {
+              {SCENARIO_GIFS.map((s, idx) => {
                 const isActive = selected?.fileName === s.fileName
                 return (
                   <button
@@ -71,31 +105,40 @@ export const HowToView = ({ onBack }: HowToViewProps) => {
                     style={{
                       appearance: 'none',
                       border: '1px solid',
-                      borderColor: isActive ? 'var(--accent)' : 'transparent',
-                      background: isActive ? 'var(--accent-soft)' : 'transparent',
+                      borderColor: isActive ? 'var(--accent)' : 'var(--border)',
+                      background: isActive ? 'var(--accent-soft)' : 'var(--surface-2)',
                       color: isActive ? 'var(--accent-hover)' : 'var(--muted)',
                       width: '100%',
                       textAlign: 'left',
-                      padding: '12px 16px',
-                      borderRadius: 12,
+                      padding: '12px 14px',
+                      borderRadius: 14,
                       cursor: 'pointer',
-                      fontSize: '0.95rem',
-                      fontWeight: isActive ? 600 : 500,
+                      fontSize: '0.92rem',
+                      fontWeight: isActive ? 700 : 600,
                       transition: 'all 0.2s ease',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 12
+                      gap: 12,
                     }}
                   >
-                    <div style={{ 
-                        width: 24, height: 24, flex: '0 0 auto', 
-                        background: isActive ? 'var(--accent)' : 'var(--surface-3)', 
+                    <div
+                      style={{
+                        width: 28,
+                        height: 28,
+                        flex: '0 0 auto',
+                        background: isActive ? 'var(--accent)' : 'var(--surface-3)',
                         color: isActive ? 'var(--on-accent)' : 'inherit',
-                        borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                      }}>
-                      {isActive ? <PlayIcon /> : <span style={{ fontSize: 12, fontWeight: 700 }}>{SCENARIO_GIFS.indexOf(s) + 1}</span>}
+                        borderRadius: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 11,
+                        fontWeight: 800,
+                      }}
+                    >
+                      {isActive ? <PlayIcon /> : `#0${idx + 1}`}
                     </div>
-                    <span style={{ color: isActive ? 'var(--text)' : 'inherit' }}>
+                    <span style={{ color: isActive ? 'var(--text)' : 'inherit', lineHeight: 1.35 }}>
                       {s.title}
                     </span>
                   </button>
@@ -105,27 +148,30 @@ export const HowToView = ({ onBack }: HowToViewProps) => {
           </div>
 
           {/* Main Content */}
-          <div className="glassPanel" style={{ borderRadius: 24, overflow: 'hidden', padding: 8 }}>
+          <div className="glassPanel" style={{ borderRadius: 24, overflow: 'hidden', padding: 12 }}>
             {selected && (
               <div style={{ position: 'relative' }}>
-               <div style={{ 
-                  background: '#000', 
-                  borderRadius: 16, 
-                  overflow: 'hidden', 
-                  boxShadow: '0 20px 50px -10px rgba(0,0,0,0.5)',
-                  border: '1px solid var(--border)' 
-                }}>
+                <div
+                  style={{
+                    background: '#000',
+                    borderRadius: 16,
+                    overflow: 'hidden',
+                    boxShadow: '0 20px 50px -10px rgba(0,0,0,0.5)',
+                    border: '1px solid var(--border)',
+                  }}
+                >
                   <img
                     src={resolveScenarioGifUrl(selected.fileName)}
                     alt={selected.title}
                     style={{ display: 'block', width: '100%', height: 'auto' }}
                   />
-               </div>
-               <div style={{ marginTop: 20, padding: '0 12px 12px' }}>
-                 <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>
-                   {selected.title}
-                 </h2>
-               </div>
+                </div>
+                <div style={{ marginTop: 18, padding: '0 12px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                  <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>
+                    {selected.title}
+                  </h2>
+                  <span className="panelCountBadge">Visual Playback</span>
+                </div>
               </div>
             )}
           </div>
@@ -133,7 +179,7 @@ export const HowToView = ({ onBack }: HowToViewProps) => {
       ) : (
         /* Mobile Layout - Refined Stack */
         <div className="glassPanel" style={{ borderRadius: 24, padding: 8, background: 'transparent', border: 'none', boxShadow: 'none' }}>
-           <div className="scenarioGrid" style={{ gridTemplateColumns: '1fr' }}>
+          <div className="scenarioGrid" style={{ gridTemplateColumns: '1fr' }}>
             {SCENARIO_GIFS.map((s) => (
               <details key={s.fileName} className="scenarioCard" style={{ background: 'var(--surface-glass)', backdropFilter: 'blur(10px)' }}>
                 <summary className="scenarioSummary" style={{ fontSize: '1rem', padding: '20px' }}>
@@ -154,7 +200,7 @@ export const HowToView = ({ onBack }: HowToViewProps) => {
           </div>
         </div>
       )}
-      
+
       <DataManagement />
     </div>
   )

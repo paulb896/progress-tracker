@@ -14,6 +14,7 @@ import { useCompletions } from './completions/useCompletions'
 import { makeId } from './routines/id'
 import { ScenarioGifCursor } from './components/ScenarioGifCursor'
 import { useCurrentWorkout } from './workout/useCurrentWorkout'
+import { getPeriodicElement } from './app/periodicTable'
 
 const ThemeToggle = ({ theme, onToggle }: { theme: 'light' | 'dark'; onToggle: () => void }) => {
   return (
@@ -63,8 +64,8 @@ function App() {
   const toggleTheme = React.useCallback(() => {
     const nextTheme = theme === 'light' ? 'dark' : 'light'
     const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver
-    if (!isAutomated && (document as any).startViewTransition) {
-      (document as any).startViewTransition(() => {
+    if (!isAutomated && 'startViewTransition' in document) {
+      ;(document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition(() => {
         setTheme(nextTheme)
       })
     } else {
@@ -79,7 +80,7 @@ function App() {
   const completionForView =
     route.name === 'completed' ? completions.find((c) => c.id === route.completionId) ?? null : null
 
-  const isWide = route.name === 'run'
+  const isWide = route.name === 'run' || route.name === 'stats'
   const activeWorkoutDoneCount = activeWorkoutRoutine
     ? activeWorkoutRoutine.exercises.reduce((acc, ex) => acc + (currentWorkout?.doneByExerciseId[ex.id] ? 1 : 0), 0)
     : 0
@@ -90,23 +91,41 @@ function App() {
     route.name !== 'create' &&
     !!activeWorkoutRoutine
 
+  const isEndingWorkoutRef = React.useRef(false)
+
   const cancelCurrentWorkout = React.useCallback(() => {
+    isEndingWorkoutRef.current = true
     clearCurrentWorkout()
     navigate({ name: 'home' })
   }, [clearCurrentWorkout, navigate])
 
-  React.useEffect(() => {
-    if (route.name !== 'run') return
+  const routineForRunId = routineForRun?.id
 
-    if (routineForRun) {
-      startWorkout(routineForRun.id)
+  const handleDoneByExerciseIdChange = React.useCallback(
+    (doneByExerciseId: Record<string, boolean>) => {
+      if (isEndingWorkoutRef.current || !routineForRunId) return
+      updateWorkoutProgress(routineForRunId, doneByExerciseId)
+    },
+    [routineForRunId, updateWorkoutProgress]
+  )
+
+  React.useEffect(() => {
+    if (route.name !== 'run') {
+      isEndingWorkoutRef.current = false
+      return
+    }
+
+    if (isEndingWorkoutRef.current) return
+
+    if (routineForRunId) {
+      startWorkout(routineForRunId)
       return
     }
 
     if (currentWorkout?.routineId === route.routineId) {
       clearCurrentWorkout()
     }
-  }, [clearCurrentWorkout, currentWorkout, route, routineForRun, startWorkout])
+  }, [clearCurrentWorkout, currentWorkout?.routineId, route, routineForRunId, startWorkout])
 
   React.useEffect(() => {
     if (currentWorkout && !activeWorkoutRoutine) {
@@ -127,7 +146,11 @@ function App() {
           onStats={() => navigate({ name: 'stats' })}
           onPlayGame={() => navigate({ name: 'game' })}
           onEdit={(routineId) => navigate({ name: 'edit', routineId })}
-          onRun={(routineId) => navigate({ name: 'run', routineId })}
+          onRun={(routineId) => {
+            isEndingWorkoutRef.current = false
+            startWorkout(routineId)
+            navigate({ name: 'run', routineId })
+          }}
           onViewCompletion={(completionId) => navigate({ name: 'completed', completionId })}
           onDelete={(routineId) => {
             deleteRoutine(routineId)
@@ -137,11 +160,9 @@ function App() {
             navigate({ name: 'home' })
           }}
           headerRight={
-            !(window as any).__PROGRESS_TRACKER_SCENARIO_GIF__ ? (
-              <div className="headerCube" aria-label="3D lifting weight demo">
-                <ThreeDemo theme={theme} />
-              </div>
-            ) : null
+            <div className="headerCube" aria-label="2D weight lifting mini game">
+              <ThreeDemo theme={theme} />
+            </div>
           }
         />
       ) : null}
@@ -168,6 +189,8 @@ function App() {
             onCancel={() => navigate({ name: 'home' })}
             onSave={(routine) => {
               upsertRoutine(routine)
+              isEndingWorkoutRef.current = false
+              startWorkout(routine.id)
               navigate({ name: 'run', routineId: routine.id })
             }}
           />
@@ -183,6 +206,8 @@ function App() {
               onCancel={() => navigate({ name: 'home' })}
               onSave={(routine) => {
                 upsertRoutine(routine)
+                isEndingWorkoutRef.current = false
+                startWorkout(routine.id)
                 navigate({ name: 'run', routineId: routine.id })
               }}
             />
@@ -222,9 +247,9 @@ function App() {
               }}
               onUpdateRoutine={(nextRoutine) => upsertRoutine(nextRoutine)}
               initialDoneByExerciseId={
-                currentWorkout?.routineId === routineForRun.id ? currentWorkout.doneByExerciseId : {}
+                currentWorkout?.routineId === routineForRun.id ? currentWorkout.doneByExerciseId : undefined
               }
-              onDoneByExerciseIdChange={(doneByExerciseId) => updateWorkoutProgress(routineForRun.id, doneByExerciseId)}
+              onDoneByExerciseIdChange={handleDoneByExerciseIdChange}
               startedAt={currentWorkout?.routineId === routineForRun.id ? currentWorkout.startedAt : undefined}
             />
           ) : (
@@ -280,35 +305,66 @@ function App() {
       ) : null}
 
       {showActiveWorkoutBubble && activeWorkoutRoutine ? (
-        <div className="currentWorkoutBubble" role="group" aria-label="Active workout actions">
-          <button
-            type="button"
-            className="currentWorkoutBubbleResume"
-            aria-label={`Resume active workout: ${activeWorkoutRoutine.name}`}
-            onClick={() => navigate({ name: 'run', routineId: activeWorkoutRoutine.id })}
-          >
-            <span className="currentWorkoutBubbleLabel">Resume workout</span>
-            <span className="currentWorkoutBubbleName">{activeWorkoutRoutine.name}</span>
-            <span className="currentWorkoutBubbleMeta">
-              {activeWorkoutDoneCount}/{activeWorkoutTotalCount} complete
-            </span>
-          </button>
-          <button
-            type="button"
-            className="currentWorkoutBubbleCancel"
-            onClick={() => {
-              const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver
-              if (isAutomated) {
-                cancelCurrentWorkout()
-              } else {
-                setShowBubbleCancelConfirm(true)
-              }
-            }}
-            aria-label={`Cancel active workout: ${activeWorkoutRoutine.name}`}
-          >
-            Cancel workout
-          </button>
-        </div>
+        (() => {
+          const bubbleEl = getPeriodicElement(activeWorkoutRoutine.name)
+          const bubblePct =
+            activeWorkoutTotalCount > 0
+              ? Math.round((activeWorkoutDoneCount / activeWorkoutTotalCount) * 100)
+              : 0
+          return (
+            <div
+              className="currentWorkoutBubble"
+              role="group"
+              aria-label="Active workout actions"
+              style={{ '--element-color': bubbleEl.color } as React.CSSProperties}
+            >
+              <button
+                type="button"
+                className="currentWorkoutBubbleResume"
+                aria-label={`Resume active workout: ${activeWorkoutRoutine.name}`}
+                onClick={() => navigate({ name: 'run', routineId: activeWorkoutRoutine.id })}
+              >
+                <div className="currentWorkoutBubbleTop">
+                  <div className="currentWorkoutBubbleTile" aria-hidden="true">
+                    <span className="currentWorkoutBubbleTileNum">#{bubbleEl.atomicNumber}</span>
+                    <span className="currentWorkoutBubbleTileSym">{bubbleEl.symbol}</span>
+                  </div>
+                  <div className="currentWorkoutBubbleInfo">
+                    <span className="currentWorkoutBubbleLabel">
+                      <span className="currentWorkoutBubbleDot" aria-hidden="true" />
+                      Resume workout
+                    </span>
+                    <span className="currentWorkoutBubbleName">{activeWorkoutRoutine.name}</span>
+                    <span className="currentWorkoutBubbleMeta">
+                      {activeWorkoutDoneCount}/{activeWorkoutTotalCount} complete ({bubblePct}%)
+                    </span>
+                  </div>
+                </div>
+                <div className="currentWorkoutBubbleProgress" aria-hidden="true">
+                  <div
+                    className="currentWorkoutBubbleProgressFill"
+                    style={{ width: `${bubblePct}%` }}
+                  />
+                </div>
+              </button>
+              <button
+                type="button"
+                className="currentWorkoutBubbleCancel"
+                onClick={() => {
+                  const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver
+                  if (isAutomated) {
+                    cancelCurrentWorkout()
+                  } else {
+                    setShowBubbleCancelConfirm(true)
+                  }
+                }}
+                aria-label={`Cancel active workout: ${activeWorkoutRoutine.name}`}
+              >
+                Cancel workout
+              </button>
+            </div>
+          )
+        })()
       ) : null}
 
       {showBubbleCancelConfirm && activeWorkoutRoutine ? (

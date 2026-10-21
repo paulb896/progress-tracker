@@ -20,9 +20,7 @@ export const usePathRoute = (): {
 
   React.useLayoutEffect(() => {
     const scrollY = scrollPositions.current[window.location.pathname] ?? 0
-    setTimeout(() => {
-      window.scrollTo(0, scrollY)
-    }, 100)
+    window.scrollTo(0, scrollY)
   }, [route])
 
   React.useEffect(() => {
@@ -32,8 +30,11 @@ export const usePathRoute = (): {
 
     const onPopState = (): void => {
       const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver
-      if (!isAutomated && (document as any).startViewTransition) {
-        (document as any).startViewTransition(() => {
+      const docWithTransition = document as Document & {
+        startViewTransition?: (cb: () => void) => void
+      }
+      if (!isAutomated && docWithTransition.startViewTransition) {
+        docWithTransition.startViewTransition(() => {
           setRoute(parsePathRoute(window.location.pathname, basePath))
         })
       } else {
@@ -53,8 +54,11 @@ export const usePathRoute = (): {
         window.history.pushState(null, '', nextPath)
       }
       const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver
-      if (!isAutomated && (document as any).startViewTransition) {
-        (document as any).startViewTransition(() => {
+      const docWithTransition = document as Document & {
+        startViewTransition?: (cb: () => void) => void
+      }
+      if (!isAutomated && docWithTransition.startViewTransition) {
+        docWithTransition.startViewTransition(() => {
           setRoute(next)
         })
       } else {

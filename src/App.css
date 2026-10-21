@@ -840,7 +840,7 @@
 .routineCard:hover,
 .completionRowButton:hover {
   transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35), 0 0 16px color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: var(--shadow-lg), 0 0 16px color-mix(in srgb, var(--accent) 12%, transparent);
   border-color: color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
@@ -3012,8 +3012,8 @@
   height: 200px;
   border-radius: 50%;
   background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-2);
+  box-shadow: var(--shadow-lg);
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   align-items: center;
@@ -3463,3 +3463,2146 @@
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ==========================================================================
+   HOME COMMAND DECK & PERIODIC FORMULA CARDS
+   ========================================================================== */
+
+.heroSection {
+  background:
+    radial-gradient(ellipse 55% 70% at 15% 20%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 65%),
+    radial-gradient(ellipse 45% 60% at 85% 75%, rgba(34, 211, 238, 0.12), transparent 65%),
+    var(--panel-bg);
+  border: 1px solid var(--border-2);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.heroAmbientGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--text) 3.5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--text) 3.5%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 65% 75% at 25% 45%, #000 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 65% 75% at 25% 45%, #000 0%, transparent 75%);
+}
+
+.heroBadge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  margin-bottom: 22px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface-sunken));
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.heroActions {
+  flex-wrap: wrap;
+}
+
+.heroTelemetryStrip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 32px;
+  padding: 12px;
+  border-radius: 18px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.heroTelemetryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.heroTelemetryLabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.heroTelemetryValue {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.heroTelemetryValue small {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.panelHeaderTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.panelEyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.panelCountBadge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.addRoutineIconBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--on-accent);
+  background: var(--accent-gradient);
+  border: none;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+.addRoutineIconBtn:hover {
+  color: var(--on-accent);
+  background: var(--accent-gradient);
+  filter: brightness(1.08);
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Routine Cards Grid with Container Queries */
+.pt-routine-grid {
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+  margin-top: 4px;
+}
+
+.homeRoutineCard {
+  min-height: 220px;
+  padding: 16px;
+  border-radius: 20px;
+  gap: 14px;
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--element-color, var(--accent)) 12%, transparent) 0%, transparent 60%),
+    var(--surface-glass);
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 22%, var(--border-2));
+  border-top: 4px solid var(--element-color, var(--accent));
+  box-shadow: var(--shadow);
+}
+
+.homeRoutineCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--element-color, var(--accent));
+  box-shadow:
+    var(--shadow-lg),
+    0 12px 28px -8px color-mix(in srgb, var(--element-color, var(--accent)) 26%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--element-color, var(--accent)) 30%, transparent);
+}
+
+.homeCardRunPill {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--element-color, var(--accent));
+  background: color-mix(in srgb, var(--element-color, var(--accent)) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 32%, transparent);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.homeRoutineCard:hover .homeCardRunPill {
+  background: var(--element-color, var(--accent));
+  color: light-dark(#ffffff, #06060b);
+  transform: translateX(2px);
+}
+
+.homeCardMain {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.homeCardTile {
+  flex: 0 0 68px;
+  height: 76px;
+  border-radius: 14px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--element-color, var(--accent)) 18%, var(--surface-2)),
+    color-mix(in srgb, var(--element-color, var(--accent)) 5%, var(--surface-sunken))
+  );
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 48%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+              0 8px 20px -8px color-mix(in srgb, var(--element-color, var(--accent)) 45%, transparent);
+}
+
+.homeCardTileNumber {
+  align-self: flex-start;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--element-color, var(--accent));
+}
+
+.homeCardTile .pt-symbol {
+  font-size: 26px;
+  line-height: 1;
+  margin: 0;
+  color: var(--element-color, var(--accent));
+}
+
+.homeCardTileMass {
+  font-size: 8px;
+  line-height: 1;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.homeCardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.homeCardBody .pt-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-align: left;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.homeCardStatsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.homeCardBody .pt-mass {
+  font-size: 11px;
+  opacity: 0.85;
+  margin: 0;
+  color: var(--muted);
+}
+
+.homeCardVolumePill,
+.homeCardRunsPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.homeCardVolumePill {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.homeCardRunsPill {
+  color: var(--text);
+  background: var(--surface-3);
+  border: 1px solid var(--border-2);
+}
+
+.homeCardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.homeMuscleTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--element-color, var(--accent)) 80%, var(--text));
+  background: color-mix(in srgb, var(--element-color, var(--accent)) 10%, var(--surface-sunken));
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 26%, transparent);
+}
+
+/* Exercise formula preview strip inside routine card */
+.homeExerciseFormulaList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.homeExerciseChip {
+  --c: var(--ex-color, var(--element-color, var(--accent)));
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px 8px 4px 5px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid color-mix(in srgb, var(--c) 26%, var(--border));
+  font-size: 11px;
+}
+
+.homeExerciseChipSym {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c) 40%, transparent);
+  flex-shrink: 0;
+}
+
+.homeExerciseChipName {
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.homeExerciseChipMeta {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.homeExerciseChipMore {
+  color: var(--muted);
+  font-weight: 700;
+  padding: 4px 8px;
+}
+
+.homeCardFooter {
+  margin-top: auto;
+  padding: 8px 0 0;
+  background: transparent;
+  border-top: 1px dashed var(--border-2);
+  gap: 8px;
+}
+
+.homeCardActionBtn {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: 12px;
+}
+
+.homeSimLaunchText {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  padding: 4px 2px;
+}
+
+/* ==========================================================================
+   RECENT ACTIVITY — REACTION TELEMETRY LOG
+   ========================================================================== */
+
+.activityPanel .scrollableBody {
+  max-height: 560px;
+}
+
+.activityCard {
+  padding: 12px 14px;
+  gap: 14px;
+  border-radius: 16px;
+  margin-bottom: 0;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--element-color, var(--accent)) 6%, var(--surface-2)), var(--surface-2));
+}
+
+.activitySymbol {
+  width: 44px;
+  height: 48px;
+  border-radius: 10px;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 15px;
+}
+
+.activitySymbol small {
+  font-size: 8px;
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+.activityTopRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.activityMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.activityMetaPill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.activityMetaVolume {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.activityFormulaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.activityFormulaChip {
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--chip-color, var(--accent));
+  background: color-mix(in srgb, var(--chip-color, var(--accent)) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--chip-color, var(--accent)) 32%, transparent);
+}
+
+.activityFormulaMore {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 1px 4px;
+}
+
+.activityChevron {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--muted);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.activityCard:hover .activityChevron {
+  transform: translateX(3px);
+  color: var(--element-color, var(--accent));
+}
+
+.emptyMiniIcon {
+  font-size: 28px;
+  margin-bottom: 6px;
+  color: var(--accent);
+  font-style: normal;
+}
+
+.emptyMiniSub {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  opacity: 0.75;
+}
+
+/* ==========================================================================
+   CREATE / EDIT ROUTINE & EXERCISES LAB BUILDER
+   ========================================================================== */
+
+.createHeaderRow {
+  padding: 20px 24px;
+}
+
+.createHeaderTitleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.createPanel .panelBody {
+  padding: 24px;
+}
+
+.createFormulaBanner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  padding: 20px;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--routine-color, var(--accent)) 14%, transparent), transparent 65%),
+    var(--surface-sunken);
+  border: 1px solid color-mix(in srgb, var(--routine-color, var(--accent)) 30%, var(--border-2));
+}
+
+.createFormulaTile {
+  width: 96px;
+  height: 108px;
+  border-radius: 16px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--element-color, var(--accent)) 20%, var(--surface-2)),
+    color-mix(in srgb, var(--element-color, var(--accent)) 6%, var(--surface))
+  );
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 55%, transparent);
+  border-top: 4px solid var(--element-color, var(--accent));
+  box-shadow: 0 12px 28px -10px color-mix(in srgb, var(--element-color, var(--accent)) 50%, transparent);
+}
+
+.createFormulaTileTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--element-color, var(--accent));
+}
+
+.createFormulaTileTop span:last-child {
+  color: var(--muted);
+  font-size: 7px;
+  text-align: right;
+  max-width: 52px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.createFormulaTileSymbol {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  color: var(--element-color, var(--accent));
+  text-shadow: 0 0 18px color-mix(in srgb, var(--element-color, var(--accent)) 45%, transparent);
+}
+
+.createFormulaTileMass {
+  font-size: 9px;
+  text-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.createFormulaInputArea {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.createRoutineNameInput {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.createFormulaStatsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.createStatChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+}
+
+.createStatChip strong {
+  color: var(--text);
+}
+
+.createStatChipAccent {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.createStatChipAccent strong {
+  color: var(--accent);
+}
+
+.createExercisesHeader {
+  align-items: center;
+}
+
+.createPanel .exerciseRow {
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 24%, var(--border-2));
+  border-left: 4px solid var(--element-color, var(--accent));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--element-color, var(--accent)) 6%, var(--surface)), var(--surface));
+}
+
+.createPanel .createExerciseTile {
+  width: 60px;
+  height: 74px;
+  border-radius: 14px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 55%, transparent);
+  background: color-mix(in srgb, var(--element-color, var(--accent)) 12%, var(--surface-2));
+  color: var(--element-color, var(--accent));
+  opacity: 1;
+}
+
+.createExerciseTileStep {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.createExerciseTileSym {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.createExerciseTileNum {
+  font-size: 9px;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.createExerciseTopBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.createExerciseBadge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--element-color, var(--accent));
+}
+
+.createExerciseTopTags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.createQuickPresets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--surface-sunken);
+  border: 1px dashed var(--border-2);
+}
+
+.createQuickPresetsLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-right: 2px;
+}
+
+.createQuickPresetChip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  transition: all 0.18s ease;
+}
+
+.createQuickPresetChip:hover {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Content-based layout using :has() with @supports fallback */
+.createExerciseMainGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.createExerciseMainGrid:has(.exerciseImagePreview) {
+  grid-template-columns: minmax(0, 1.35fr) minmax(200px, 0.85fr);
+}
+
+@supports not selector(:has(*)) {
+  .exerciseRow.has-preview .createExerciseMainGrid {
+    grid-template-columns: minmax(0, 1.35fr) minmax(200px, 0.85fr);
+  }
+}
+
+.createExerciseInputsCol {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.createExerciseNameInput {
+  font-weight: 700;
+}
+
+.createPanel .exerciseImagePreview {
+  margin-top: 0;
+  max-width: 100%;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 35%, var(--border-2));
+  box-shadow: var(--shadow);
+}
+
+/* ==========================================================================
+   COMPLETION DETAIL — ARCHIVED EXERCISE CARDS
+   ========================================================================== */
+
+.completionRoutineTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+.completionTimestamp {
+  font-size: 0.9rem;
+}
+
+.completionExerciseCard {
+  position: relative;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 25%, var(--border-2));
+  border-left: 4px solid var(--element-color, var(--accent));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--element-color, var(--accent)) 6%, var(--surface)), var(--surface));
+}
+
+.completionExerciseHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.completionExerciseTitleBlock {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.completionExerciseName {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.completionImageStrip {
+  margin-top: 0;
+}
+
+.completionImageThumb {
+  width: 72px;
+  height: 54px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 35%, var(--border-2));
+}
+
+.completionMetricsGrid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.completionMetricBox {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.completionMetricBox .runMetaLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.completionMetricBox .runMetaValue {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 760px) {
+  .heroTelemetryStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .createFormulaBanner {
+    grid-template-columns: 1fr;
+  }
+
+  .createExerciseMainGrid:has(.exerciseImagePreview),
+  .exerciseRow.has-preview .createExerciseMainGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .createPanel .exerciseRow {
+    grid-template-columns: 1fr;
+  }
+
+  .createPanel .exerciseRowActions {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+/* ==========================================================================
+   2D BARBELL LIFT MINI-GAME (HERO COMMAND DECK)
+   ========================================================================== */
+
+.heroSection {
+  grid-template-columns: 1.15fr 0.95fr;
+  gap: 24px;
+}
+
+.heroCanvasWrapper {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: 100%;
+  height: auto;
+  padding: 40px 40px 40px 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerCube {
+  width: 100%;
+  height: auto;
+}
+
+.miniGameShell {
+  width: 100%;
+  max-width: 470px;
+}
+
+.miniGameCard,
+.miniGameDisabledCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--accent) 14%, transparent) 0%, transparent 65%),
+    var(--surface-glass);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border-2));
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.miniGameDisabledCard {
+  align-items: flex-start;
+  padding: 22px;
+  gap: 14px;
+}
+
+.miniGameDisabledBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.miniGameDisabledTitle {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.miniGameDisabledText {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.miniGameSavedStats {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.miniGameHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.miniGameTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.miniGameEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.miniGameDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.miniGameDot--paused {
+  background: var(--muted);
+  box-shadow: none;
+}
+
+.miniGameTitle {
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.miniGameToggleBtn {
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.miniGameToggleBtn--off {
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--border-2);
+}
+
+.miniGameToggleBtn--off:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--surface-3);
+}
+
+.miniGameHud {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.miniGameStat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.miniGameStatLabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.miniGameStatValue {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.miniGameStatValue small {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.miniGameStage {
+  position: relative;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 25%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+    linear-gradient(
+      180deg,
+      light-dark(#f8fafc, rgba(9, 13, 24, 0.92)),
+      light-dark(#e2e8f0, rgba(15, 23, 42, 0.96))
+    );
+  border: 1px solid var(--border-2);
+  box-shadow: inset 0 1px 0 light-dark(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.04));
+  padding: 8px 10px 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.miniGameStage:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.miniGameStage.is-lockout {
+  border-color: var(--accent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.miniGameSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 215px;
+}
+
+.miniGameStageFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 6px 0;
+}
+
+.miniGameStatusText {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.miniGameStatusText.is-lockout {
+  color: var(--accent);
+}
+
+.miniGamePctBadge {
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: light-dark(#0284c7, #38bdf8);
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, light-dark(#0284c7, #38bdf8) 14%, transparent);
+  border: 1px solid color-mix(in srgb, light-dark(#0284c7, #38bdf8) 32%, transparent);
+}
+
+.miniGameControls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.miniGameWeightPicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.miniGamePlateBtn {
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.miniGamePlateBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.miniGamePlateBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.miniGameWeightLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+}
+
+.miniGameWeightLabel strong {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.miniGameWeightLabel span {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.miniGameActionRow {
+  display: flex;
+  gap: 8px;
+}
+
+.miniGameLiftBtn {
+  flex: 1;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.miniGameResetBtn {
+  padding: 10px 14px;
+}
+
+.miniGameCard--overdrive {
+  border-color: rgba(245, 158, 11, 0.65);
+  box-shadow: 0 0 32px rgba(245, 158, 11, 0.2), var(--shadow-lg);
+}
+
+.miniGameTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.miniGameRankPill {
+  --rc: var(--rank-color, var(--accent));
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--rc);
+  background: color-mix(in srgb, var(--rc) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--rc) 38%, transparent);
+}
+
+.miniGameHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.miniGameIconBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  border: 1px solid var(--border-2);
+  background: var(--surface-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.miniGameIconBtn.is-active,
+.miniGameIconBtn:hover {
+  border-color: var(--accent);
+  background: var(--surface-3);
+}
+
+.miniGameModeBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.miniGameModeTabs {
+  display: flex;
+  flex: 1;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 11px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.miniGameModeTab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.miniGameModeTab:hover {
+  color: var(--text);
+}
+
+.miniGameModeTab.is-active {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border-2));
+  box-shadow: var(--shadow-sm);
+}
+
+.miniGameModeSym {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 4px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.miniGameAmrapBtn {
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.miniGameAmrapBtn:hover,
+.miniGameAmrapBtn.is-active {
+  background: var(--danger);
+  color: #ffffff;
+  border-color: var(--danger);
+}
+
+.miniGameStage.is-overdrive {
+  border-color: rgba(245, 158, 11, 0.65);
+  box-shadow: 0 0 22px rgba(245, 158, 11, 0.22);
+}
+
+.miniGamePopups {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 4;
+}
+
+@keyframes miniPopupFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 10px) scale(0.85);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -34px) scale(0.96);
+  }
+}
+
+.miniGamePopupItem {
+  position: absolute;
+  top: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--surface-glass);
+  border: 1px solid var(--popup-color, var(--accent));
+  color: var(--popup-color, var(--accent));
+  box-shadow: var(--shadow-sm);
+  font-size: 10px;
+  line-height: 1.15;
+  white-space: nowrap;
+  animation: miniPopupFloat 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.miniGamePopupItem span {
+  font-size: 8.5px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.miniGameMetersRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 6px 6px 2px;
+}
+
+.miniGameMeterCol {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.miniGameMeterHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.miniGameSweetText {
+  color: var(--accent);
+}
+
+.miniGameMeterTrack,
+.miniGamePulseTrack {
+  position: relative;
+  height: 7px;
+  border-radius: 999px;
+  background: light-dark(rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0.85));
+  border: 1px solid var(--border-2);
+  overflow: hidden;
+}
+
+.miniGameMeterFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent-gradient);
+  transition: width 0.1s linear;
+}
+
+.miniGameMeterFill.is-low {
+  background: linear-gradient(90deg, #f43f5e, #fb923c);
+}
+
+.miniGamePulseZone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 36%;
+  width: 28%;
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
+  border-left: 1px solid var(--accent);
+  border-right: 1px solid var(--accent);
+}
+
+.miniGamePulseCursor {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 6px;
+  margin-left: -3px;
+  border-radius: 999px;
+  background: var(--text);
+}
+
+.miniGamePulseCursor.is-sweet {
+  background: light-dark(#d97706, #fbbf24);
+  box-shadow: 0 0 8px light-dark(#d97706, #fbbf24);
+}
+
+.miniGameBuffRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.miniGameBuffBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-2);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.miniGameBuffBtn small {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.miniGameBuffBtn:hover {
+  border-color: var(--accent);
+}
+
+.miniGameBuffBtn.is-active {
+  border-color: light-dark(#0284c7, #38bdf8);
+  background: color-mix(in srgb, light-dark(#0284c7, #38bdf8) 12%, transparent);
+}
+
+.miniGameBuffBtn--overdrive.is-ready {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.14);
+}
+
+.miniGameBuffBtn--overdrive.is-active {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.22);
+}
+
+.miniGameLiftBtn.is-overdrive {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: #090d16;
+}
+
+@media (max-width: 900px) {
+  .heroSection {
+    grid-template-columns: 1fr;
+  }
+
+  .heroCanvasWrapper {
+    order: 0;
+    margin-bottom: 0;
+    height: auto;
+    padding: 0 24px 32px;
+  }
+
+  .headerCube {
+    height: auto;
+  }
+
+  .miniGameShell {
+    max-width: 100%;
+  }
+}
+
+/* =========================================================================
+   UI POLISH ROUND 2 — FLOATING DOCK, FILTER PILLS, STATS PR VAULT & HOW-TO
+   ========================================================================= */
+
+/* --- Floating Active Workout Bubble Upgrade --- */
+.currentWorkoutBubbleTop {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+}
+
+.currentWorkoutBubbleTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--bubble-accent, var(--accent)) 16%, var(--surface-2)),
+    var(--surface-sunken)
+  );
+  border: 1px solid var(--bubble-accent, var(--accent));
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--bubble-accent, var(--accent)) 22%, transparent);
+  flex-shrink: 0;
+}
+
+.currentWorkoutBubbleTileNum {
+  font-size: 0.56rem;
+  font-weight: 800;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.currentWorkoutBubbleTileSym {
+  font-size: 0.92rem;
+  font-weight: 900;
+  color: var(--bubble-accent, var(--accent));
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.currentWorkoutBubbleInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.currentWorkoutBubbleDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  margin-right: 0.35rem;
+  vertical-align: middle;
+  animation: pulseLiveDot 1.6s ease-in-out infinite;
+}
+
+@keyframes pulseLiveDot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+
+.currentWorkoutBubbleProgress {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+
+.currentWorkoutBubbleProgressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--bubble-accent, var(--accent)), var(--accent));
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* --- HomeView Muscle Group Filter Bar & Empty Blueprint --- */
+.homeFilterBar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin: 0.2rem 0 1.1rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 14px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.homeFilterChip {
+  appearance: none;
+  padding: 0.36rem 0.78rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.homeFilterChip:hover {
+  color: var(--text);
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-2));
+}
+
+.homeFilterChip.active {
+  color: var(--on-accent);
+  background: var(--accent-gradient);
+  border-color: transparent;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.homeEmptyFormulaBox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.homeEmptyBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.28rem 0.65rem;
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+/* --- StatsView Reactor Analytics Hero & PR Vault --- */
+.statsPageShell {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.statsHeroBanner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  padding: 1.4rem 1.5rem;
+  background:
+    radial-gradient(circle at 88% 15%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 48%),
+    radial-gradient(circle at 12% 85%, rgba(14, 165, 233, 0.12), transparent 50%),
+    var(--panel-bg);
+  border: 1px solid var(--border-2);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.statsHeroTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.statsBadgePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+.statsHeroMain {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+}
+
+.statsHeroTile {
+  width: 72px;
+  height: 76px;
+  border-radius: 16px;
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--accent) 18%, var(--surface-2)),
+    var(--surface-sunken)
+  );
+  border: 1.5px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 8px 22px -6px color-mix(in srgb, var(--accent) 26%, transparent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.45rem;
+  flex-shrink: 0;
+}
+
+.statsHeroTileNum {
+  align-self: flex-start;
+  font-size: 0.62rem;
+  font-weight: 800;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--muted);
+}
+
+.statsHeroTileSym {
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.statsHeroTileMass {
+  font-size: 0.56rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.statsHeroCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.statsHeroTitle {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.statsHeroSubtitle {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.statsKpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 0.65rem;
+}
+
+.statsKpiCard {
+  padding: 0.7rem 0.85rem;
+  border-radius: 13px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.statsKpiLabel {
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+.statsKpiValue {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- PR Vault Grid --- */
+.statsPrPanel {
+  border-color: color-mix(in srgb, var(--accent) 25%, var(--border));
+}
+
+.statsPrGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.statsPrCard {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.statsPrCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--element-color, var(--accent));
+  box-shadow: var(--shadow);
+}
+
+.statsPrTile {
+  width: 44px;
+  height: 46px;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--element-color, var(--accent)) 12%, var(--surface-sunken));
+  border: 1.5px solid var(--element-color, var(--accent));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.statsPrTileNum {
+  font-size: 0.55rem;
+  font-weight: 800;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.statsPrTileSym {
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--element-color, var(--accent));
+  line-height: 1.15;
+}
+
+.statsPrBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.statsPrName {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statsPrMetrics {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.statsPrPeak {
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: light-dark(#d97706, #facc15);
+  font-variant-numeric: tabular-nums;
+}
+
+.statsPrVol {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.statsPrMuscles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--element-color, var(--accent));
+}
+
+/* --- HowToView Quick Tips Grid --- */
+.howToQuickTipsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.howToTipCard {
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.howToTipCode {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.howToTipCard strong {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.howToTipCard p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* =========================================================================
+   EXERCISE BUILDER & COMPLETED EXERCISE VIEW DELIGHT UPGRADES
+   ========================================================================= */
+
+.create1rmBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  color: light-dark(#b45309, #fbbf24);
+  background: light-dark(rgba(217, 119, 6, 0.1), rgba(250, 204, 21, 0.14));
+  border: 1px solid light-dark(rgba(217, 119, 6, 0.3), rgba(250, 204, 21, 0.35));
+}
+
+.createPresetToggleBtn {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--element-color, var(--accent));
+  background: color-mix(in srgb, var(--element-color, var(--accent)) 10%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 32%, transparent);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.createPresetToggleBtn:hover {
+  background: var(--element-color, var(--accent));
+  color: var(--on-accent);
+}
+
+.createQuickPresets {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.createQuickPresetsFilterRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+.createMuscleFilterBtn {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.createMuscleFilterBtn:hover {
+  color: var(--text);
+}
+
+.createMuscleFilterBtn.is-active {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-2));
+  border-color: color-mix(in srgb, var(--accent) 36%, transparent);
+}
+
+.createQuickPresetsChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.createSchemeBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.createSchemeLabel {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-right: 3px;
+}
+
+.createSchemeChip {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.createSchemeChip:hover,
+.createSchemeChip.is-active {
+  color: var(--on-accent);
+  background: var(--element-color, var(--accent));
+  border-color: var(--element-color, var(--accent));
+  transform: translateY(-1px);
+}
+
+.completionVolShareRow {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.completionVolShareHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.completionVolShareHead strong {
+  color: var(--element-color, var(--accent));
+}
+
+.completionVolShareTrack {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.completionVolShareFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--element-color, var(--accent)), var(--accent));
+  transition: width 0.3s ease;
+}
+

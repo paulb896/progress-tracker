@@ -27,13 +27,17 @@
 }
 
 :root[data-theme='light'] .session {
-  --ses-a: #6366f1;
-  --ses-b: #8b5cf6;
+  --ses-a: #059669;
+  --ses-b: #0284c7;
+  --ses-warn: #d97706;
+  --ses-rec: #e11d48;
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme='dark']) .session {
-    --ses-a: #6366f1;
-    --ses-b: #8b5cf6;
+    --ses-a: #059669;
+    --ses-b: #0284c7;
+    --ses-warn: #d97706;
+    --ses-rec: #e11d48;
   }
 }
 
@@ -72,7 +76,6 @@
   align-items: center;
   gap: 20px;
   padding: 16px 0 4px;
-  animation: ses-rise 0.6s var(--ses-ease) both;
 }
 
 .ses-iconBtn {
@@ -215,7 +218,7 @@
   backdrop-filter: blur(24px) saturate(1.3);
   -webkit-backdrop-filter: blur(24px) saturate(1.3);
   box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  animation: ses-rise 0.6s 0.08s var(--ses-ease) both;
+  transition: box-shadow 0.35s var(--ses-ease), border-color 0.35s var(--ses-ease);
 }
 
 /* Faint lab-grid texture */
@@ -481,12 +484,7 @@
   border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
   background: color-mix(in srgb, var(--c) 7%, transparent);
   color: color-mix(in srgb, var(--c) 70%, var(--muted));
-  transition: transform 0.25s var(--ses-spring), background 0.4s, box-shadow 0.4s, border-color 0.4s;
-  animation: ses-seg-in 0.5s calc(0.2s + var(--i) * 40ms) var(--ses-ease) both;
-}
-@keyframes ses-seg-in {
-  from { transform: scaleY(0.2); opacity: 0; }
-  to   { transform: scaleY(1); opacity: 1; }
+  transition: transform 0.25s var(--ses-spring), background 0.3s, box-shadow 0.3s, border-color 0.3s, color 0.3s;
 }
 .ses-railSeg:hover {
   transform: translateY(-2px);
@@ -499,18 +497,16 @@
   white-space: nowrap;
 }
 .ses-railSegDone {
-  background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 65%, #fff));
+  background: linear-gradient(135deg, var(--c), color-mix(in srgb, var(--c) 72%, light-dark(#0f172a, #ffffff)));
   border-color: transparent;
-  color: rgba(6, 6, 11, 0.8);
-  box-shadow: 0 0 14px color-mix(in srgb, var(--c) 45%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  color: light-dark(#ffffff, rgba(6, 6, 11, 0.85));
+  box-shadow: 0 0 14px color-mix(in srgb, var(--c) 38%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 .ses-railSegNext {
   position: relative;
   border-color: var(--c);
   color: var(--c);
-  animation:
-    ses-seg-in 0.5s calc(0.2s + var(--i) * 40ms) var(--ses-ease) both,
-    ses-seg-breathe 2s 0.8s ease-in-out infinite;
+  animation: ses-seg-breathe 2s ease-in-out infinite;
 }
 .ses-railSegNext::after {
   content: '';
@@ -620,7 +616,7 @@
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--c) 10%, var(--surface-glass)) 0%, var(--surface-glass) 55%);
   box-shadow: var(--shadow-lg), 0 0 0 1px color-mix(in srgb, var(--c) 6%, transparent);
-  animation: ses-spot-in 0.6s var(--ses-ease) both;
+  transition: border-color 0.25s var(--ses-ease), box-shadow 0.25s var(--ses-ease), background 0.25s var(--ses-ease);
 }
 .ses-spotlight::before {
   content: '';
@@ -952,11 +948,6 @@
   border: 1px solid var(--border);
   background: var(--surface-2);
   transition: border-color 0.3s, background 0.3s, transform 0.3s var(--ses-ease), box-shadow 0.3s;
-  animation: ses-row-in 0.5s calc(0.15s + var(--i) * 45ms) var(--ses-ease) both;
-}
-@keyframes ses-row-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Element-colored left rail */
@@ -1651,6 +1642,1361 @@
   }
 }
 
+.ses-spotMuscleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: -2px;
+}
+
+.ses-musclePill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--c) 85%, var(--text));
+  background: color-mix(in srgb, var(--c) 12%, var(--surface-sunken));
+  border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
+}
+
+.ses-volPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  border-radius: 999px;
+  color: var(--ses-a);
+  background: color-mix(in srgb, var(--ses-a) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ses-a) 35%, transparent);
+}
+
+/* ── Enhanced Header Identity & Muscle Radar ────────────────────────────── */
+
+.ses-headerIdentity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ses-headerElementTile {
+  --c: var(--element-color, var(--ses-a));
+  flex: 0 0 68px;
+  height: 76px;
+  padding: 6px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--c) 18%, var(--surface-2)),
+    color-mix(in srgb, var(--c) 5%, var(--surface-sunken))
+  );
+  border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
+  border-top: 3px solid var(--c);
+  box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--c) 45%, transparent);
+}
+
+.ses-headerElementNum {
+  align-self: flex-start;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--c);
+  line-height: 1;
+}
+
+.ses-headerElementSym {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--c);
+  text-shadow: 0 0 14px color-mix(in srgb, var(--c) 50%, transparent);
+}
+
+.ses-headerElementMass {
+  font-size: 8px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.ses-badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.ses-formulaCode {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ses-muscleRadar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.ses-radarChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  transition: all 0.25s ease;
+}
+
+.ses-radarChip small {
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+.ses-radarChip.is-partial {
+  color: var(--ses-b);
+  border-color: color-mix(in srgb, var(--ses-b) 40%, transparent);
+  background: color-mix(in srgb, var(--ses-b) 10%, var(--surface-2));
+}
+
+.ses-radarChip.is-cleared {
+  color: var(--ses-a);
+  border-color: color-mix(in srgb, var(--ses-a) 48%, transparent);
+  background: color-mix(in srgb, var(--ses-a) 14%, var(--surface-2));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--ses-a) 22%, transparent);
+}
+
+/* ── Hero Telemetry Progress Bars & Rest Timer ──────────────────────────── */
+
+.ses-statMiniBar {
+  width: 100%;
+  height: 4px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  overflow: hidden;
+}
+
+.ses-statMiniFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ses-a), var(--ses-b));
+  transition: width 0.35s var(--ses-ease);
+}
+
+.ses-restToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.ses-restLabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ses-b);
+}
+
+.ses-restPresets {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.ses-restPresetBtn {
+  padding: 4px 9px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  transition: all 0.15s ease;
+}
+
+.ses-restPresetBtn:hover,
+.ses-restPresetBtn.is-active {
+  color: var(--on-accent);
+  background: var(--ses-b);
+  border-color: var(--ses-b);
+}
+
+.ses-restActiveStrip {
+  flex: 1;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ses-restCountdown {
+  font-size: 14px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--ses-a);
+}
+
+.ses-restTrack {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-2);
+  overflow: hidden;
+}
+
+.ses-restFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ses-a), var(--ses-b));
+  transition: width 0.3s linear;
+}
+
+.ses-restExtendBtn,
+.ses-restSkipBtn {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--border-2);
+}
+
+.ses-restExtendBtn:hover,
+.ses-restSkipBtn:hover {
+  color: var(--text);
+  border-color: var(--ses-a);
+}
+
+.ses-restIdleHint {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.ses-railSeg {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.ses-railStep {
+  font-size: 9px;
+  font-weight: 700;
+  opacity: 0.65;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Set Checkoff Tracker & 2D Plate Breakdown Strip ────────────────────── */
+
+.ses-railSets {
+  font-size: 8.5px;
+  font-weight: 700;
+  opacity: 0.72;
+  font-variant-numeric: tabular-nums;
+}
+
+.ses-rowSetsBar {
+  padding: 0 14px 12px 22px;
+}
+
+.ses-setTracker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.ses-setTracker--inline {
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface-sunken) 85%, transparent);
+}
+
+.ses-setTrackerHead {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ses-setTrackerLabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ses-setTrackerFraction {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  margin-left: 2px;
+}
+
+.ses-setPills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.ses-setPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px 5px 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+  transition: all 0.18s var(--ses-spring);
+}
+
+.ses-setPillCheck {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-2);
+  transition: all 0.18s ease;
+}
+
+.ses-setPillText {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.ses-setPill small {
+  font-size: 10px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ses-setPill:hover {
+  border-color: var(--c, var(--ses-a));
+  transform: translateY(-1px);
+}
+
+.ses-setPill:hover .ses-setPillCheck {
+  border-color: var(--c, var(--ses-a));
+  color: var(--text);
+}
+
+.ses-setPill.is-done {
+  color: var(--on-accent);
+  background: linear-gradient(135deg, var(--ses-a), var(--ses-b));
+  border-color: transparent;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ses-a) 40%, transparent);
+}
+
+.ses-setPill.is-done .ses-setPillCheck {
+  background: rgba(0, 0, 0, 0.22);
+  border-color: transparent;
+  color: var(--on-accent);
+}
+
+.ses-setPill.is-done small {
+  color: inherit;
+  opacity: 0.85;
+}
+
+.ses-setAddBtn {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+  border: 1px dashed var(--border-2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ses-setAddBtn:hover {
+  color: var(--ses-a);
+  border-color: var(--ses-a);
+  background: color-mix(in srgb, var(--ses-a) 8%, transparent);
+}
+
+.ses-nextSetBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 13px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c, var(--ses-a));
+  background: color-mix(in srgb, var(--c, var(--ses-a)) 14%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--c, var(--ses-a)) 45%, transparent);
+  cursor: pointer;
+  transition: all 0.2s var(--ses-spring);
+}
+
+.ses-nextSetBtn:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--c, var(--ses-a)) 22%, var(--surface-2));
+  border-color: var(--c, var(--ses-a));
+}
+
+.ses-plateStrip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.ses-plateStripInfo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.ses-plateStripLabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ses-plateChipList {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ses-plateChip {
+  --pc: var(--plate-color, #38bdf8);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #090d16;
+  background: var(--pc);
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.ses-plateEmpty {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.ses-plateVisBtn {
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  color: var(--text);
+}
+
+.ses-plateVisBtn:hover {
+  border-color: var(--ses-a);
+}
+
+.ses-spotThenMeta {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ses-spotImageBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--c);
+  background: var(--surface-glass);
+  border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.ses-spotBlueprint {
+  aspect-ratio: 16 / 10;
+  border-radius: var(--ses-radius-md);
+  border: 1px dashed color-mix(in srgb, var(--c) 40%, var(--border-2));
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--c) 16%, transparent), transparent 70%),
+    var(--surface-sunken);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+}
+
+.ses-spotBlueprintCode {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+.ses-spotBlueprintSym {
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--c);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--c) 50%, transparent);
+}
+
+.ses-spotBlueprintGroup {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+/* ── Sequence Section Controls & Row Badges ─────────────────────────────── */
+
+.ses-sectionRight {
+  order: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ses-expandAllBtn {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  transition: all 0.15s ease;
+}
+
+.ses-expandAllBtn:hover {
+  border-color: var(--ses-a);
+  color: var(--ses-a);
+}
+
+.ses-rowSymTile {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  color: var(--c);
+  border: 1px solid color-mix(in srgb, var(--c) 65%, transparent);
+  background: color-mix(in srgb, var(--c) 12%, transparent);
+  transition: transform 0.3s var(--ses-spring), opacity 0.3s;
+}
+
+.ses-rowSymNum {
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.ses-rowSymTile .ses-rowSym {
+  width: auto;
+  height: auto;
+  border: none;
+  background: none;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.ses-row:hover .ses-rowSymTile {
+  transform: rotate(-5deg) scale(1.05);
+}
+
+.ses-doneTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  color: var(--ses-a);
+  background: color-mix(in srgb, var(--ses-a) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ses-a) 38%, transparent);
+}
+
+@media (max-width: 720px) {
+  .ses-headerElementTile {
+    display: none;
+  }
+  .ses-restIdleHint {
+    display: none;
+  }
+  .ses-promoteBtn {
+    display: none;
+  }
+}
+
+/* ── Exercise Reordering Controls (Drag & Drop + ↑/↓ + Swap) ────────────── */
+
+.ses-spotThenRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ses-swapNextBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ses-b);
+  background: color-mix(in srgb, var(--ses-b) 12%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--ses-b) 35%, transparent);
+  cursor: pointer;
+  transition: all 0.16s var(--ses-spring);
+}
+
+.ses-swapNextBtn:hover {
+  transform: translateY(-1px);
+  color: var(--on-accent);
+  background: var(--ses-b);
+  border-color: var(--ses-b);
+}
+
+.ses-dragGrip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: var(--muted);
+  opacity: 0.55;
+  cursor: grab;
+  user-select: none;
+  padding: 2px 2px;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.ses-row:hover .ses-dragGrip {
+  opacity: 0.95;
+  color: var(--c, var(--ses-a));
+}
+
+.ses-rowDragging {
+  opacity: 0.52;
+  transform: scale(0.99);
+  border-style: dashed;
+}
+
+.ses-rowDragOver {
+  border-color: var(--ses-a) !important;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--ses-a) 45%, transparent),
+    var(--shadow-lg) !important;
+  transform: translateY(-2px);
+}
+
+.ses-promoteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--c, var(--ses-a));
+  background: color-mix(in srgb, var(--c, var(--ses-a)) 10%, var(--surface-sunken));
+  border: 1px solid color-mix(in srgb, var(--c, var(--ses-a)) 32%, transparent);
+  cursor: pointer;
+  transition: all 0.16s var(--ses-spring);
+}
+
+.ses-promoteBtn:hover {
+  transform: translateY(-1px);
+  color: light-dark(#ffffff, #090d16);
+  background: var(--c, var(--ses-a));
+  border-color: var(--c, var(--ses-a));
+}
+
+.ses-reorderGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px;
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.ses-reorderBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ses-reorderBtn:hover:not(:disabled) {
+  color: var(--on-accent);
+  background: var(--c, var(--ses-a));
+  border-color: var(--c, var(--ses-a));
+  transform: translateY(-1px);
+}
+
+.ses-reorderBtn:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+/* ── Auto-Rest Button, Live Toast, 1RM Pill, Hold Timer, Sequence Filter, Progress Bar & Quick Add ── */
+
+.ses-autoRestBtn {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.ses-autoRestBtn:hover {
+  color: var(--text);
+  border-color: var(--ses-a);
+}
+
+.ses-autoRestBtn.is-active {
+  color: light-dark(#065f46, #10b981);
+  background: color-mix(in srgb, var(--ses-a) 16%, var(--surface-2));
+  border-color: var(--ses-a);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--ses-a) 22%, transparent);
+}
+
+@keyframes sesToastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ses-toastBanner {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 120;
+  width: min(420px, calc(100vw - 32px));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--toast-color, var(--ses-a)) 18%, var(--surface-2)),
+      var(--surface)
+    );
+  border: 1px solid color-mix(in srgb, var(--toast-color, var(--ses-a)) 45%, var(--border-2));
+  border-left: 4px solid var(--toast-color, var(--ses-a));
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(16px);
+  animation: sesToastSlideIn 0.2s var(--ses-ease) forwards;
+}
+
+.ses-toastText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ses-toastTitle {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.ses-toastSub {
+  font-size: 0.76rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.ses-toastActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ses-toastRestBtn {
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: light-dark(#ffffff, #090d16);
+  background: var(--toast-color, var(--ses-a));
+  border: 1px solid var(--toast-color, var(--ses-a));
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.ses-toastRestBtn:hover {
+  transform: translateY(-1px);
+}
+
+.ses-toastDismissBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.ses-1rmPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: light-dark(#b45309, #fbbf24);
+  background: light-dark(rgba(217, 119, 6, 0.1), rgba(250, 204, 21, 0.14));
+  border: 1px solid light-dark(rgba(217, 119, 6, 0.3), rgba(250, 204, 21, 0.35));
+}
+
+.ses-holdTimerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--c, var(--ses-a)) 8%, var(--surface-sunken));
+  border: 1px solid color-mix(in srgb, var(--c, var(--ses-a)) 30%, var(--border-2));
+}
+
+.ses-holdTimerInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.ses-holdTimerLabel {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.ses-holdTimerValue {
+  font-size: 1rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--c, var(--ses-a));
+}
+
+.ses-holdTimerTrack {
+  flex: 1;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.ses-holdTimerFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--c, var(--ses-a)), var(--ses-b));
+  transition: width 0.25s linear;
+}
+
+.ses-holdTimerBtns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ses-holdActionBtn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: light-dark(#ffffff, #090d16);
+  background: var(--c, var(--ses-a));
+  border: 1px solid var(--c, var(--ses-a));
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.ses-holdActionBtn.is-running {
+  background: light-dark(#d97706, #f59e0b);
+  border-color: light-dark(#d97706, #f59e0b);
+}
+
+.ses-holdResetBtn {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+}
+
+.ses-sectionTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ses-filterTabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.ses-filterTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ses-filterTab small {
+  font-size: 10px;
+  opacity: 0.75;
+}
+
+.ses-filterTab:hover {
+  color: var(--text);
+}
+
+.ses-filterTab.is-active {
+  color: var(--text);
+  background: var(--surface-2);
+  border-color: color-mix(in srgb, var(--ses-a) 40%, var(--border-2));
+  box-shadow: var(--shadow-sm);
+}
+
+.ses-rowProgressTrack {
+  width: 100%;
+  height: 3px;
+  background: color-mix(in srgb, var(--c, var(--ses-a)) 10%, transparent);
+  overflow: hidden;
+}
+
+.ses-rowProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--c, var(--ses-a)), var(--ses-b));
+  transition: width 0.32s var(--ses-spring);
+}
+
+.ses-quickAddWrap {
+  margin-top: 10px;
+}
+
+.ses-quickAddToggleBtn {
+  width: 100%;
+  padding: 11px 16px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--ses-a);
+  background: color-mix(in srgb, var(--ses-a) 6%, var(--surface-sunken));
+  border: 1px dashed color-mix(in srgb, var(--ses-a) 38%, var(--border-2));
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.ses-quickAddToggleBtn:hover {
+  background: color-mix(in srgb, var(--ses-a) 12%, var(--surface-2));
+  border-style: solid;
+  transform: translateY(-1px);
+}
+
+.ses-quickAddForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid color-mix(in srgb, var(--ses-a) 35%, var(--border-2));
+  box-shadow: var(--shadow);
+}
+
+.ses-quickAddHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ses-quickAddTitle {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ses-a);
+}
+
+.ses-quickAddCancel {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.ses-quickAddPresets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ses-quickPresetPill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ses-quickPresetPill:hover,
+.ses-quickPresetPill.is-selected {
+  color: light-dark(#ffffff, #090d16);
+  background: var(--ses-a);
+  border-color: var(--ses-a);
+}
+
+.ses-quickAddInputs {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ses-quickInputName {
+  flex: 2;
+  min-width: 180px;
+}
+
+.ses-quickField {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  width: 68px;
+}
+
+.ses-quickInput {
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-2);
+}
+
+.ses-quickAddSubmitBtn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: light-dark(#ffffff, #090d16);
+  background: var(--ses-a);
+  border: 1px solid var(--ses-a);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.ses-quickAddSubmitBtn:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Dual-Ring Gauge, Next-Set Highlight, 2D Barbell Diagram & Hotkey Polish ── */
+
+.ses-gaugeInnerTrack {
+  stroke: color-mix(in srgb, var(--text) 6%, transparent);
+}
+
+.ses-gaugeInnerValue {
+  stroke-linecap: round;
+  opacity: 0.85;
+  transition: stroke-dashoffset 0.55s var(--ses-ease);
+}
+
+.ses-setPill.is-next {
+  border-color: color-mix(in srgb, var(--c, var(--ses-a)) 65%, var(--border-2));
+  background: color-mix(in srgb, var(--c, var(--ses-a)) 10%, var(--surface-2));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c, var(--ses-a)) 18%, transparent);
+}
+
+.ses-setPill.is-next .ses-setPillCheck {
+  color: var(--c, var(--ses-a));
+  border-color: color-mix(in srgb, var(--c, var(--ses-a)) 55%, transparent);
+}
+
+.ses-barbellDiagram {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 4px;
+  gap: 1px;
+}
+
+.ses-barbellShaft {
+  width: 12px;
+  height: 5px;
+  border-radius: 2px 0 0 2px;
+  background: linear-gradient(180deg, #94a3b8, #475569);
+}
+
+.ses-barbellCollar {
+  width: 4px;
+  height: 14px;
+  border-radius: 1.5px;
+  background: linear-gradient(180deg, #cbd5e1, #64748b);
+}
+
+.ses-barbellPlates {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 2px;
+}
+
+.ses-barbellPlateBar {
+  width: 5px;
+  height: var(--plate-h, 20px);
+  border-radius: 2px;
+  background: var(--plate-color, #38bdf8);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 1px 3px rgba(0, 0, 0, 0.28);
+}
+
+.ses-barbellEmptySleeve {
+  width: 18px;
+  height: 7px;
+  background: linear-gradient(180deg, #cbd5e1, #64748b);
+}
+
+.ses-barbellTip {
+  width: 7px;
+  height: 7px;
+  border-radius: 0 2px 2px 0;
+  background: linear-gradient(180deg, #cbd5e1, #64748b);
+}
+
+.ses-plateStripRight {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.ses-quickLoadRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ses-quickLoadChip {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ses-quickLoadChip:hover,
+.ses-quickLoadChip.is-active {
+  color: var(--on-accent);
+  background: var(--c, var(--ses-a));
+  border-color: var(--c, var(--ses-a));
+}
+
+.ses-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--c, var(--ses-a));
+  background: color-mix(in srgb, var(--c, var(--ses-a)) 14%, var(--surface-sunken));
+  border: 1px solid color-mix(in srgb, var(--c, var(--ses-a)) 35%, transparent);
+}
+
+.ses-finaleText {
+  flex: 1;
+  min-width: 0;
+}
+
+.ses-finaleBadge {
+  display: inline-block;
+  margin-bottom: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ses-a);
+}
+
+.ses-finaleCtaBtn {
+  flex-shrink: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .session *,
   .session *::before,
@@ -1661,3 +3007,5 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+

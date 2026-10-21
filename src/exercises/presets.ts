@@ -62,3 +62,13 @@ export const EXERCISE_PRESETS: ExercisePreset[] = [
   { name: 'Hip Flexion Band', imageUrl: 'exercises/hip-flexion-band.webp', muscles: ['Core']},
   { name: 'Bulgarian Lunge', imageUrl: 'exercises/bulgarian-lunge.png', muscles: ['Quads', 'Glutes', 'Hamstrings']},
 ]
+
+const presetByNormalizedName = new Map<string, ExercisePreset>(
+  EXERCISE_PRESETS.map((preset) => [preset.name.trim().toLowerCase(), preset])
+)
+
+export const findExercisePreset = (name: string): ExercisePreset | undefined => {
+  if (!name) return undefined
+  return presetByNormalizedName.get(name.trim().toLowerCase())
+}
+

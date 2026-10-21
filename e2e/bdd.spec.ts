@@ -120,6 +120,11 @@ test.describe('Progress Tracker — BDD scenarios', () => {
     await test.step('Given I am on the home screen', async () => {
       await page.goto('/')
       await expect(page.getByRole('heading', { name: /Create your routines/i })).toBeVisible()
+      await expect(page.getByText('Iron Press Mini-Game')).toBeVisible()
+      await page.getByRole('button', { name: 'Disable Mini-Game' }).click()
+      await expect(page.getByText('Barbell Reactor Mini-Game Paused')).toBeVisible()
+      await page.getByRole('button', { name: 'Enable Mini-Game' }).click()
+      await expect(page.getByText('Iron Press Mini-Game')).toBeVisible()
       await pauseIfGif(page)
     })
 
@@ -159,10 +164,32 @@ test.describe('Progress Tracker — BDD scenarios', () => {
       await expect(page.getByRole('button', { name: 'Complete routine' })).toBeDisabled()
       await pauseIfGif(page)
 
-      await m.check(page.getByRole('checkbox', { name: /Mark Bench Press done/ }))
+      // Verify exercise order can be changed in the /run view
+      await page.getByRole('button', { name: 'Move Planks up' }).click()
+      await expect(page.locator('.ses-spotTitle')).toHaveText('Planks')
+      await page.getByRole('button', { name: 'Move Planks down' }).click()
+      await expect(page.locator('.ses-spotTitle')).toHaveText('Bench Press')
+
+      await page.getByRole('button', { name: 'Check Bench Press Set 1' }).first().click()
+      await page.getByRole('button', { name: 'Check Bench Press Set 2' }).first().click()
+      await page.getByRole('button', { name: 'Check Bench Press Set 3' }).first().click()
+      await expect(page.getByRole('checkbox', { name: /Mark Bench Press not done/ })).toBeChecked()
       await pauseIfGif(page, 300)
       await m.check(page.getByRole('checkbox', { name: /Mark Planks done/ }))
       await pauseIfGif(page, 300)
+
+      // Exercise the non-webdriver deferred View Transition callback path on completion.
+      await page.evaluate(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => false, configurable: true })
+        ;(document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition = (
+          cb: () => void,
+        ) => {
+          setTimeout(() => {
+            cb()
+            Object.defineProperty(navigator, 'webdriver', { get: () => true, configurable: true })
+          }, 0)
+        }
+      })
 
       await expect(page.getByRole('button', { name: 'Complete routine' })).toBeEnabled()
       await m.click(page.getByRole('button', { name: 'Complete routine' }))
@@ -170,6 +197,7 @@ test.describe('Progress Tracker — BDD scenarios', () => {
 
       await expect(page.getByText('Recent Activity')).toBeVisible()
       await expect(page.getByLabel(/View completed routine: BDD Routine/)).toBeVisible()
+      await expect(page.getByRole('button', { name: /Resume active workout/ })).not.toBeVisible()
       await pauseIfGif(page)
     })
 

@@ -57,7 +57,7 @@ type CompletionDetailViewProps = {
 }
 
 export const CompletionDetailView = ({ completion, onBack, onDelete, onUpdate }: CompletionDetailViewProps) => {
-  const exercises = completion.exercises ?? []
+  const exercises = React.useMemo(() => completion.exercises ?? [], [completion.exercises])
 
   const presetByName = React.useMemo(() => {
     const byName = new Map<string, (typeof EXERCISE_PRESETS)[number]>()
@@ -106,20 +106,49 @@ export const CompletionDetailView = ({ completion, onBack, onDelete, onUpdate }:
     }
   }
 
+  const routineEl = getPeriodicElement(isEditing ? draftRoutineName.trim() || completion.routineName : completion.routineName)
+
+  const summaryStats = React.useMemo(() => {
+    const muscles = new Set<string>()
+    let totalVol = 0
+    let totalSets = 0
+    for (const ex of exercises) {
+      const p = presetByName.get(ex.name.trim().toLowerCase())
+      if (p?.muscles) {
+        for (const m of p.muscles) muscles.add(m)
+      }
+      const s = typeof ex.sets === 'number' && Number.isFinite(ex.sets) ? ex.sets : 0
+      const r = typeof ex.reps === 'number' && Number.isFinite(ex.reps) ? ex.reps : 0
+      const w = typeof ex.weight === 'number' && Number.isFinite(ex.weight) ? ex.weight : 0
+      totalSets += s
+      totalVol += s * r * w
+    }
+    return {
+      muscles: Array.from(muscles),
+      totalVol: Math.round(totalVol),
+      totalSets,
+    }
+  }, [exercises, presetByName])
+
   return (
-    <div className="panel glassPanel">
-      <div className="panelTitleRow">
-        <div>
+    <div
+      className="panel glassPanel createPanel completionPanel"
+      style={{ '--routine-color': routineEl.color } as React.CSSProperties}
+    >
+      <div className="panelTitleRow createHeaderRow">
+        <div className="createHeaderTitleBlock">
+          <span className="panelEyebrow">ARCHIVED REACTION LOG</span>
           <div className="panelTitle">Completed routine</div>
           {isEditing ? (
             <input
-              className="input"
+              className="input createRoutineNameInput"
+              style={{ marginTop: 8 }}
               value={draftRoutineName}
               onChange={(ev) => setDraftRoutineName(ev.target.value)}
               aria-label="Routine name"
             />
           ) : (
-            <div className="subtitle2">{completion.routineName}</div>
+            <div className="subtitle2 completionRoutineTitle">{completion.routineName}</div>
           )}
         </div>
         <div className="rowGap">
@@ -232,183 +261,294 @@ export const CompletionDetailView = ({ completion, onBack, onDelete, onUpdate }:
           ))}
         </datalist>
 
-        <div className="hint">
-          {completion.exerciseCount} exercises <span className="dot">•</span> {new Date(completion.completedAt).toLocaleString()}
+        <div className="createFormulaBanner completionBanner">
+          <div
+            className="createFormulaTile"
+            style={{ '--element-color': routineEl.color } as React.CSSProperties}
+            aria-hidden="true"
+          >
+            <div className="createFormulaTileTop">
+              <span>#{routineEl.atomicNumber}</span>
+              <span>{routineEl.groupName}</span>
+            </div>
+            <div className="createFormulaTileSymbol">{routineEl.symbol}</div>
+            <div className="createFormulaTileMass">{routineEl.mass}</div>
+          </div>
+
+          <div className="createFormulaInputArea">
+            <div className="hint completionTimestamp">
+              {completion.exerciseCount} exercises <span className="dot">•</span>{' '}
+              {new Date(completion.completedAt).toLocaleString()}
+            </div>
+            <div className="createFormulaStatsRow">
+              <span className="createStatChip">
+                <strong>{completion.exerciseCount}</strong> completed exercises
+              </span>
+              {summaryStats.totalSets > 0 ? (
+                <span className="createStatChip">
+                  <strong>{summaryStats.totalSets}</strong> total sets
+                </span>
+              ) : null}
+              {summaryStats.totalVol > 0 ? (
+                <span className="createStatChip createStatChipAccent">
+                  <strong>{summaryStats.totalVol.toLocaleString()}</strong> lbs moved
+                </span>
+              ) : null}
+              {summaryStats.muscles.map((m) => (
+                <span key={m} className="homeMuscleTag">{m}</span>
+              ))}
+            </div>
+          </div>
         </div>
 
         {error ? <div className="error" style={{ marginTop: 10 }}>{error}</div> : null}
 
         {exercises.length ? (
-          <div className="exerciseRunList" style={{ marginTop: 12 }}>
-            {exercises.map((ex) => (
-              <div key={ex.id} className="runRow">
-                <div className="runRowTop">
-                  {(() => {
-                    const exName = isEditing
-                      ? (draftExercises.find((d) => d.id === ex.id)?.name ?? '').trim() || ex.name
-                      : ex.name;
-                    const el = getPeriodicElement(exName);
-                    return (
-                      <span 
-                        className="pt-mini-symbol" 
-                        style={{ 
-                          '--element-color': el.color,
-                          marginRight: 12,
-                          width: 32,
-                          height: 32,
-                          fontSize: 12
-                        } as React.CSSProperties}
-                      >
-                        {el.symbol}
-                      </span>
-                    );
-                  })()}
-                  <span className="runName">
-                    {isEditing
-                      ? (draftExercises.find((d) => d.id === ex.id)?.name ?? '').trim() || ex.name
-                      : ex.name}
-                  </span>
-                </div>
+          <div className="exerciseRunList" style={{ marginTop: 16 }}>
+            {exercises.map((ex, idx) => {
+              const exName = isEditing
+                ? (draftExercises.find((d) => d.id === ex.id)?.name ?? '').trim() || ex.name
+                : ex.name
+              const el = getPeriodicElement(exName)
+              const matchedPreset = presetByName.get(exName.trim().toLowerCase())
+              const exVol =
+                typeof ex.sets === 'number' && typeof ex.reps === 'number' && typeof ex.weight === 'number'
+                  ? Math.round(ex.sets * ex.reps * ex.weight)
+                  : 0
+              const ex1RM =
+                typeof ex.weight === 'number' && ex.weight > 0
+                  ? typeof ex.reps === 'number' && ex.reps > 1
+                    ? Math.round(ex.weight * (1 + Math.min(20, ex.reps) / 30))
+                    : Math.round(ex.weight)
+                  : 0
+              const volSharePct =
+                summaryStats.totalVol > 0 && exVol > 0
+                  ? Math.min(100, Math.round((exVol / summaryStats.totalVol) * 100))
+                  : 0
 
-                {isEditing ? (
-                  <div className="exerciseFields" style={{ marginTop: 8 }}>
-                    <input
-                      className="input"
-                      list="exercise-presets"
-                      value={draftExercises.find((d) => d.id === ex.id)?.name ?? ex.name}
-                      onChange={(ev) => {
-                        const nextName = ev.target.value
-                        const preset = presetByName.get(nextName.trim().toLowerCase())
-                        const currentImageUrl = draftExercises.find((d) => d.id === ex.id)?.imageUrl ?? ''
+              return (
+                <div
+                  key={ex.id}
+                  className="runRow completionExerciseCard"
+                  style={{ '--element-color': el.color } as React.CSSProperties}
+                >
+                  <div className="completionExerciseHeader">
+                    <div className="createExerciseTile completionExerciseTile" aria-hidden="true">
+                      <span className="createExerciseTileStep">{String(idx + 1).padStart(2, '0')}</span>
+                      <span className="createExerciseTileSym">{el.symbol}</span>
+                      <span className="createExerciseTileNum">#{el.atomicNumber}</span>
+                    </div>
 
-                        const patch: Partial<DraftExercise> = {
-                          name: nextName,
-                        }
+                    <div className="completionExerciseTitleBlock">
+                      <div className="createExerciseTopBar">
+                        <span className="createExerciseBadge">
+                          EXERCISE {String(idx + 1).padStart(2, '0')} • {el.groupName}
+                        </span>
+                        <div className="createExerciseTopTags">
+                          {matchedPreset?.muscles?.map((m) => (
+                            <span key={m} className="homeMuscleTag">{m}</span>
+                          ))}
+                          {!isEditing && exVol > 0 ? (
+                            <span className="homeCardVolumePill">{exVol.toLocaleString()} lbs</span>
+                          ) : null}
+                          {!isEditing && ex1RM > 0 ? (
+                            <span className="create1rmBadge" title="Estimated 1-Rep Max">
+                              🏆 1RM ~{ex1RM} lbs
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+                      <span className="runName completionExerciseName">{exName}</span>
+                    </div>
 
-                        if (!currentImageUrl && preset?.imageUrl) {
-                          patch.imageUrl = preset.imageUrl
-                        }
-
-                        updateDraftExercise(ex.id, patch)
-                      }}
-                      aria-label="Exercise name"
-                      placeholder="Exercise name"
-                    />
-
-                    <input
-                      className="input"
-                      value={draftExercises.find((d) => d.id === ex.id)?.imageUrl ?? ''}
-                      onChange={(ev) => updateDraftExercise(ex.id, { imageUrl: ev.target.value })}
-                      aria-label="Image URL"
-                      placeholder="Image URL (optional)"
-                    />
-
-                    {(draftExercises.find((d) => d.id === ex.id)?.imageUrl ?? '').trim() ? (
-                      <div className="exerciseImagePreview" aria-label="Exercise image preview">
-                        {imagePreviewFailedById[ex.id] ? (
-                          <div className="exerciseImagePreviewFallback">Image failed to load.</div>
-                        ) : (
+                    {!isEditing && ex.imageUrls?.length ? (
+                      <div className="imageStrip completionImageStrip" aria-label="Exercise reference images">
+                        {ex.imageUrls.map((url) => (
                           <img
-                            className="exerciseImagePreviewImg"
-                            src={resolveImageUrl((draftExercises.find((d) => d.id === ex.id)?.imageUrl ?? '').trim())}
-                            alt={`${(draftExercises.find((d) => d.id === ex.id)?.name ?? ex.name) || 'Exercise'} preview`}
+                            key={url}
+                            className="imageThumb completionImageThumb"
+                            src={resolveImageUrl(url)}
+                            alt={`${ex.name} reference`}
                             loading="lazy"
-                            onError={() => {
-                              setImagePreviewFailedById((prev) => ({ ...prev, [ex.id]: true }))
-                            }}
                           />
-                        )}
+                        ))}
                       </div>
                     ) : null}
-
-                    <div className="exerciseMetaRow" aria-label="Sets, reps, weight">
-                      <label className="metaField">
-                        <div className="metaLabel">Sets</div>
-                        <input
-                          className="input metaInput"
-                          inputMode="numeric"
-                          value={draftExercises.find((d) => d.id === ex.id)?.sets ?? ''}
-                          onChange={(ev) => updateDraftExercise(ex.id, { sets: ev.target.value })}
-                          placeholder="(optional)"
-                        />
-                      </label>
-                      <label className="metaField">
-                        <div className="metaLabel">Reps</div>
-                        <input
-                          className="input metaInput"
-                          inputMode="numeric"
-                          value={draftExercises.find((d) => d.id === ex.id)?.reps ?? ''}
-                          onChange={(ev) => updateDraftExercise(ex.id, { reps: ev.target.value })}
-                          placeholder="(optional)"
-                        />
-                      </label>
-                      <label className="metaField">
-                        <div className="metaLabel">Weight</div>
-                        <input
-                          className="input metaInput"
-                          inputMode="decimal"
-                          value={draftExercises.find((d) => d.id === ex.id)?.weight ?? ''}
-                          onChange={(ev) => updateDraftExercise(ex.id, { weight: ev.target.value })}
-                          placeholder="(optional)"
-                        />
-                      </label>
-                    </div>
-
-                    <div className="exerciseTimeRow" aria-label="Time">
-                      <label className="metaField">
-                        <div className="metaLabel">Minutes</div>
-                        <input
-                          className="input metaInput"
-                          inputMode="numeric"
-                          value={draftExercises.find((d) => d.id === ex.id)?.timeMins ?? ''}
-                          onChange={(ev) => updateDraftExercise(ex.id, { timeMins: ev.target.value })}
-                          placeholder="(optional)"
-                        />
-                      </label>
-                      <label className="metaField">
-                        <div className="metaLabel">Seconds</div>
-                        <input
-                          className="input metaInput"
-                          inputMode="numeric"
-                          value={draftExercises.find((d) => d.id === ex.id)?.timeSecs ?? ''}
-                          onChange={(ev) => updateDraftExercise(ex.id, { timeSecs: ev.target.value })}
-                          placeholder="(optional)"
-                        />
-                      </label>
-                    </div>
                   </div>
-                ) : null}
 
-                {!isEditing && (ex.sets || ex.reps || ex.weight) ? (
-                  <div className="runMeta" aria-label="Sets, reps, weight">
-                    <div className="runMetaField">
-                      <span className="runMetaLabel">Sets</span>
-                      <span className="runMetaValue">{typeof ex.sets === 'number' ? ex.sets : '-'}</span>
-                    </div>
-                    <div className="runMetaField">
-                      <span className="runMetaLabel">Reps</span>
-                      <span className="runMetaValue">{typeof ex.reps === 'number' ? ex.reps : '-'}</span>
-                    </div>
-                    <div className="runMetaField">
-                      <span className="runMetaLabel">Weight</span>
-                      <span className="runMetaValue">{typeof ex.weight === 'number' ? ex.weight : '-'}</span>
-                    </div>
-                  </div>
-                ) : null}
+                  {isEditing ? (
+                    <div className="exerciseFields" style={{ marginTop: 12 }}>
+                      <input
+                        className="input"
+                        list="exercise-presets"
+                        value={draftExercises.find((d) => d.id === ex.id)?.name ?? ex.name}
+                        onChange={(ev) => {
+                          const nextName = ev.target.value
+                          const preset = presetByName.get(nextName.trim().toLowerCase())
+                          const currentImageUrl = draftExercises.find((d) => d.id === ex.id)?.imageUrl ?? ''
 
-                {!isEditing && typeof ex.timeSeconds === 'number' && ex.timeSeconds > 0 ? (
-                  <div className="hint">Time: {formatDuration(ex.timeSeconds)}</div>
-                ) : null}
+                          const patch: Partial<DraftExercise> = {
+                            name: nextName,
+                          }
 
-                {ex.imageUrls?.length ? (
-                  <div className="imageStrip" aria-label="Exercise reference images">
-                    {ex.imageUrls.map((url) => (
-                          <img key={url} className="imageThumb" src={resolveImageUrl(url)} alt={`${ex.name} reference`} loading="lazy" />
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            ))}
+                          if (!currentImageUrl && preset?.imageUrl) {
+                            patch.imageUrl = preset.imageUrl
+                          }
+
+                          updateDraftExercise(ex.id, patch)
+                        }}
+                        aria-label="Exercise name"
+                        placeholder="Exercise name"
+                      />
+
+                      <input
+                        className="input"
+                        value={draftExercises.find((d) => d.id === ex.id)?.imageUrl ?? ''}
+                        onChange={(ev) => updateDraftExercise(ex.id, { imageUrl: ev.target.value })}
+                        aria-label="Image URL"
+                        placeholder="Image URL (optional)"
+                      />
+
+                      {(draftExercises.find((d) => d.id === ex.id)?.imageUrl ?? '').trim() ? (
+                        <div className="exerciseImagePreview" aria-label="Exercise image preview">
+                          {imagePreviewFailedById[ex.id] ? (
+                            <div className="exerciseImagePreviewFallback">Image failed to load.</div>
+                          ) : (
+                            <img
+                              className="exerciseImagePreviewImg"
+                              src={resolveImageUrl((draftExercises.find((d) => d.id === ex.id)?.imageUrl ?? '').trim())}
+                              alt={`${(draftExercises.find((d) => d.id === ex.id)?.name ?? ex.name) || 'Exercise'} preview`}
+                              loading="lazy"
+                              onError={() => {
+                                setImagePreviewFailedById((prev) => ({ ...prev, [ex.id]: true }))
+                              }}
+                            />
+                          )}
+                        </div>
+                      ) : null}
+
+                      <div className="createSchemeBar" aria-label="Quick training schemes">
+                        <span className="createSchemeLabel">Quick scheme:</span>
+                        <button
+                          type="button"
+                          className="createSchemeChip"
+                          onClick={() => updateDraftExercise(ex.id, { sets: '5', reps: '5' })}
+                        >
+                          5×5
+                        </button>
+                        <button
+                          type="button"
+                          className="createSchemeChip"
+                          onClick={() => updateDraftExercise(ex.id, { sets: '3', reps: '10' })}
+                        >
+                          3×10
+                        </button>
+                        <button
+                          type="button"
+                          className="createSchemeChip"
+                          onClick={() => updateDraftExercise(ex.id, { sets: '4', reps: '12' })}
+                        >
+                          4×12
+                        </button>
+                      </div>
+
+                      <div className="exerciseMetaRow" aria-label="Sets, reps, weight">
+                        <label className="metaField">
+                          <div className="metaLabel">Sets</div>
+                          <input
+                            className="input metaInput"
+                            inputMode="numeric"
+                            value={draftExercises.find((d) => d.id === ex.id)?.sets ?? ''}
+                            onChange={(ev) => updateDraftExercise(ex.id, { sets: ev.target.value })}
+                            placeholder="(optional)"
+                          />
+                        </label>
+                        <label className="metaField">
+                          <div className="metaLabel">Reps</div>
+                          <input
+                            className="input metaInput"
+                            inputMode="numeric"
+                            value={draftExercises.find((d) => d.id === ex.id)?.reps ?? ''}
+                            onChange={(ev) => updateDraftExercise(ex.id, { reps: ev.target.value })}
+                            placeholder="(optional)"
+                          />
+                        </label>
+                        <label className="metaField">
+                          <div className="metaLabel">Weight</div>
+                          <input
+                            className="input metaInput"
+                            inputMode="decimal"
+                            value={draftExercises.find((d) => d.id === ex.id)?.weight ?? ''}
+                            onChange={(ev) => updateDraftExercise(ex.id, { weight: ev.target.value })}
+                            placeholder="(optional)"
+                          />
+                        </label>
+                      </div>
+
+                      <div className="exerciseTimeRow" aria-label="Time">
+                        <label className="metaField">
+                          <div className="metaLabel">Minutes</div>
+                          <input
+                            className="input metaInput"
+                            inputMode="numeric"
+                            value={draftExercises.find((d) => d.id === ex.id)?.timeMins ?? ''}
+                            onChange={(ev) => updateDraftExercise(ex.id, { timeMins: ev.target.value })}
+                            placeholder="(optional)"
+                          />
+                        </label>
+                        <label className="metaField">
+                          <div className="metaLabel">Seconds</div>
+                          <input
+                            className="input metaInput"
+                            inputMode="numeric"
+                            value={draftExercises.find((d) => d.id === ex.id)?.timeSecs ?? ''}
+                            onChange={(ev) => updateDraftExercise(ex.id, { timeSecs: ev.target.value })}
+                            placeholder="(optional)"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {!isEditing && (ex.sets || ex.reps || ex.weight || (typeof ex.timeSeconds === 'number' && ex.timeSeconds > 0)) ? (
+                    <div className="runMeta completionMetricsGrid" aria-label="Sets, reps, weight">
+                      <div className="runMetaField completionMetricBox">
+                        <span className="runMetaLabel">Sets</span>
+                        <span className="runMetaValue">{typeof ex.sets === 'number' ? ex.sets : '—'}</span>
+                      </div>
+                      <div className="runMetaField completionMetricBox">
+                        <span className="runMetaLabel">Reps</span>
+                        <span className="runMetaValue">{typeof ex.reps === 'number' ? ex.reps : '—'}</span>
+                      </div>
+                      <div className="runMetaField completionMetricBox">
+                        <span className="runMetaLabel">Weight</span>
+                        <span className="runMetaValue">
+                          {typeof ex.weight === 'number' ? `${ex.weight} lbs` : '—'}
+                        </span>
+                      </div>
+                      {typeof ex.timeSeconds === 'number' && ex.timeSeconds > 0 ? (
+                        <div className="runMetaField completionMetricBox">
+                          <span className="runMetaLabel">Duration</span>
+                          <span className="runMetaValue">{formatDuration(ex.timeSeconds)}</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  {!isEditing && volSharePct > 0 ? (
+                    <div className="completionVolShareRow">
+                      <div className="completionVolShareHead">
+                        <span>Session Volume Share</span>
+                        <strong>{volSharePct}%</strong>
+                      </div>
+                      <div className="completionVolShareTrack" aria-hidden="true">
+                        <div className="completionVolShareFill" style={{ width: `${volSharePct}%` }} />
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              )
+            })}
           </div>
         ) : (
           <div className="empty" style={{ marginTop: 12 }}>
@@ -419,3 +559,4 @@ export const CompletionDetailView = ({ completion, onBack, onDelete, onUpdate }:
     </div>
   )
 }
+

@@ -6,7 +6,7 @@
 .app {
   max-width: 1200px; /* Increased max-width for dashboard feel */
   margin: 0 auto;
-  padding: 32px 24px 110px 24px;
+  padding: 32px 24px calc(110px + env(safe-area-inset-bottom, 0px)) 24px;
   animation: fadeIn 0.5s ease-out;
   width: 100%;
   /* overflow-x: hidden; REMOVED to fix position:sticky */
@@ -15,7 +15,7 @@
 .app--wide {
   max-width: 100%;
   width: 100%;
-  padding: 32px 48px 110px 48px; /* Slightly wider padding on large screens */
+  padding: 32px 48px calc(110px + env(safe-area-inset-bottom, 0px)) 48px; /* Slightly wider padding on large screens */
 }
 
 @keyframes bubbleFadeIn {
@@ -127,7 +127,7 @@
 @media (max-width: 700px) {
   .currentWorkoutBubble {
     right: 12px;
-    bottom: 12px;
+    bottom: max(12px, calc(8px + env(safe-area-inset-bottom, 0px)));
     max-width: calc(100vw - 24px);
   }
 }
@@ -577,6 +577,7 @@
     grid-template-columns: 1fr;
     text-align: center;
     gap: 0;
+    min-height: unset;
   }
   .heroContent {
     padding: 32px 24px;
@@ -591,9 +592,9 @@
     position: relative;
     right: auto; 
     top: auto;
-    height: 650px; /* Taller on mobile */
+    height: 560px;
     order: -1; 
-    margin-bottom: -280px; /* Pull text up to overlap the bottom of the canvas */
+    margin-bottom: -220px; /* Pull text up to overlap the bottom of the canvas */
     z-index: 1;
   }
   
@@ -603,7 +604,62 @@
 }
 
 @media (max-width: 480px) {
-  /* No specific overrides needed */
+  .heroContent {
+    padding: 24px 16px 20px;
+  }
+
+  .heroTitle {
+    font-size: clamp(28px, 8vw, 38px);
+  }
+
+  .heroSubtitle {
+    font-size: 0.92rem;
+  }
+
+  .heroActions {
+    flex-direction: column;
+  }
+
+  .bigButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .heroTelemetryStrip {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .panelBody {
+    padding: 14px;
+  }
+
+  .panelTitleRow {
+    padding: 12px 14px;
+  }
+
+  .miniGameHud {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .miniGameBuffRow {
+    grid-template-columns: 1fr;
+  }
+
+  .heroCanvasWrapper {
+    height: 400px;
+    margin-bottom: -140px;
+  }
+
+  .createFormulaBanner {
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .createFormulaTile {
+    width: 72px;
+    height: 82px;
+  }
 }
 
 .panel {
@@ -1793,7 +1849,11 @@
 
 @media (max-width: 640px) {
   .app {
-    padding: 14px;
+    padding: 14px 14px calc(110px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .app--wide {
+    padding: 14px 14px calc(110px + env(safe-area-inset-bottom, 0px));
   }
 
   .headerRow {
@@ -1975,6 +2035,19 @@
     max-width: 420px;
     height: auto;
     aspect-ratio: 16 / 9;
+  }
+
+  .homeRoutineCard {
+    min-height: 180px;
+  }
+
+  .homeCardActionBtn {
+    min-height: 40px;
+    padding: 10px 14px;
+  }
+
+  .scrollableBody {
+    max-height: 320px;
   }
 }
 
@@ -3335,6 +3408,7 @@
   }
   
   .infoCardsCol {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -4990,6 +5064,7 @@
 @media (max-width: 900px) {
   .heroSection {
     grid-template-columns: 1fr;
+    min-height: unset;
   }
 
   .heroCanvasWrapper {

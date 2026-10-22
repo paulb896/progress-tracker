@@ -3008,4 +3008,192 @@
   }
 }
 
+/* ── Mobile touch target improvements ──────────────────────────────────── */
+/* Ensure interactive controls are thumb-friendly (≥44px) on touch screens */
+
+@media (max-width: 640px) {
+  /* Stepper buttons: larger touch targets */
+  .ses-stepBtn {
+    min-width: 44px;
+    height: 44px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  .ses-stepValue {
+    font-size: 22px;
+    min-width: 4ch;
+  }
+
+  .ses-stepperLg .ses-stepValue {
+    font-size: 30px;
+  }
+
+  .ses-stepperLg .ses-stepBtn {
+    min-width: 44px;
+    height: 44px;
+  }
+
+  /* Set pills: taller for easier tapping */
+  .ses-setPill {
+    padding: 8px 13px 8px 7px;
+    font-size: 12px;
+  }
+
+  .ses-setPillCheck {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+
+  /* Complete button: slightly taller */
+  .ses-completeBtn {
+    height: 58px;
+    font-size: 14px;
+  }
+
+  /* Mark done button: full-width, taller */
+  .ses-markBtn {
+    width: 100%;
+    height: 60px;
+    font-size: 15px;
+  }
+
+  /* Expand/collapse toggle: bigger */
+  .ses-expandBtn {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Ghost buttons in header: taller */
+  .ses-ghostBtn {
+    height: 44px;
+    padding: 0 16px;
+  }
+
+  /* Row header: taller tap area */
+  .ses-rowHeader {
+    min-height: 72px;
+    padding: 14px 12px 14px 18px;
+  }
+
+  /* Next-set button */
+  .ses-nextSetBtn {
+    height: 48px;
+    font-size: 13px;
+    padding: 0 18px;
+  }
+
+  /* Rest preset buttons */
+  .ses-restPresetBtn {
+    padding: 7px 13px;
+    font-size: 12px;
+    border-radius: 9px;
+  }
+
+  /* Control grid: full-width single column */
+  .ses-controlGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Spotlight: remove tile, keep body and controls full width */
+  .ses-spotControls {
+    gap: 8px;
+  }
+
+  /* Header element tile: smaller on mobile */
+  .ses-headerElementTile {
+    flex: 0 0 56px;
+    height: 62px;
+  }
+
+  .ses-headerElementSym {
+    font-size: 22px;
+  }
+
+  /* Stats: ensure they wrap cleanly on 360px phones */
+  .ses-stats {
+    gap: 8px;
+  }
+
+  .ses-stat {
+    flex: 1 1 calc(50% - 4px);
+    padding: 7px 10px;
+  }
+}
+
+/* ── Very narrow phones (< 400px) ───────────────────────────────────────── */
+
+@media (max-width: 400px) {
+  .session {
+    gap: 12px;
+  }
+
+  .ses-hero {
+    padding: 12px;
+    gap: 12px;
+    border-radius: 18px;
+  }
+
+  .ses-gauge {
+    width: 80px;
+    height: 80px;
+  }
+
+  .ses-gaugePrimary {
+    font-size: 18px;
+  }
+
+  .ses-title {
+    font-size: clamp(28px, 8vw, 40px);
+  }
+
+  .ses-spotlight {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .ses-spotTitle {
+    font-size: clamp(20px, 6vw, 28px);
+  }
+
+  .ses-row {
+    border-radius: 14px;
+  }
+
+  .ses-rowHeader {
+    padding: 12px 10px 12px 14px;
+    gap: 8px;
+  }
+
+  .ses-rowSym {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .ses-check {
+    width: 26px;
+    height: 26px;
+  }
+
+  .ses-checkBox {
+    border-radius: 8px;
+  }
+
+  .ses-rowName {
+    font-size: 14px;
+  }
+
+  .ses-finale {
+    padding: 18px 16px;
+    gap: 14px;
+  }
+
+  .ses-finaleIcon {
+    width: 54px;
+    height: 54px;
+  }
+}
+
 

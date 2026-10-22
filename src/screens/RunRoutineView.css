@@ -1536,13 +1536,7 @@
     justify-content: flex-start;
   }
 
-  /* Trim the verbose formula code & muscle radar — title is enough */
-  .ses-formulaCode {
-    display: none;
-  }
-  .ses-muscleRadar {
-    display: none;
-  }
+  /* Trim the verbose formula code & muscle radar — handled in late-cascade block */
 
   .ses-hero {
     position: relative;
@@ -1674,11 +1668,6 @@
   .ses-rowThumb {
     width: 36px;
     height: 36px;
-  }
-
-  /* Section header: compact */
-  .ses-sectionMeta {
-    display: none;
   }
   .ses-sectionHead::after {
     display: none;
@@ -3068,6 +3057,36 @@
   }
 }
 
+/* ── Late-cascade responsive overrides ─────────────────────────────────── */
+/* These rules override base component styles defined AFTER the earlier      */
+/* responsive blocks, so they must appear here (later in the file).          */
+
+@media (max-width: 1040px) {
+  /* formulaCode was defined after the 1040px block — hide it here */
+  .ses-formulaCode {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  /* muscleRadar and sectionMeta are defined after the 720px block */
+  .ses-muscleRadar {
+    display: none;
+  }
+  .ses-sectionMeta {
+    display: none;
+  }
+  .ses-dragGrip {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .ses-kbd {
+    display: none;
+  }
+}
+
 /* ── Mobile touch target improvements ──────────────────────────────────── */
 /* Ensure interactive controls are thumb-friendly (≥44px) on touch screens */
 
@@ -3156,14 +3175,20 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* Hide drag grip — touch drag not practical */
-  .ses-dragGrip {
-    display: none;
-  }
-
-  /* Spotlight controls: tighter gap */
+  /* Spotlight controls: CSS Grid for reliable 2-per-row layout.
+     Sets + Reps share the first row; Weight + Time (wider steppers
+     with more buttons) each span both columns full-width. */
   .ses-spotControls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
+  }
+  /* Items 3+ (Weight, Time) are too wide for a half-column — full width */
+  .ses-spotControls > *:nth-child(n+3) {
+    grid-column: 1 / -1;
+  }
+  .ses-spotControls .ses-stepperLg {
+    min-width: 0; /* allow grid to constrain width */
   }
 
   /* Filter tabs: bigger tap targets */
@@ -3172,9 +3197,22 @@
     font-size: 12px;
   }
 
-  /* Hide keyboard shortcut hint in row next-set button */
-  .ses-kbd {
+  /* Row tags: hide 1RM pill and extra muscle chips — name + status is enough
+     in the compact row; full details are in the spotlight / expanded body */
+  .ses-rowTitle .ses-1rmPill,
+  .ses-rowTitle .ses-musclePill {
     display: none;
+  }
+
+  /* Auto-Rest button: prevent text wrap on narrow screens */
+  .ses-autoRestBtn {
+    white-space: nowrap;
+  }
+
+  /* Stat cards: borderless on mobile to reduce visual weight */
+  .ses-stat {
+    background: transparent;
+    border-color: transparent;
   }
 
   /* Header element tile: smaller on mobile */

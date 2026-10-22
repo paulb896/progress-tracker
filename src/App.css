@@ -4959,6 +4959,23 @@
   color: var(--muted);
 }
 
+/* Left label: shrink if needed, but never wrap */
+.miniGameMeterHeader > span:first-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* Right label: always reserve space for the longest value ("SWEET SPOT!")
+   so the left label never reflows when text content toggles */
+.miniGameMeterHeader > span:last-child {
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 5.8em;
+  text-align: right;
+}
+
 .miniGameSweetText {
   color: var(--accent);
 }

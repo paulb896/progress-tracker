@@ -1500,6 +1500,10 @@
     flex-direction: row;
     justify-content: space-between;
   }
+  /* Hide verbose formula code on tablet/mobile — clutters the badge row */
+  .ses-formulaCode {
+    display: none;
+  }
   .ses-spotlight {
     grid-template-columns: auto minmax(0, 1fr);
   }
@@ -1532,11 +1536,19 @@
     justify-content: flex-start;
   }
 
+  /* Trim the verbose formula code & muscle radar — title is enough */
+  .ses-formulaCode {
+    display: none;
+  }
+  .ses-muscleRadar {
+    display: none;
+  }
+
   .ses-hero {
     position: relative;
     top: 0;
-    gap: 16px;
-    padding: 16px;
+    gap: 14px;
+    padding: 14px 16px;
     border-radius: 22px;
   }
   .ses-gauge {
@@ -1549,7 +1561,7 @@
   .ses-stat {
     min-width: 0;
     flex: 1 1 40%;
-    padding: 8px 12px;
+    padding: 7px 10px;
   }
   .ses-statClock {
     flex-basis: 100%;
@@ -1564,8 +1576,33 @@
   .ses-heroMain {
     display: contents;
   }
+  /* Explicit grid placement when heroMain becomes transparent */
   .ses-stats {
-    align-self: center;
+    grid-column: 2;
+    align-self: start;
+  }
+  .ses-restToolbar {
+    grid-column: 1 / -1;
+  }
+
+  /* Collapse rest toolbar to a tighter row */
+  .ses-restToolbar {
+    gap: 8px;
+    padding: 6px 10px;
+  }
+  .ses-restLabel {
+    display: none;
+  }
+  .ses-restPresets {
+    gap: 4px;
+  }
+  .ses-restPresetBtn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  .ses-restActiveStrip {
+    flex: 1;
+    min-width: 0;
   }
 
   /* Bottom action dock */
@@ -1592,6 +1629,15 @@
     max-width: 30%;
   }
 
+  /* Toast sits above the fixed action dock */
+  .ses-toastBanner {
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: 100%;
+  }
+
   .ses-spotlight {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -1602,10 +1648,15 @@
     display: none;
   }
   .ses-spotAside {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .ses-spotAside:not(:has(.ses-spotImage)) {
     grid-template-columns: 1fr;
   }
   .ses-spotImage {
-    display: none;
+    display: block;
+    aspect-ratio: 4 / 3;
   }
 
   .ses-rowHeader {
@@ -1624,6 +1675,14 @@
     width: 36px;
     height: 36px;
   }
+
+  /* Section header: compact */
+  .ses-sectionMeta {
+    display: none;
+  }
+  .ses-sectionHead::after {
+    display: none;
+  }
 }
 
 @media (max-width: 520px) {
@@ -1633,8 +1692,9 @@
   .ses-rowThumb + .ses-rowThumb {
     display: none;
   }
+  /* Keep steppers 2-per-row rather than stacking to 1 — saves vertical space */
   .ses-stepperLg {
-    flex-basis: 100%;
+    flex: 1 1 calc(50% - 5px);
   }
   .ses-finale {
     flex-direction: column;
@@ -3091,14 +3151,30 @@
     border-radius: 9px;
   }
 
-  /* Control grid: full-width single column */
+  /* Control grid: 2-col on mobile for compact steppers */
   .ses-controlGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  /* Spotlight: remove tile, keep body and controls full width */
+  /* Hide drag grip — touch drag not practical */
+  .ses-dragGrip {
+    display: none;
+  }
+
+  /* Spotlight controls: tighter gap */
   .ses-spotControls {
     gap: 8px;
+  }
+
+  /* Filter tabs: bigger tap targets */
+  .ses-filterTab {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+
+  /* Hide keyboard shortcut hint in row next-set button */
+  .ses-kbd {
+    display: none;
   }
 
   /* Header element tile: smaller on mobile */
@@ -3146,6 +3222,13 @@
 
   .ses-title {
     font-size: clamp(28px, 8vw, 40px);
+  }
+
+  /* Rest active strip: drop min-width so it doesn't overflow tiny screens */
+  .ses-restActiveStrip {
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .ses-spotlight {

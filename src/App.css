@@ -4532,6 +4532,8 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+  flex: 1;
 }
 
 .miniGameEyebrow {
@@ -4563,6 +4565,9 @@
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .miniGameToggleBtn {
@@ -4786,6 +4791,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .miniGameIconBtn {

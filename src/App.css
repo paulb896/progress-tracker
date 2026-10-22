@@ -232,8 +232,7 @@
 
 @media (max-width: 800px) {
   .heroLogo {
-    top: 24px;
-    left: 24px;
+    display: none;
   }
 }
 
@@ -580,7 +579,7 @@
     min-height: unset;
   }
   .heroContent {
-    padding: 32px 24px;
+    padding: 40px 28px 32px;
     position: relative;
     z-index: 2;
   }
@@ -594,7 +593,7 @@
     top: auto;
     height: 560px;
     order: -1; 
-    margin-bottom: -220px; /* Pull text up to overlap the bottom of the canvas */
+    margin-bottom: -220px;
     z-index: 1;
   }
   
@@ -605,7 +604,7 @@
 
 @media (max-width: 480px) {
   .heroContent {
-    padding: 24px 16px 20px;
+    padding: 28px 20px 24px;
   }
 
   .heroTitle {
@@ -618,6 +617,7 @@
 
   .heroActions {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .bigButton {
@@ -644,11 +644,6 @@
 
   .miniGameBuffRow {
     grid-template-columns: 1fr;
-  }
-
-  .heroCanvasWrapper {
-    height: 400px;
-    margin-bottom: -140px;
   }
 
   .createFormulaBanner {

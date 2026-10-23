@@ -1538,6 +1538,13 @@
 
   /* Trim the verbose formula code & muscle radar — handled in late-cascade block */
 
+  /* Smaller title on mobile — long routine names would wrap to 2-3 lines
+     at the 34px minimum; cap at 26px so most names fit on one line */
+  .ses-title {
+    font-size: clamp(20px, 5.5vw, 28px);
+    line-height: 1.05;
+  }
+
   .ses-hero {
     position: relative;
     top: 0;
@@ -1551,26 +1558,56 @@
     -webkit-backdrop-filter: none;
   }
   .ses-gauge {
-    width: 96px;
-    height: 96px;
+    width: 88px;
+    height: 88px;
   }
   .ses-gaugePrimary {
-    font-size: 22px;
+    font-size: 20px;
   }
   .ses-stat {
     min-width: 0;
     flex: 1 1 40%;
-    padding: 7px 10px;
+    padding: 5px 8px;
   }
   .ses-statClock {
     flex-basis: 100%;
     padding: 0 4px;
   }
   .ses-statValue {
-    font-size: 20px;
+    font-size: 18px;
+  }
+  /* Hide verbose sub-lines in stats — keeps the hero compact on mobile */
+  .ses-statSub {
+    display: none;
+  }
+  .ses-statMiniBar {
+    display: none;
   }
   .ses-rail {
     grid-column: 1 / -1;
+    /* Scroll horizontally rather than overflow-clip on many-exercise routines */
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ses-rail::-webkit-scrollbar {
+    display: none;
+  }
+  /* Rail segments: single-symbol display at mobile widths.
+     The global flex rule below (ses-railSeg with gap:5px) makes segments
+     show three labels inline, each needing ~60px; with 10+ exercises that
+     overflows. Override back to grid + centered so only the symbol shows. */
+  .ses-railSeg {
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    flex: 0 0 32px; /* fixed 32px per segment; rail scrolls if needed */
+    height: 30px;
+  }
+  .ses-railStep,
+  .ses-railSets {
+    display: none;
   }
   .ses-heroMain {
     display: contents;
@@ -3239,6 +3276,14 @@
     flex: 1 1 calc(50% - 4px);
     padding: 7px 10px;
   }
+
+  /* Clock stat must always span the full column so it's not side-by-side
+     with Volume. The earlier ≤720px ses-statClock rule is overridden by
+     the ses-stat shorthand above — re-assert full width here. */
+  .ses-statClock {
+    flex-basis: 100%;
+    padding: 0 4px;
+  }
 }
 
 /* ── Very narrow phones (< 400px) ───────────────────────────────────────── */
@@ -3264,7 +3309,7 @@
   }
 
   .ses-title {
-    font-size: clamp(28px, 8vw, 40px);
+    font-size: clamp(18px, 5.5vw, 24px);
   }
 
   /* Rest active strip: drop min-width so it doesn't overflow tiny screens */

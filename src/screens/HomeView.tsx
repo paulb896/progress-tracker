@@ -112,7 +112,7 @@ export const HomeView = ({
         <div className="heroContent">
           <div className="heroBadge">
             <span className="heroBadgeDot" aria-hidden="true" />
-            REACTOR TELEMETRY • OFFLINE-FIRST LAB
+            Workout Tracker · Works Offline
           </div>
           <h1
             className="heroTitle"

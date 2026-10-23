@@ -210,6 +210,7 @@
   border-radius: 999px;
   margin-bottom: 32px;
   border: 1px solid var(--border-2);
+  white-space: nowrap;
 }
 
 .heroBadgeDot {

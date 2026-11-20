@@ -5738,3 +5738,756 @@
   transition: width 0.3s ease;
 }
 
+/* =========================================================================
+   REACTOR ANALYTICS (/STATS) CONSOLE & MOBILE EXERCISE ERGONOMICS
+   ========================================================================= */
+
+.statsHeroControlsRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.statsRangeFilterBar {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.statsRangePill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.statsRangePill:hover {
+  color: var(--text);
+}
+
+.statsRangePill.is-active {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+.statsDemoToggleBtn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.statsDemoToggleBtn:hover,
+.statsDemoToggleBtn.is-active {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.statsKpiHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.statsKpiSym {
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--accent);
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-sunken));
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.statsKpiSub {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.statsKpiBar {
+  width: 100%;
+  height: 4px;
+  margin-top: 2px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.statsKpiBarFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent-gradient);
+  transition: width 0.35s ease;
+}
+
+/* --- 28-Day Cadence Matrix & 2D Muscle Readiness Split Grid --- */
+.statsTelemetrySplitGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
+  gap: 1.25rem;
+}
+
+.statsCadenceGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.statsCadenceCell {
+  position: relative;
+  aspect-ratio: 1;
+  min-height: 36px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.statsCadenceCell:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.statsCadenceCell.level-1 {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface-sunken));
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+}
+
+.statsCadenceCell.level-2 {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 30%, var(--surface-sunken));
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--border));
+}
+
+.statsCadenceCell.level-3 {
+  color: var(--on-accent);
+  background: color-mix(in srgb, var(--accent) 62%, var(--surface-2));
+  border-color: var(--accent);
+}
+
+.statsCadenceCell.level-4 {
+  color: var(--on-accent);
+  background: var(--accent-gradient);
+  border-color: transparent;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.statsCadenceDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.statsCadenceLegend {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.statsCadenceSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface-sunken);
+}
+
+.statsCadenceSwatch.level-1 {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface-sunken));
+}
+.statsCadenceSwatch.level-2 {
+  background: color-mix(in srgb, var(--accent) 36%, var(--surface-sunken));
+}
+.statsCadenceSwatch.level-3 {
+  background: color-mix(in srgb, var(--accent) 65%, var(--surface-2));
+}
+.statsCadenceSwatch.level-4 {
+  background: var(--accent);
+}
+
+/* --- 2D Muscle Readiness Radar --- */
+.statsReadinessGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 8px;
+}
+
+.statsReadinessCard {
+  --tone: #34d399;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.statsReadinessCard.tone-fresh {
+  --tone: light-dark(#059669, #34d399);
+}
+.statsReadinessCard.tone-recovering {
+  --tone: light-dark(#d97706, #facc15);
+}
+.statsReadinessCard.tone-fatigued {
+  --tone: light-dark(#ea580c, #fb923c);
+}
+.statsReadinessCard.tone-hot {
+  --tone: light-dark(#e11d48, #fb7185);
+}
+
+.statsReadinessTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.statsReadinessName {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.statsReadinessPct {
+  font-size: 11px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--tone);
+}
+
+.statsReadinessTrack {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.statsReadinessFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--tone);
+  transition: width 0.3s ease;
+}
+
+.statsReadinessMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* --- PR Vault Interactive Button Cards --- */
+.statsPrCardBtn {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.statsPrCardBtn.is-focused {
+  border-color: var(--element-color, var(--accent));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--element-color, var(--accent)) 32%, transparent);
+}
+
+.statsPrTopLine {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.statsPrRank {
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.statsPr1rmBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  color: light-dark(#b45309, #fbbf24);
+  background: light-dark(rgba(217, 119, 6, 0.12), rgba(250, 204, 21, 0.14));
+}
+
+.statsPrBarTrack {
+  width: 100%;
+  height: 4px;
+  margin: 2px 0;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.statsPrBarFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--element-color, var(--accent));
+}
+
+.statsPrInspectHint {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--element-color, var(--accent));
+}
+
+.statsSectionsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* --- ProgressCharts Reactor Console Styling --- */
+.statsChartsSection {
+  overflow: hidden;
+}
+
+.statsSectionHeader {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 14px;
+}
+
+.statsSectionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statsSectionIconBadge {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.statsChartsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 18px;
+  padding: 18px;
+  align-items: stretch;
+}
+
+.statsChartCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+}
+
+.statsChartCardWide {
+  grid-column: 1 / -1;
+}
+
+.statsChartCardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.statsChartEyebrow {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.statsChartTitle {
+  margin: 2px 0 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.statsChartBadge {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.statsChartCanvas {
+  width: 100%;
+  height: 250px;
+}
+
+.statsChartCanvasTall {
+  height: 280px;
+}
+
+.statsChartEmpty {
+  height: 220px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.statsExerciseSelectorBanner {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--element-color, var(--accent)) 12%, var(--surface-2)),
+      var(--surface-sunken)
+    );
+  border: 1px solid color-mix(in srgb, var(--element-color, var(--accent)) 36%, var(--border-2));
+}
+
+.statsExerciseSelectorTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.statsExerciseIdentity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.statsExerciseTile {
+  width: 46px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  color: var(--element-color, var(--accent));
+  background: color-mix(in srgb, var(--element-color, var(--accent)) 14%, var(--surface-sunken));
+  border: 1.5px solid var(--element-color, var(--accent));
+}
+
+.statsExerciseTileNum {
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.statsExerciseTileSym {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.statsExerciseActiveTitle {
+  margin: 2px 0 0;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--text);
+}
+
+.statsExerciseKpiPills {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.statsExKpiPill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+}
+
+.statsExKpiPill small {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.statsExKpiPill strong {
+  font-weight: 900;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.statsExKpiPillGold strong {
+  color: light-dark(#b45309, #fbbf24);
+}
+
+.statsExerciseSelect {
+  width: auto;
+  min-width: 150px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+.statsExerciseChipsRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.statsExerciseChipsRow::-webkit-scrollbar {
+  display: none;
+}
+
+.statsExerciseChipBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.statsExerciseChipSym {
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  font-weight: 900;
+  color: var(--chip-color, var(--accent));
+}
+
+.statsExerciseChipBtn.is-active {
+  color: var(--on-accent);
+  background: var(--chip-color, var(--accent));
+  border-color: var(--chip-color, var(--accent));
+}
+
+.statsExerciseChipBtn.is-active .statsExerciseChipSym {
+  color: inherit;
+}
+
+.statsTimeframeTabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+}
+
+.statsTimeframeTab {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.statsTimeframeTab.is-active {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+
+/* =========================================================================
+   MOBILE EXERCISE SCREEN OPTIMIZATIONS (/CREATE, /EDIT, /COMPLETED, /STATS)
+   ========================================================================= */
+
+@media (max-width: 760px) {
+  .statsTelemetrySplitGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Create / Edit Exercise Builder: uncramp cards on mobile */
+  .createPanel .panelBody {
+    padding: 14px;
+  }
+
+  .createFormulaBanner {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .createFormulaTile {
+    width: 62px;
+    height: 70px;
+    padding: 5px 6px;
+    border-radius: 12px;
+  }
+
+  .createFormulaTileSymbol {
+    font-size: 24px;
+  }
+
+  .createFormulaTileTop span:last-child {
+    display: none;
+  }
+
+  .createPanel .exerciseRow {
+    padding: 14px;
+    gap: 10px;
+    border-radius: 16px;
+  }
+
+  /* Transform tall 60x74 tile into a sleek inline header badge on mobile */
+  .createPanel .createExerciseTile {
+    width: auto;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 9px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    justify-self: start;
+  }
+
+  .createExerciseTileSym {
+    font-size: 15px;
+  }
+
+  /* Keep Sets, Reps, Weight on ONE 3-column row instead of 3 stacked full-width inputs! */
+  .exerciseMetaRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+
+  /* Keep Minutes & Seconds on ONE 2-column row */
+  .exerciseTimeRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px;
+  }
+
+  /* Horizontal scroll for quick schemes & presets so they don't wrap into 3 rows */
+  .createSchemeBar,
+  .createQuickPresetsChips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .createSchemeBar::-webkit-scrollbar,
+  .createQuickPresetsChips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .createSchemeChip,
+  .createQuickPresetChip {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .statsHeroBanner {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .statsKpiGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .statsChartsGrid {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 14px;
+  }
+
+  .statsBadgePill {
+    display: none;
+  }
+
+  .completionExerciseCard {
+    padding: 14px;
+  }
+
+  .completionExerciseHeader {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .completionMetricsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+}
+
+

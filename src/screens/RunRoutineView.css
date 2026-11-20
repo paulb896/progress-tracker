@@ -3099,19 +3099,17 @@
   }
 }
 
-/* ── Late-cascade responsive overrides ─────────────────────────────────── */
+/* ── Late-cascade responsive overrides & Mobile Ergonomics ─────────────── */
 /* These rules override base component styles defined AFTER the earlier      */
 /* responsive blocks, so they must appear here (later in the file).          */
 
 @media (max-width: 1040px) {
-  /* formulaCode was defined after the 1040px block — hide it here */
   .ses-formulaCode {
     display: none;
   }
 }
 
 @media (max-width: 720px) {
-  /* muscleRadar and sectionMeta are defined after the 720px block */
   .ses-muscleRadar {
     display: none;
   }
@@ -3121,249 +3119,326 @@
   .ses-dragGrip {
     display: none;
   }
+
+  /* Keep rest toolbar on a single sleek horizontal line */
+  .ses-restToolbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ses-restToolbar::-webkit-scrollbar {
+    display: none;
+  }
+  .ses-restPresets {
+    flex-shrink: 0;
+  }
+
+  /* Float toast above the fixed mobile bottom CTA dock */
+  .ses-toastBanner {
+    left: 12px;
+    right: 12px;
+    bottom: 86px;
+    width: auto;
+    padding: 10px 14px;
+  }
 }
 
 @media (max-width: 640px) {
+  .session {
+    gap: 12px;
+    padding-bottom: 110px;
+  }
+
   .ses-kbd {
     display: none;
   }
-}
 
-/* ── Mobile touch target improvements ──────────────────────────────────── */
-/* Ensure interactive controls are thumb-friendly (≥44px) on touch screens */
-
-@media (max-width: 640px) {
-  /* Stepper buttons: larger touch targets */
-  .ses-stepBtn {
-    min-width: 44px;
-    height: 44px;
-    font-size: 15px;
-    border-radius: 12px;
+  /* Compact header buttons */
+  .ses-header {
+    gap: 10px;
+    padding: 8px 0 2px;
   }
-
-  .ses-stepValue {
-    font-size: 22px;
-    min-width: 4ch;
+  .ses-iconBtn {
+    width: 40px;
+    height: 40px;
   }
-
-  .ses-stepperLg .ses-stepValue {
-    font-size: 30px;
-  }
-
-  .ses-stepperLg .ses-stepBtn {
-    min-width: 44px;
-    height: 44px;
-  }
-
-  /* Set pills: taller for easier tapping */
-  .ses-setPill {
-    padding: 8px 13px 8px 7px;
-    font-size: 12px;
-  }
-
-  .ses-setPillCheck {
-    width: 22px;
-    height: 22px;
-    font-size: 11px;
-  }
-
-  /* Complete button: slightly taller */
-  .ses-completeBtn {
-    height: 58px;
-    font-size: 14px;
-  }
-
-  /* Mark done button: full-width, taller */
-  .ses-markBtn {
-    width: 100%;
-    height: 60px;
-    font-size: 15px;
-  }
-
-  /* Expand/collapse toggle: bigger */
-  .ses-expandBtn {
-    width: 44px;
-    height: 44px;
-  }
-
-  /* Ghost buttons in header: taller */
   .ses-ghostBtn {
-    height: 44px;
-    padding: 0 16px;
-  }
-
-  /* Row header: taller tap area */
-  .ses-rowHeader {
-    min-height: 72px;
-    padding: 14px 12px 14px 18px;
-  }
-
-  /* Next-set button */
-  .ses-nextSetBtn {
-    height: 48px;
-    font-size: 13px;
-    padding: 0 18px;
-  }
-
-  /* Rest preset buttons */
-  .ses-restPresetBtn {
-    padding: 7px 13px;
-    font-size: 12px;
-    border-radius: 9px;
-  }
-
-  /* Control grid: 2-col on mobile for compact steppers */
-  .ses-controlGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  /* Spotlight controls: CSS Grid for reliable 2-per-row layout.
-     Sets + Reps share the first row; Weight + Time (wider steppers
-     with more buttons) each span both columns full-width. */
-  .ses-spotControls {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-  /* Items 3+ (Weight, Time) are too wide for a half-column — full width */
-  .ses-spotControls > *:nth-child(n+3) {
-    grid-column: 1 / -1;
-  }
-  .ses-spotControls .ses-stepperLg {
-    min-width: 0; /* allow grid to constrain width */
-  }
-
-  /* Filter tabs: bigger tap targets */
-  .ses-filterTab {
-    padding: 7px 12px;
+    height: 38px;
+    padding: 0 12px;
     font-size: 12px;
   }
 
-  /* Row tags: hide 1RM pill and extra muscle chips — name + status is enough
-     in the compact row; full details are in the spotlight / expanded body */
-  .ses-rowTitle .ses-1rmPill,
-  .ses-rowTitle .ses-musclePill {
-    display: none;
+  /* Compact Hero Session Progress */
+  .ses-hero {
+    padding: 12px 14px;
+    gap: 12px;
+    border-radius: 18px;
   }
-
-  /* Auto-Rest button: prevent text wrap on narrow screens */
-  .ses-autoRestBtn {
-    white-space: nowrap;
+  .ses-gauge {
+    width: 80px;
+    height: 80px;
   }
-
-  /* Stat cards: borderless on mobile to reduce visual weight */
+  .ses-gaugePrimary {
+    font-size: 18px;
+  }
+  .ses-stats {
+    gap: 6px;
+  }
   .ses-stat {
+    flex: 1 1 calc(50% - 4px);
+    padding: 4px 6px;
     background: transparent;
     border-color: transparent;
   }
-
-  /* Header element tile: smaller on mobile */
-  .ses-headerElementTile {
-    flex: 0 0 56px;
-    height: 62px;
-  }
-
-  .ses-headerElementSym {
-    font-size: 22px;
-  }
-
-  /* Stats: ensure they wrap cleanly on 360px phones */
-  .ses-stats {
-    gap: 8px;
-  }
-
-  .ses-stat {
-    flex: 1 1 calc(50% - 4px);
-    padding: 7px 10px;
-  }
-
-  /* Clock stat must always span the full column so it's not side-by-side
-     with Volume. The earlier ≤720px ses-statClock rule is overridden by
-     the ses-stat shorthand above — re-assert full width here. */
   .ses-statClock {
     flex-basis: 100%;
     padding: 0 4px;
+  }
+  .ses-clock {
+    font-size: 24px;
+  }
+  .ses-statValue {
+    font-size: 16px;
+  }
+
+  /* ── Spotlight Card: Breathable & Uncramped on Mobile ── */
+  .ses-spotlight {
+    padding: 14px;
+    gap: 12px;
+    border-radius: 18px;
+  }
+  .ses-spotBody {
+    gap: 10px;
+  }
+  .ses-spotTitle {
+    font-size: clamp(20px, 5.5vw, 26px);
+  }
+  .ses-spotMuscleRow {
+    gap: 5px;
+  }
+
+  /* Compact set pills in spotlight */
+  .ses-setTracker {
+    padding: 7px 10px;
+    gap: 6px;
+  }
+  .ses-setPill {
+    padding: 5px 10px 5px 5px;
+    font-size: 11px;
+  }
+  .ses-setPillCheck {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+
+  /* ── Steppers: Fit 2-column grid cleanly without horizontal overflow ── */
+  .ses-spotControls,
+  .ses-controlGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  /* Weight (4 buttons) and Time span full width so they never overflow half-columns */
+  .ses-spotControls > *:nth-child(n + 3),
+  .ses-controlGrid > *:nth-child(n + 3) {
+    grid-column: 1 / -1;
+  }
+  .ses-stepper,
+  .ses-stepperLg,
+  .ses-spotControls .ses-stepperLg,
+  .ses-controlGrid .ses-stepper {
+    min-width: 0;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .ses-stepBtn,
+  .ses-stepperLg .ses-stepBtn {
+    min-width: 34px;
+    height: 36px;
+    padding: 0 6px;
+    font-size: 13px;
+    border-radius: 9px;
+  }
+  .ses-stepValue,
+  .ses-stepperLg .ses-stepValue {
+    font-size: 20px;
+    min-width: 2.2ch;
+  }
+  .ses-stepValueTime,
+  .ses-stepperLg .ses-stepValueTime {
+    font-size: 15px;
+  }
+
+  /* ── Plate Breakdown Strip: Single clean line on mobile ── */
+  .ses-plateStrip {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  .ses-plateStripLabel,
+  .ses-quickLoadRow {
+    display: none;
+  }
+
+  /* ── Spotlight Aside: Side-by-side primary buttons to save vertical height ── */
+  .ses-spotAside {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    align-items: stretch;
+  }
+  .ses-spotAside .ses-spotImage,
+  .ses-spotAside .ses-spotBlueprint {
+    grid-column: 1 / -1;
+    max-height: 140px;
+  }
+  .ses-nextSetBtn,
+  .ses-markBtn {
+    width: 100%;
+    height: 46px;
+    padding: 0 10px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+  .ses-spotAside .ses-linkBtn {
+    grid-column: auto;
+    justify-self: center;
+    font-size: 11px;
+  }
+
+  /* ── Sequence List Rows: Spacious exercise title & single-line set strip ── */
+  .ses-row {
+    border-radius: 14px;
+  }
+  .ses-rowHeader {
+    min-height: 54px;
+    padding: 10px 10px 8px 14px;
+    gap: 8px;
+  }
+  .ses-check {
+    width: 24px;
+    height: 24px;
+  }
+  .ses-checkBox {
+    border-radius: 7px;
+  }
+  .ses-rowSymTile {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+  .ses-rowSymNum {
+    display: none;
+  }
+  .ses-rowSymTile .ses-rowSym {
+    font-size: 13px;
+  }
+  .ses-rowName {
+    font-size: 15px;
+  }
+  /* Keep collapsed row tags minimal so exercise name gets full width */
+  .ses-rowTitle .ses-1rmPill,
+  .ses-rowTitle .ses-musclePill,
+  .ses-rowTitle .ses-volPill {
+    display: none;
+  }
+  /* Hide thumbnails in collapsed row header (shown in expanded gallery) */
+  .ses-rowThumbs {
+    display: none;
+  }
+  .ses-reorderGroup {
+    gap: 2px;
+    padding: 1px;
+    border-radius: 8px;
+  }
+  .ses-reorderBtn {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+  .ses-expandBtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+
+  /* Inline set checkoff bar on sequence cards: compact 1-line horizontal strip */
+  .ses-rowSetsBar {
+    padding: 0 10px 10px 14px;
+  }
+  .ses-setTracker--inline {
+    padding: 5px 8px;
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ses-setTracker--inline::-webkit-scrollbar {
+    display: none;
+  }
+  .ses-setTracker--inline .ses-setTrackerHead {
+    flex-shrink: 0;
+  }
+  .ses-setTracker--inline .ses-setPills {
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+  }
+  .ses-setTracker--inline .ses-setPill {
+    padding: 4px 9px 4px 4px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  /* Hide verbose reps/weight suffix on inline row pills so Set 1, Set 2, Set 3 fit on one line */
+  .ses-setTracker--inline .ses-setPill small {
+    display: none;
+  }
+
+  /* Expanded row body */
+  .ses-rowBody {
+    padding: 0 10px 12px 14px;
+    gap: 10px;
+  }
+
+  /* Filter tabs */
+  .ses-filterTab {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  /* Bottom CTA dock */
+  .ses-heroCta {
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  }
+  .ses-completeBtn {
+    height: 48px;
+    font-size: 13px;
+  }
+  .ses-autoRestBtn {
+    white-space: nowrap;
   }
 }
 
 /* ── Very narrow phones (< 400px) ───────────────────────────────────────── */
 
 @media (max-width: 400px) {
-  .session {
-    gap: 12px;
+  .ses-spotAside {
+    grid-template-columns: 1fr;
   }
-
-  .ses-hero {
-    padding: 12px;
-    gap: 12px;
-    border-radius: 18px;
-  }
-
-  .ses-gauge {
-    width: 80px;
-    height: 80px;
-  }
-
-  .ses-gaugePrimary {
-    font-size: 18px;
-  }
-
-  .ses-title {
-    font-size: clamp(18px, 5.5vw, 24px);
-  }
-
-  /* Rest active strip: drop min-width so it doesn't overflow tiny screens */
   .ses-restActiveStrip {
     min-width: 0;
     flex-wrap: wrap;
     gap: 6px;
   }
-
-  .ses-spotlight {
-    padding: 14px;
-    border-radius: 18px;
-  }
-
-  .ses-spotTitle {
-    font-size: clamp(20px, 6vw, 28px);
-  }
-
-  .ses-row {
-    border-radius: 14px;
-  }
-
-  .ses-rowHeader {
-    padding: 12px 10px 12px 14px;
-    gap: 8px;
-  }
-
-  .ses-rowSym {
-    width: 28px;
-    height: 28px;
-    font-size: 11px;
-  }
-
-  .ses-check {
-    width: 26px;
-    height: 26px;
-  }
-
-  .ses-checkBox {
-    border-radius: 8px;
-  }
-
-  .ses-rowName {
-    font-size: 14px;
-  }
-
   .ses-finale {
-    padding: 18px 16px;
-    gap: 14px;
+    padding: 16px 14px;
+    gap: 12px;
   }
-
   .ses-finaleIcon {
-    width: 54px;
-    height: 54px;
+    width: 50px;
+    height: 50px;
   }
 }
 

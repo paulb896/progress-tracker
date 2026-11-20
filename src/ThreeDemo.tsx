@@ -1,161 +1,87 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
 const STORAGE_KEY = 'progress-tracker:lift-minigame-enabled:v1'
-const STATS_STORAGE_KEY = 'progress-tracker:lift-minigame-stats:v1'
+const STATS_STORAGE_KEY = 'progress-tracker:lift-minigame-stats:v2'
 
-type LiftMode = 'bench' | 'ohp' | 'deadlift'
+type LiftStyle = 'ohp' | 'bench' | 'deadlift'
 
-type LiftModeConfig = {
-  id: LiftMode
-  shortName: string
-  fullName: string
-  symbol: string
-  atomicNum: number
-  driveMultiplier: number
-  gravityMultiplier: number
+type SavedMiniGameStats = {
+  bestPrLbs: number
+  bestStreak: number
 }
-
-const LIFT_MODES: LiftModeConfig[] = [
-  {
-    id: 'bench',
-    shortName: 'Bench',
-    fullName: 'Bench Press',
-    symbol: 'Bp',
-    atomicNum: 26,
-    driveMultiplier: 1.0,
-    gravityMultiplier: 1.0,
-  },
-  {
-    id: 'ohp',
-    shortName: 'Strict OHP',
-    fullName: 'Overhead Press',
-    symbol: 'Op',
-    atomicNum: 22,
-    driveMultiplier: 0.88,
-    gravityMultiplier: 1.1,
-  },
-  {
-    id: 'deadlift',
-    shortName: 'Deadlift',
-    fullName: 'Sumo / Conv Pull',
-    symbol: 'Dl',
-    atomicNum: 74,
-    driveMultiplier: 1.12,
-    gravityMultiplier: 0.95,
-  },
-]
-
-type WeightTier = {
-  weightLbs: number
-  label: string
-  platesPerSide: number
-  plateColors: string[]
-  gravity: number
-  pumpImpulse: number
-  holdDrive: number
-  staminaCost: number
-  xpReward: number
-}
-
-const WEIGHT_TIERS: WeightTier[] = [
-  {
-    weightLbs: 135,
-    label: '1 Plate • Warmup',
-    platesPerSide: 1,
-    plateColors: ['#2dd4bf'],
-    gravity: 0.38,
-    pumpImpulse: 0.30,
-    holdDrive: 0.88,
-    staminaCost: 8,
-    xpReward: 15,
-  },
-  {
-    weightLbs: 225,
-    label: '2 Plates • Working',
-    platesPerSide: 2,
-    plateColors: ['#2dd4bf', '#38bdf8'],
-    gravity: 0.48,
-    pumpImpulse: 0.25,
-    holdDrive: 0.76,
-    staminaCost: 13,
-    xpReward: 30,
-  },
-  {
-    weightLbs: 315,
-    label: '3 Plates • Heavy',
-    platesPerSide: 3,
-    plateColors: ['#2dd4bf', '#38bdf8', '#818cf8'],
-    gravity: 0.58,
-    pumpImpulse: 0.21,
-    holdDrive: 0.68,
-    staminaCost: 18,
-    xpReward: 50,
-  },
-  {
-    weightLbs: 405,
-    label: '4 Plates • Elite',
-    platesPerSide: 4,
-    plateColors: ['#2dd4bf', '#38bdf8', '#818cf8', '#f59e0b'],
-    gravity: 0.68,
-    pumpImpulse: 0.17,
-    holdDrive: 0.60,
-    staminaCost: 24,
-    xpReward: 80,
-  },
-  {
-    weightLbs: 495,
-    label: '5 Plates • Reactor Max',
-    platesPerSide: 5,
-    plateColors: ['#2dd4bf', '#38bdf8', '#818cf8', '#f59e0b', '#fb7185'],
-    gravity: 0.78,
-    pumpImpulse: 0.14,
-    holdDrive: 0.52,
-    staminaCost: 30,
-    xpReward: 125,
-  },
-  {
-    weightLbs: 585,
-    label: '6 Plates • Isotope PR',
-    platesPerSide: 6,
-    plateColors: ['#2dd4bf', '#38bdf8', '#818cf8', '#f59e0b', '#fb7185', '#a855f7'],
-    gravity: 0.88,
-    pumpImpulse: 0.12,
-    holdDrive: 0.46,
-    staminaCost: 36,
-    xpReward: 180,
-  },
-]
-
-type LifterRank = {
-  level: number
-  symbol: string
-  title: string
-  minXp: number
-  color: string
-}
-
-const LIFTER_RANKS: LifterRank[] = [
-  { level: 1, symbol: 'Li', title: 'Lithium Novice', minXp: 0, color: '#2dd4bf' },
-  { level: 2, symbol: 'Mg', title: 'Magnesium Lifter', minXp: 100, color: '#38bdf8' },
-  { level: 3, symbol: 'Ti', title: 'Titanium Presser', minXp: 280, color: '#818cf8' },
-  { level: 4, symbol: 'Fe', title: 'Iron Vanguard', minXp: 550, color: '#f59e0b' },
-  { level: 5, symbol: 'W', title: 'Tungsten Titan', minXp: 950, color: '#fb7185' },
-  { level: 6, symbol: 'U', title: 'Uranium Reactor God', minXp: 1500, color: '#c084fc' },
-]
 
 type FloatingPopup = {
   id: number
   text: string
   subtext?: string
   color: string
-  x: number
 }
 
-type SavedMiniGameStats = {
-  xp: number
-  bestWeightLbs: number
-  bestStreak: number
-  bestAmrapReps: number
+type Spark = {
+  id: number
+  x: number
+  y: number
+  dx: number
+  dy: number
+  color: string
+}
+
+type AnimPhase = 'READY' | 'GRIND' | 'HIT' | 'MISS'
+
+const LIFT_STYLES: Array<{ id: LiftStyle; label: string; fullName: string }> = [
+  { id: 'ohp', label: 'OHP', fullName: 'Overhead Press' },
+  { id: 'bench', label: 'Bench', fullName: 'Bench Press' },
+  { id: 'deadlift', label: 'Deadlift', fullName: 'Deadlift' },
+]
+
+const PLATE_COLORS = ['#2dd4bf', '#38bdf8', '#818cf8', '#f59e0b', '#fb7185', '#c084fc']
+
+const getWeightForLevel = (level: number): number => {
+  const baseSteps = [135, 185, 225, 275, 315, 365, 405, 455, 495, 545, 585]
+  if (level < baseSteps.length) return baseSteps[level]
+  return 585 + (level - (baseSteps.length - 1)) * 50
+}
+
+const getPlatesForWeight = (weightLbs: number): Array<{ is25: boolean; color: string }> => {
+  const perSide = Math.max(0, Math.round((weightLbs - 45) / 2))
+  const count45 = Math.min(6, Math.floor(perSide / 45))
+  const has25 = perSide % 45 >= 20
+  const plates: Array<{ is25: boolean; color: string }> = []
+  for (let i = 0; i < count45; i++) {
+    plates.push({ is25: false, color: PLATE_COLORS[i % PLATE_COLORS.length] })
+  }
+  if (has25) {
+    plates.push({ is25: true, color: '#a3e635' })
+  }
+  return plates
+}
+
+const getZoneConfig = (level: number, center: number) => {
+  const goodWidth = Math.max(0.14, 0.34 - level * 0.02)
+  const perfectWidth = Math.max(0.055, 0.11 - level * 0.005)
+  const grindPad = 0.09 // Amber sticking-point zone on each side of green
+  const speed = Math.min(3.5, 1.35 + level * 0.18)
+
+  const halfGood = goodWidth / 2
+  const halfPerfect = perfectWidth / 2
+  const halfGrind = halfGood + grindPad
+  const clampedCenter = Math.max(halfGrind + 0.03, Math.min(1 - halfGrind - 0.03, center))
+
+  return {
+    center: clampedCenter,
+    grindStart: clampedCenter - halfGrind,
+    grindEnd: clampedCenter + halfGrind,
+    goodStart: clampedCenter - halfGood,
+    goodEnd: clampedCenter + halfGood,
+    perfectStart: clampedCenter - halfPerfect,
+    perfectEnd: clampedCenter + halfPerfect,
+    speed,
+  }
+}
+
+const pickNextCenter = (nextLevel: number): number => {
+  if (nextLevel < 2) return 0.5
+  return 0.32 + Math.random() * 0.36
 }
 
 const loadSavedStats = (): SavedMiniGameStats => {
@@ -164,37 +90,32 @@ const loadSavedStats = (): SavedMiniGameStats => {
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<SavedMiniGameStats>
       return {
-        xp: typeof parsed.xp === 'number' ? parsed.xp : 0,
-        bestWeightLbs: typeof parsed.bestWeightLbs === 'number' ? parsed.bestWeightLbs : 0,
+        bestPrLbs: typeof parsed.bestPrLbs === 'number' ? parsed.bestPrLbs : 0,
         bestStreak: typeof parsed.bestStreak === 'number' ? parsed.bestStreak : 0,
-        bestAmrapReps: typeof parsed.bestAmrapReps === 'number' ? parsed.bestAmrapReps : 0,
+      }
+    }
+    const legacy = window.localStorage.getItem('progress-tracker:lift-minigame-stats:v1')
+    if (legacy) {
+      const parsed = JSON.parse(legacy) as { bestWeightLbs?: number; bestStreak?: number }
+      return {
+        bestPrLbs: typeof parsed.bestWeightLbs === 'number' ? parsed.bestWeightLbs : 0,
+        bestStreak: typeof parsed.bestStreak === 'number' ? parsed.bestStreak : 0,
       }
     }
   } catch {
     // Ignore storage errors
   }
-  return { xp: 0, bestWeightLbs: 0, bestStreak: 0, bestAmrapReps: 0 }
+  return { bestPrLbs: 0, bestStreak: 0 }
 }
 
-const getRankForXp = (xp: number): { current: LifterRank; next: LifterRank | null; progressPct: number } => {
-  let current = LIFTER_RANKS[0]
-  for (const r of LIFTER_RANKS) {
-    if (xp >= r.minXp) current = r
-  }
-  const idx = LIFTER_RANKS.indexOf(current)
-  const next = idx < LIFTER_RANKS.length - 1 ? LIFTER_RANKS[idx + 1] : null
-  if (!next) return { current, next: null, progressPct: 100 }
-  const span = Math.max(1, next.minXp - current.minXp)
-  const progressPct = Math.min(100, Math.round(((xp - current.minXp) / span) * 100))
-  return { current, next, progressPct }
-}
-
-const numberFormatter = new Intl.NumberFormat()
-
-// Lightweight WebAudio synthesizer for optional gym sound effects
-const playGymTone = (kind: 'pump' | 'lockout' | 'crit' | 'plate' | 'buff', soundEnabled: boolean) => {
+const playGymTone = (
+  kind: 'clean' | 'perfect' | 'grind' | 'plate' | 'miss',
+  soundEnabled: boolean
+) => {
   if (!soundEnabled || typeof window === 'undefined') return
-  const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+  const AudioCtx =
+    window.AudioContext ||
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
   if (!AudioCtx) return
   try {
     const ctx = new AudioCtx()
@@ -204,15 +125,7 @@ const playGymTone = (kind: 'pump' | 'lockout' | 'crit' | 'plate' | 'buff', sound
     osc.connect(gain)
     gain.connect(ctx.destination)
 
-    if (kind === 'pump') {
-      osc.type = 'triangle'
-      osc.frequency.setValueAtTime(140, now)
-      osc.frequency.exponentialRampToValueAtTime(240, now + 0.07)
-      gain.gain.setValueAtTime(0.05, now)
-      gain.gain.linearRampToValueAtTime(0.001, now + 0.07)
-      osc.start(now)
-      osc.stop(now + 0.07)
-    } else if (kind === 'lockout') {
+    if (kind === 'clean') {
       osc.type = 'sine'
       osc.frequency.setValueAtTime(330, now)
       osc.frequency.exponentialRampToValueAtTime(523.25, now + 0.16)
@@ -220,7 +133,7 @@ const playGymTone = (kind: 'pump' | 'lockout' | 'crit' | 'plate' | 'buff', sound
       gain.gain.linearRampToValueAtTime(0.001, now + 0.16)
       osc.start(now)
       osc.stop(now + 0.16)
-    } else if (kind === 'crit') {
+    } else if (kind === 'perfect') {
       osc.type = 'triangle'
       osc.frequency.setValueAtTime(440, now)
       osc.frequency.exponentialRampToValueAtTime(880, now + 0.22)
@@ -228,24 +141,32 @@ const playGymTone = (kind: 'pump' | 'lockout' | 'crit' | 'plate' | 'buff', sound
       gain.gain.linearRampToValueAtTime(0.001, now + 0.22)
       osc.start(now)
       osc.stop(now + 0.22)
+    } else if (kind === 'grind') {
+      osc.type = 'triangle'
+      osc.frequency.setValueAtTime(160, now)
+      osc.frequency.exponentialRampToValueAtTime(270, now + 0.06)
+      gain.gain.setValueAtTime(0.05, now)
+      gain.gain.linearRampToValueAtTime(0.001, now + 0.06)
+      osc.start(now)
+      osc.stop(now + 0.06)
     } else if (kind === 'plate') {
       osc.type = 'square'
-      osc.frequency.setValueAtTime(110, now)
-      osc.frequency.exponentialRampToValueAtTime(65, now + 0.08)
-      gain.gain.setValueAtTime(0.04, now)
-      gain.gain.linearRampToValueAtTime(0.001, now + 0.08)
+      osc.frequency.setValueAtTime(125, now)
+      osc.frequency.exponentialRampToValueAtTime(75, now + 0.07)
+      gain.gain.setValueAtTime(0.035, now)
+      gain.gain.linearRampToValueAtTime(0.001, now + 0.07)
       osc.start(now)
-      osc.stop(now + 0.08)
-    } else if (kind === 'buff') {
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(261.6, now)
-      osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.2)
+      osc.stop(now + 0.07)
+    } else {
+      osc.type = 'sawtooth'
+      osc.frequency.setValueAtTime(140, now)
+      osc.frequency.exponentialRampToValueAtTime(55, now + 0.22)
       gain.gain.setValueAtTime(0.06, now)
-      gain.gain.linearRampToValueAtTime(0.001, now + 0.2)
+      gain.gain.linearRampToValueAtTime(0.001, now + 0.22)
       osc.start(now)
-      osc.stop(now + 0.2)
+      osc.stop(now + 0.22)
     }
-    setTimeout(() => {
+    window.setTimeout(() => {
       ctx.close().catch(() => {})
     }, 300)
   } catch {
@@ -266,68 +187,56 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
   })
 
   const [savedStats, setSavedStats] = useState<SavedMiniGameStats>(loadSavedStats)
-  const [liftMode, setLiftMode] = useState<LiftMode>('bench')
-  const [tierIndex, setTierIndex] = useState(1) // Default 225 lbs (2 plates)
-  const [repCount, setRepCount] = useState(0)
-  const [totalVolume, setTotalVolume] = useState(0)
+  const [liftStyle, setLiftStyle] = useState<LiftStyle>('ohp')
+  const [level, setLevel] = useState(0)
   const [streak, setStreak] = useState(0)
-  const [liftHeight, setLiftHeight] = useState(0) // 0 (bottom) to 1 (lockout)
-  const [stamina, setStamina] = useState(100) // 0..100
-  const [overdriveCharge, setOverdriveCharge] = useState(0) // 0..100
-  const [overdriveActive, setOverdriveActive] = useState(false)
-  const [chalkRemaining, setChalkRemaining] = useState(0) // seconds
-  const [pulsePos, setPulsePos] = useState(0.5) // 0..1 oscillating sweet-spot meter
-  const [phase, setPhase] = useState<'IDLE' | 'LIFTING' | 'LOCKOUT'>('IDLE')
-  const [lastRepCrit, setLastRepCrit] = useState(false)
-  const [statusMessage, setStatusMessage] = useState('Tap LIFT or click the stage to press! Hit the Gold Pulse for 2× CRIT!')
-  const [isHolding, setIsHolding] = useState(false)
+  const [zoneCenter, setZoneCenter] = useState(0.5)
+  const [needlePos, setNeedlePos] = useState(0.5)
+  const [liftHeight, setLiftHeight] = useState(0)
+  const [animPhase, setAnimPhase] = useState<AnimPhase>('READY')
+  const [lastHitPerfect, setLastHitPerfect] = useState(false)
   const [soundEnabled, setSoundEnabled] = useState(false)
   const [popups, setPopups] = useState<FloatingPopup[]>([])
+  const [sparks, setSparks] = useState<Spark[]>([])
+  const [statusHint, setStatusHint] = useState('Press in the green zone — amber triggers a grind!')
 
-  // 30-second AMRAP Blitz Challenge state
-  const [amrapActive, setAmrapActive] = useState(false)
-  const [amrapSecondsLeft, setAmrapSecondsLeft] = useState(0)
-  const [amrapReps, setAmrapReps] = useState(0)
-
-  const tier = WEIGHT_TIERS[tierIndex] ?? WEIGHT_TIERS[1]
-  const modeConfig = LIFT_MODES.find((m) => m.id === liftMode) ?? LIFT_MODES[0]
-  const rankInfo = getRankForXp(savedStats.xp)
+  const weightLbs = getWeightForLevel(level)
+  const zone = getZoneConfig(level, zoneCenter)
+  const plates = getPlatesForWeight(weightLbs)
+  const isOnFire = streak >= 3
+  const currentStyle = LIFT_STYLES.find((s) => s.id === liftStyle) ?? LIFT_STYLES[0]
 
   const popupIdRef = useRef(1)
   const spawnPopup = useCallback((text: string, color: string, subtext?: string) => {
     const id = popupIdRef.current++
-    const x = 135 + ((id * 37) % 110)
-    setPopups((prev) => [...prev.slice(-3), { id, text, subtext, color, x }])
+    setPopups((prev) => [...prev.slice(-2), { id, text, subtext, color }])
     window.setTimeout(() => {
       setPopups((prev) => prev.filter((p) => p.id !== id))
-    }, 1050)
+    }, 950)
   }, [])
 
-  const stateRef = useRef({
-    height: 0,
-    velocity: 0,
-    stamina: 100,
-    overdriveCharge: 0,
-    overdriveActive: false,
-    overdriveTimer: 0,
-    chalkTimer: 0,
-    pulsePhase: 0,
-    pulseValue: 0.5,
-    phase: 'IDLE' as 'IDLE' | 'LIFTING' | 'LOCKOUT',
-    lockoutTimer: 0,
-    holding: false,
-    tier,
-    modeConfig,
-    amrapActive: false,
-    amrapTimer: 0,
-    soundEnabled: false,
-  })
-
-  useEffect(() => {
-    stateRef.current.tier = tier
-    stateRef.current.modeConfig = modeConfig
-    stateRef.current.soundEnabled = soundEnabled
-  }, [tier, modeConfig, soundEnabled])
+  const spawnSparks = useCallback((isPerfect: boolean) => {
+    const count = isPerfect ? 10 : 6
+    const colors = isPerfect
+      ? ['#fbbf24', '#f59e0b', '#fef08a', '#2dd4bf']
+      : ['#2dd4bf', '#38bdf8', '#a3e635']
+    const batch: Spark[] = Array.from({ length: count }).map((_, i) => {
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4
+      const dist = 26 + Math.random() * 34
+      return {
+        id: popupIdRef.current++,
+        x: 180,
+        y: 66,
+        dx: Math.cos(angle) * dist,
+        dy: Math.sin(angle) * dist * 0.65 - 10,
+        color: colors[i % colors.length],
+      }
+    })
+    setSparks(batch)
+    window.setTimeout(() => {
+      setSparks([])
+    }, 520)
+  }, [])
 
   const persistStats = useCallback((updater: (prev: SavedMiniGameStats) => SavedMiniGameStats) => {
     setSavedStats((prev) => {
@@ -353,174 +262,105 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
     })
   }, [])
 
-  const completeRep = useCallback(
-    (weightLbs: number, xpBase: number) => {
-      const st = stateRef.current
-      // Sweet spot window is 0.36..0.64 in pulseValue (or automatic during Overdrive)
-      const isSweetSpot = st.overdriveActive || (st.pulseValue >= 0.36 && st.pulseValue <= 0.64)
-      const multiplier = isSweetSpot ? 2 : 1
-      const earnedXp = xpBase * multiplier
+  const engineRef = useRef({
+    phase: 'READY' as AnimPhase,
+    animTime: 0,
+    grindHeight: 0.48,
+    needlePhase: 0,
+    needlePos: 0.5,
+    level: 0,
+    streak: 0,
+    zoneCenter: 0.5,
+    pendingNextLevel: 0,
+    soundEnabled: false,
+    bestPrLbs: savedStats.bestPrLbs,
+  })
 
-      setLastRepCrit(isSweetSpot)
-      setRepCount((c) => c + 1)
-      setTotalVolume((v) => v + weightLbs)
+  useEffect(() => {
+    engineRef.current.soundEnabled = soundEnabled
+    engineRef.current.bestPrLbs = savedStats.bestPrLbs
+  }, [soundEnabled, savedStats.bestPrLbs])
 
-      if (st.amrapActive) {
-        setAmrapReps((r) => {
-          const nextAmrap = r + 1
-          persistStats((prev) => ({
-            ...prev,
-            bestAmrapReps: Math.max(prev.bestAmrapReps, nextAmrap),
-          }))
-          return nextAmrap
-        })
-      }
+  const completeLift = useCallback(
+    (kind: 'perfect' | 'clean' | 'clutch') => {
+      const eng = engineRef.current
+      const currentWeight = getWeightForLevel(eng.level)
+      const nextStreak = eng.streak + 1
+      const nextLevel = eng.level + 1
+      const isPerfect = kind === 'perfect'
 
-      if (!st.overdriveActive) {
-        const nextCharge = Math.min(100, st.overdriveCharge + (isSweetSpot ? 34 : 20))
-        st.overdriveCharge = nextCharge
-        setOverdriveCharge(nextCharge)
-      }
+      eng.streak = nextStreak
+      eng.pendingNextLevel = nextLevel
+      eng.phase = 'HIT'
+      eng.animTime = kind === 'clutch' ? 0.2 : 0
 
-      setStreak((s) => {
-        const nextStreak = s + 1
-        const isNewPr = weightLbs > savedStats.bestWeightLbs
+      setStreak(nextStreak)
+      setAnimPhase('HIT')
+      setLastHitPerfect(isPerfect)
+      spawnSparks(isPerfect || kind === 'clutch')
 
-        persistStats((prev) => ({
-          ...prev,
-          xp: prev.xp + earnedXp,
-          bestWeightLbs: Math.max(prev.bestWeightLbs, weightLbs),
-          bestStreak: Math.max(prev.bestStreak, nextStreak),
-        }))
+      const isNewPr = currentWeight > eng.bestPrLbs
+      persistStats((prev) => ({
+        bestPrLbs: Math.max(prev.bestPrLbs, currentWeight),
+        bestStreak: Math.max(prev.bestStreak, nextStreak),
+      }))
 
-        if (isNewPr) {
-          spawnPopup(`NEW PR! ${weightLbs} LBS`, '#f59e0b', `+${earnedXp} XP`)
-        } else if (isSweetSpot) {
-          spawnPopup(`PERFECT LOCKOUT ×2!`, '#2dd4bf', `+${weightLbs} lbs • +${earnedXp} XP`)
-        } else {
-          spawnPopup(`+${weightLbs} LBS`, '#38bdf8', `+${earnedXp} XP`)
-        }
-
-        setStatusMessage(
-          isSweetSpot
-            ? `CRIT LOCKOUT! +${weightLbs} lbs (+${earnedXp} XP) • ${nextStreak}× Streak!`
-            : `LOCKOUT COMPLETE! +${weightLbs} lbs (+${earnedXp} XP)`
+      if (isNewPr) {
+        spawnPopup(
+          `NEW PR! ${currentWeight} LBS 🏆`,
+          '#f59e0b',
+          kind === 'clutch' ? 'CLUTCH GRIND SAVE!' : isPerfect ? 'PERFECT LOCKOUT!' : 'CLEAN LOCKOUT!'
         )
-        return nextStreak
-      })
+        setStatusHint(`NEW PR! Locked out ${currentWeight} lbs!`)
+      } else if (kind === 'clutch') {
+        spawnPopup('CLUTCH SAVE! 😤', '#f59e0b', `${currentWeight} lbs grinded out!`)
+        setStatusHint(`Clutch grind at ${currentWeight} lbs!`)
+      } else if (isPerfect) {
+        spawnPopup('PERFECT! 🔥', '#fbbf24', `${currentWeight} lbs • ${nextStreak}× Streak`)
+        setStatusHint(`PERFECT! Crushed ${currentWeight} lbs!`)
+      } else {
+        spawnPopup('CLEAN REP! 💪', '#2dd4bf', `${currentWeight} lbs`)
+        setStatusHint(`Clean lift at ${currentWeight} lbs!`)
+      }
 
-      playGymTone(isSweetSpot ? 'crit' : 'lockout', st.soundEnabled)
+      playGymTone(isPerfect || isNewPr || kind === 'clutch' ? 'perfect' : 'clean', eng.soundEnabled)
     },
-    [persistStats, savedStats.bestWeightLbs, spawnPopup]
+    [persistStats, spawnPopup, spawnSparks]
   )
 
-  const triggerPump = useCallback(() => {
-    if (!enabled) return
-    const st = stateRef.current
-    if (st.phase === 'LOCKOUT') return
+  const failLift = useCallback(
+    (reason: string) => {
+      const eng = engineRef.current
+      const currentWeight = getWeightForLevel(eng.level)
+      eng.streak = 0
+      eng.phase = 'MISS'
+      eng.animTime = 0
 
-    // Calculate buffs
-    const chalkBoost = st.chalkTimer > 0 ? 1.28 : 1.0
-    const overdriveBoost = st.overdriveActive ? 1.65 : 1.0
-    const staminaFactor = st.stamina < 20 ? 0.62 : 1.0
+      setStreak(0)
+      setAnimPhase('MISS')
+      setLastHitPerfect(false)
+      spawnPopup('MISSED!', '#fb7185', `${reason} ${currentWeight} lbs`)
+      setStatusHint(`${reason} ${currentWeight} lbs — resetting to 135 lbs!`)
+      playGymTone('miss', eng.soundEnabled)
+    },
+    [spawnPopup]
+  )
 
-    const impulse =
-      st.tier.pumpImpulse *
-      st.modeConfig.driveMultiplier *
-      chalkBoost *
-      overdriveBoost *
-      staminaFactor
-
-    // Drain stamina slightly unless in overdrive
-    if (!st.overdriveActive) {
-      const cost = st.tier.staminaCost * (st.chalkTimer > 0 ? 0.65 : 1.0) * 0.45
-      st.stamina = Math.max(5, st.stamina - cost)
-      setStamina(Math.round(st.stamina))
-    }
-
-    st.phase = 'LIFTING'
-    setPhase('LIFTING')
-    const nextHeight = Math.min(1, st.height + impulse)
-    st.height = nextHeight
-    st.velocity = Math.max(st.velocity, 0.45)
-
-    playGymTone('pump', st.soundEnabled)
-
-    if (nextHeight >= 0.91) {
-      st.height = 1
-      st.velocity = 0
-      st.phase = 'LOCKOUT'
-      st.lockoutTimer = 0.42
-      setPhase('LOCKOUT')
-      setLiftHeight(1)
-      completeRep(st.tier.weightLbs, st.tier.xpReward)
-    } else {
-      setLiftHeight(nextHeight)
-      setStatusMessage(
-        `Driving ${st.tier.weightLbs} lbs ${st.modeConfig.shortName}... (${Math.round(nextHeight * 100)}%)`
-      )
-    }
-  }, [completeRep, enabled])
-
-  const handleActivateChalk = () => {
-    const st = stateRef.current
-    st.chalkTimer = 8.0
-    st.stamina = Math.min(100, st.stamina + 35)
-    setChalkRemaining(8)
-    setStamina(Math.round(st.stamina))
-    setStatusMessage('CHALKED UP! +28% Grip Drive & +35% Stamina restored!')
-    spawnPopup('CHALKED UP! +GRIP', '#38bdf8', '8s Boost Active')
-    playGymTone('buff', st.soundEnabled)
-  }
-
-  const handleActivateOverdrive = () => {
-    const st = stateRef.current
-    if (st.overdriveCharge < 100 && !st.overdriveActive) {
-      // Act as Spotter Boost if not at 100% yet: give instant stamina & upward bump
-      st.stamina = 100
-      setStamina(100)
-      if (st.phase !== 'LOCKOUT' && st.height > 0 && st.height < 0.9) {
-        st.height = Math.min(0.9, st.height + 0.25)
-        setLiftHeight(st.height)
-      }
-      spawnPopup('SPOTTER ASSIST!', '#a855f7', 'Stamina 100%')
-      setStatusMessage('Spotter hyped you up! Stamina refilled to 100%!')
-      playGymTone('buff', st.soundEnabled)
-      return
-    }
-    st.overdriveActive = true
-    st.overdriveTimer = 7.0
-    st.overdriveCharge = 0
-    st.stamina = 100
-    setOverdriveActive(true)
-    setOverdriveCharge(0)
-    setStamina(100)
-    spawnPopup('REACTOR OVERDRIVE!', '#f59e0b', '2× Speed & Auto-Crit!')
-    setStatusMessage('REACTOR OVERDRIVE ENGAGED! Unlimited Stamina + Auto 2× CRIT for 7s!')
-    playGymTone('crit', st.soundEnabled)
-  }
-
-  const handleToggleAmrap = () => {
-    const st = stateRef.current
-    if (st.amrapActive) {
-      st.amrapActive = false
-      st.amrapTimer = 0
-      setAmrapActive(false)
-      setAmrapSecondsLeft(0)
-      setStatusMessage(`AMRAP ended at ${amrapReps} reps!`)
-      return
-    }
-    st.amrapActive = true
-    st.amrapTimer = 30.0
-    st.stamina = 100
-    setAmrapActive(true)
-    setAmrapSecondsLeft(30)
-    setAmrapReps(0)
-    setStamina(100)
-    spawnPopup('30s AMRAP START!', '#fb7185', 'Max reps in 30s!')
-    setStatusMessage('30s AMRAP BLITZ! Hit as many lockouts as possible!')
-    playGymTone('buff', st.soundEnabled)
-  }
+  const adjustLevel = useCallback(
+    (delta: number) => {
+      const eng = engineRef.current
+      if (eng.phase !== 'READY') return
+      const next = Math.max(0, Math.min(12, eng.level + delta))
+      if (next === eng.level) return
+      eng.level = next
+      eng.zoneCenter = pickNextCenter(next)
+      setLevel(next)
+      setZoneCenter(eng.zoneCenter)
+      setStatusHint(`Loaded ${getWeightForLevel(next)} lbs — ready to lift!`)
+      playGymTone('plate', eng.soundEnabled)
+    },
+    []
+  )
 
   useEffect(() => {
     if (!enabled) return
@@ -528,168 +368,162 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
     let rafId = 0
     let lastTime = performance.now()
 
-    const step = (now: number) => {
+    const tick = (now: number) => {
       const dt = Math.min(0.05, (now - lastTime) / 1000)
       lastTime = now
-      const st = stateRef.current
+      const eng = engineRef.current
 
-      // Oscillate sweet-spot timing pulse
-      st.pulsePhase += dt * 2.5
-      st.pulseValue = (Math.sin(st.pulsePhase) + 1) * 0.5
-      setPulsePos(st.pulseValue)
-
-      // Update Chalk timer
-      if (st.chalkTimer > 0) {
-        const prevCeil = Math.ceil(st.chalkTimer)
-        st.chalkTimer = Math.max(0, st.chalkTimer - dt)
-        const nextCeil = Math.ceil(st.chalkTimer)
-        if (nextCeil !== prevCeil) setChalkRemaining(nextCeil)
-      }
-
-      // Update Overdrive timer
-      if (st.overdriveActive) {
-        st.overdriveTimer = Math.max(0, st.overdriveTimer - dt)
-        if (st.overdriveTimer <= 0) {
-          st.overdriveActive = false
-          setOverdriveActive(false)
+      if (eng.phase === 'READY') {
+        const cfg = getZoneConfig(eng.level, eng.zoneCenter)
+        eng.needlePhase += dt * cfg.speed
+        eng.needlePos = (Math.sin(eng.needlePhase) + 1) * 0.5
+        setNeedlePos(eng.needlePos)
+      } else if (eng.phase === 'GRIND') {
+        // Gravity pulls the bar down while you tap fast to save the lift
+        const gravity = Math.min(0.52, 0.30 + eng.level * 0.024)
+        eng.grindHeight = Math.max(0, eng.grindHeight - gravity * dt)
+        setLiftHeight(eng.grindHeight)
+        if (eng.grindHeight <= 0.03) {
+          failLift('Dropped')
         }
-      }
-
-      // Update AMRAP timer
-      if (st.amrapActive) {
-        const prevSec = Math.ceil(st.amrapTimer)
-        st.amrapTimer = Math.max(0, st.amrapTimer - dt)
-        const nextSec = Math.ceil(st.amrapTimer)
-        if (nextSec !== prevSec) setAmrapSecondsLeft(nextSec)
-        if (st.amrapTimer <= 0) {
-          st.amrapActive = false
-          setAmrapActive(false)
-          setStatusMessage('AMRAP TIME UP! Great set on the platform!')
-        }
-      }
-
-      // Regenerate stamina when not holding
-      if (!st.holding && st.stamina < 100) {
-        st.stamina = Math.min(100, st.stamina + 22 * dt)
-        setStamina(Math.round(st.stamina))
-      }
-
-      if (st.phase === 'LOCKOUT') {
-        st.lockoutTimer -= dt
-        if (st.lockoutTimer <= 0) {
-          st.phase = 'IDLE'
-          st.height = 0
-          st.velocity = 0
-          setPhase('IDLE')
-          setLiftHeight(0)
-        }
-      } else if (st.holding || st.height > 0) {
-        if (st.holding) {
-          st.phase = 'LIFTING'
-          const chalkBoost = st.chalkTimer > 0 ? 1.25 : 1.0
-          const overdriveBoost = st.overdriveActive ? 1.65 : 1.0
-          const staminaFactor = st.stamina < 15 ? 0.55 : 1.0
-          const drive =
-            st.tier.holdDrive *
-            st.modeConfig.driveMultiplier *
-            chalkBoost *
-            overdriveBoost *
-            staminaFactor
-
-          if (!st.overdriveActive) {
-            st.stamina = Math.max(5, st.stamina - st.tier.staminaCost * 0.7 * dt)
-            setStamina(Math.round(st.stamina))
-          }
-
-          st.height = Math.min(1, st.height + drive * dt)
-          if (st.height >= 0.91) {
-            st.height = 1
-            st.velocity = 0
-            st.phase = 'LOCKOUT'
-            st.lockoutTimer = 0.42
-            setPhase('LOCKOUT')
-            setLiftHeight(1)
-            completeRep(st.tier.weightLbs, st.tier.xpReward)
-          } else {
-            setPhase('LIFTING')
-            setLiftHeight(st.height)
-          }
+      } else if (eng.phase === 'HIT') {
+        eng.animTime += dt
+        if (eng.animTime < 0.24) {
+          const t = eng.animTime / 0.24
+          const eased = 1 - Math.pow(1 - t, 3)
+          setLiftHeight(eased)
+        } else if (eng.animTime < 0.62) {
+          setLiftHeight(1)
+        } else if (eng.animTime < 0.78) {
+          const t = (eng.animTime - 0.62) / 0.16
+          setLiftHeight(1 - t)
         } else {
-          // Gravity pulls bar back down if not locked out
-          const grav = st.tier.gravity * st.modeConfig.gravityMultiplier
-          st.height = Math.max(0, st.height - grav * dt)
-          setLiftHeight(st.height)
-          if (st.height === 0 && st.phase === 'LIFTING') {
-            st.phase = 'IDLE'
-            setPhase('IDLE')
-            setStreak(0)
-            setStatusMessage('Barbell racked. Tap LIFT to press again!')
-          }
+          const nextLvl = eng.pendingNextLevel
+          const nextCenter = pickNextCenter(nextLvl)
+          eng.level = nextLvl
+          eng.zoneCenter = nextCenter
+          eng.phase = 'READY'
+          eng.animTime = 0
+          setLevel(nextLvl)
+          setZoneCenter(nextCenter)
+          setAnimPhase('READY')
+          setLiftHeight(0)
+          setStatusHint(`Next up: ${getWeightForLevel(nextLvl)} lbs — time the green zone!`)
+        }
+      } else if (eng.phase === 'MISS') {
+        eng.animTime += dt
+        if (eng.animTime < 0.14) {
+          const t = eng.animTime / 0.14
+          setLiftHeight(t * 0.24)
+        } else if (eng.animTime < 0.34) {
+          const t = (eng.animTime - 0.14) / 0.2
+          setLiftHeight(0.24 * (1 - t * t))
+        } else if (eng.animTime < 0.58) {
+          setLiftHeight(0)
+        } else {
+          eng.level = 0
+          eng.zoneCenter = 0.5
+          eng.phase = 'READY'
+          eng.animTime = 0
+          setLevel(0)
+          setZoneCenter(0.5)
+          setAnimPhase('READY')
+          setLiftHeight(0)
+          setStatusHint('Reset to 135 lbs. Press in the green zone!')
         }
       }
 
-      rafId = window.requestAnimationFrame(step)
+      rafId = window.requestAnimationFrame(tick)
     }
 
-    rafId = window.requestAnimationFrame(step)
+    rafId = window.requestAnimationFrame(tick)
     return () => window.cancelAnimationFrame(rafId)
-  }, [completeRep, enabled])
+  }, [enabled, failLift])
 
-  const handleReset = () => {
-    stateRef.current.height = 0
-    stateRef.current.velocity = 0
-    stateRef.current.phase = 'IDLE'
-    stateRef.current.stamina = 100
-    setLiftHeight(0)
-    setPhase('IDLE')
-    setRepCount(0)
-    setTotalVolume(0)
-    setStreak(0)
-    setStamina(100)
-    setStatusMessage('Session telemetry zeroed. Ready to lift!')
-  }
+  const handlePress = useCallback(() => {
+    if (!enabled) return
+    const eng = engineRef.current
 
-  // Compute 2D SVG geometry based on LiftMode & liftHeight (0..1)
-  const startY = liftMode === 'deadlift' ? 196 : liftMode === 'ohp' ? 156 : 178
-  const endY = liftMode === 'deadlift' ? 116 : liftMode === 'ohp' ? 58 : 72
+    // Interactive GRIND battle: rapid taps push the bar past the sticking point!
+    if (eng.phase === 'GRIND') {
+      const tapPower = Math.max(0.14, 0.21 - eng.level * 0.006)
+      eng.grindHeight = Math.min(1, eng.grindHeight + tapPower)
+      setLiftHeight(eng.grindHeight)
+      playGymTone('grind', eng.soundEnabled)
+
+      if (eng.grindHeight >= 0.96) {
+        completeLift('clutch')
+      }
+      return
+    }
+
+    if (eng.phase !== 'READY') return
+
+    const cfg = getZoneConfig(eng.level, eng.zoneCenter)
+    const pos = eng.needlePos
+
+    const isPerfect = pos >= cfg.perfectStart && pos <= cfg.perfectEnd
+    const isGood = pos >= cfg.goodStart && pos <= cfg.goodEnd
+    const isGrind = pos >= cfg.grindStart && pos <= cfg.grindEnd
+
+    if (isPerfect) {
+      completeLift('perfect')
+    } else if (isGood) {
+      completeLift('clean')
+    } else if (isGrind) {
+      eng.phase = 'GRIND'
+      eng.grindHeight = 0.46
+      setAnimPhase('GRIND')
+      setLiftHeight(0.46)
+      spawnPopup('STICKING POINT!', '#f59e0b', 'TAP FAST TO GRIND!')
+      setStatusHint('GRIND IT OUT! Tap PRESS or Space rapidly!')
+      playGymTone('grind', eng.soundEnabled)
+    } else {
+      failLift('Stalled at')
+    }
+  }, [completeLift, enabled, failLift, spawnPopup])
+
+  // Visual geometry based on LiftStyle & liftHeight (0..1)
+  const startY = liftStyle === 'deadlift' ? 186 : liftStyle === 'bench' ? 168 : 148
+  const endY = liftStyle === 'deadlift' ? 112 : liftStyle === 'bench' ? 74 : 58
   const barY = startY - liftHeight * (startY - endY)
 
-  // Add subtle grinder tremor when lifting heavy at mid-range
-  const isGrinding = phase === 'LIFTING' && liftHeight > 0.35 && (tierIndex >= 3 || stamina < 35)
-  const tremorX = isGrinding ? Math.sin(liftHeight * 45) * 2.2 : 0
+  const isLockedOut = animPhase === 'HIT' && liftHeight > 0.92
+  const isGrinding = animPhase === 'GRIND'
+  const isMissed = animPhase === 'MISS'
+  const tremorX = isGrinding ? Math.sin(liftHeight * 60) * 2.8 : 0
 
-  const strainBend =
-    phase === 'LOCKOUT'
-      ? 3 + tier.platesPerSide * 1.4
-      : liftHeight > 0.08
-        ? (2 + tier.platesPerSide * 1.8) * Math.sin(liftHeight * Math.PI)
-        : 1
+  const plateCount = plates.length
+  const barFlex = isLockedOut
+    ? 2 + plateCount * 1.1
+    : liftHeight > 0.05
+      ? (2.5 + plateCount * 1.6) * Math.sin(liftHeight * Math.PI)
+      : 1
 
-  const gripLeftX = (liftMode === 'deadlift' ? 142 : 118) + tremorX
-  const gripRightX = (liftMode === 'deadlift' ? 218 : 242) + tremorX
+  const gripLeftX = (liftStyle === 'deadlift' ? 142 : 118) + tremorX
+  const gripRightX = (liftStyle === 'deadlift' ? 218 : 242) + tremorX
   const shoulderLeftX = 152 + tremorX * 0.5
   const shoulderRightX = 208 + tremorX * 0.5
   const shoulderY =
-    liftMode === 'deadlift'
-      ? 148 - liftHeight * 24
-      : liftMode === 'ohp'
-        ? 148
-        : 188
-
+    liftStyle === 'deadlift'
+      ? 144 - liftHeight * 22
+      : liftStyle === 'bench'
+        ? 178
+        : 144
   const headY =
-    liftMode === 'deadlift'
-      ? 122 - liftHeight * 24
-      : liftMode === 'ohp'
-        ? 120 - liftHeight * 3
-        : 165 - liftHeight * 4
-
-  const elbowFlare = (1 - liftHeight) * (liftMode === 'deadlift' ? 10 : 26) + 6
-  const elbowY = (barY + shoulderY) * 0.5 + (1 - liftHeight) * (liftMode === 'deadlift' ? 6 : 18)
+    liftStyle === 'deadlift'
+      ? 118 - liftHeight * 22
+      : liftStyle === 'bench'
+        ? 156 - liftHeight * 3
+        : 117 - liftHeight * 3
+  const elbowFlare = (1 - liftHeight) * (liftStyle === 'deadlift' ? 10 : 24) + 5
+  const elbowY = (barY + shoulderY) * 0.5 + (1 - liftHeight) * (liftStyle === 'deadlift' ? 6 : 16)
   const elbowLeftX = gripLeftX - elbowFlare * 0.4
   const elbowRightX = gripRightX + elbowFlare * 0.4
 
-  const pct = Math.round(liftHeight * 100)
-  const isSweetSpotNow = overdriveActive || (pulsePos >= 0.36 && pulsePos <= 0.64)
+  const needleInPerfect = needlePos >= zone.perfectStart && needlePos <= zone.perfectEnd
+  const needleInGood = needlePos >= zone.goodStart && needlePos <= zone.goodEnd
+  const needleInGrind = needlePos >= zone.grindStart && needlePos <= zone.grindEnd
 
   if (!enabled) {
     return (
@@ -701,19 +535,15 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
           </div>
           <div className="miniGameDisabledTitle">Barbell Reactor Mini-Game Paused</div>
           <p className="miniGameDisabledText">
-            Enable the interactive 2D barbell mini-game to switch between Bench, OHP, and Deadlift, hit Sweet-Spot 2× Crits, and level up your Periodic Lifter Rank.
+            Enable the quick timing mini-game to test your reflexes, grind out heavy saves, and climb the PR ladder.
           </p>
-          <div className="miniGameSavedStats">
-            <span>
-              Lv.{rankInfo.current.level} [{rankInfo.current.symbol}] {rankInfo.current.title}
-            </span>
-            {savedStats.bestWeightLbs > 0 ? (
-              <>
-                <span>•</span>
-                <span>PR: {savedStats.bestWeightLbs} lbs</span>
-              </>
-            ) : null}
-          </div>
+          {savedStats.bestPrLbs > 0 ? (
+            <div className="miniGameSavedStats">
+              <span>Best PR: {savedStats.bestPrLbs} lbs</span>
+              <span>•</span>
+              <span>Best Streak: {savedStats.bestStreak}×</span>
+            </div>
+          ) : null}
           <button
             type="button"
             className="button primary miniGameToggleBtn"
@@ -729,27 +559,27 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
 
   return (
     <div className="miniGameShell" data-theme={theme}>
-      <div className={`miniGameCard ${overdriveActive ? 'miniGameCard--overdrive' : ''}`}>
-        {/* Top Bar with Rank Badge, Sound Toggle, and Enable/Disable Button */}
+      <div
+        className={`miniGameCard ${isOnFire || isGrinding ? 'miniGameCard--overdrive' : ''}`}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowUp' || e.key === '+' || e.key === '=') {
+            e.preventDefault()
+            adjustLevel(1)
+          } else if (e.key === 'ArrowDown' || e.key === '-') {
+            e.preventDefault()
+            adjustLevel(-1)
+          }
+        }}
+      >
+        {/* Top Bar */}
         <div className="miniGameHeader">
           <div className="miniGameTitleGroup">
             <span className="miniGameEyebrow">
               <span className="miniGameDot" aria-hidden="true" />
-              2D POWER LAB • #{modeConfig.atomicNum} {modeConfig.symbol}
+              PR TIMING CHALLENGE
             </span>
             <div className="miniGameTitleRow">
               <span className="miniGameTitle">Iron Press Mini-Game</span>
-              <span
-                className="miniGameRankPill"
-                style={{ '--rank-color': rankInfo.current.color } as React.CSSProperties}
-                title={
-                  rankInfo.next
-                    ? `${savedStats.xp} / ${rankInfo.next.minXp} XP to ${rankInfo.next.title}`
-                    : `${savedStats.xp} XP • Max Rank`
-                }
-              >
-                Lv.{rankInfo.current.level} {rankInfo.current.symbol}
-              </span>
             </div>
           </div>
 
@@ -775,99 +605,92 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
           </div>
         </div>
 
-        {/* Exercise Mode Selector + AMRAP Challenge Trigger */}
-        <div className="miniGameModeBar">
-          <div className="miniGameModeTabs" role="tablist" aria-label="Select lift movement">
-            {LIFT_MODES.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                role="tab"
-                aria-selected={liftMode === m.id}
-                className={`miniGameModeTab ${liftMode === m.id ? 'is-active' : ''}`}
-                onClick={() => {
-                  setLiftMode(m.id)
-                  stateRef.current.height = 0
-                  setLiftHeight(0)
-                  setPhase('IDLE')
-                  setStatusMessage(`Switched to ${m.fullName}. Tap LIFT to drive!`)
-                }}
-              >
-                <span className="miniGameModeSym">{m.symbol}</span>
-                <span>{m.shortName}</span>
-              </button>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            className={`miniGameAmrapBtn ${amrapActive ? 'is-active' : ''}`}
-            onClick={handleToggleAmrap}
-            title="30-Second As Many Reps As Possible Blitz"
-          >
-            {amrapActive ? `⏱ ${amrapSecondsLeft}s (${amrapReps})` : '⚡ 30s Blitz'}
-          </button>
+        {/* Compact Lift Style Selector */}
+        <div className="miniGameModeTabs" role="tablist" aria-label="Select lift style">
+          {LIFT_STYLES.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              role="tab"
+              aria-selected={liftStyle === s.id}
+              className={`miniGameModeTab ${liftStyle === s.id ? 'is-active' : ''}`}
+              onClick={() => {
+                setLiftStyle(s.id)
+                setStatusHint(`Switched to ${s.fullName} — press in the green zone!`)
+              }}
+            >
+              {s.label}
+            </button>
+          ))}
         </div>
 
-        {/* Live Telemetry Readout */}
-        <div className="miniGameHud" aria-label="Mini-game stats">
-          <div className="miniGameStat">
-            <span className="miniGameStatLabel">Reps</span>
-            <span className="miniGameStatValue">{repCount}</span>
-          </div>
-          <div className="miniGameStat">
+        {/* Clean 3-Stat HUD with Interactive Weight Adjuster */}
+        <div className="miniGameHud miniGameHud--simple" aria-label="Mini-game stats">
+          <div className="miniGameStat miniGameStat--weight">
             <span className="miniGameStatLabel">Bar Load</span>
-            <span className="miniGameStatValue">
-              {tier.weightLbs}
-              <small> lbs</small>
-            </span>
+            <div className="miniGameWeightStepRow">
+              <button
+                type="button"
+                className="miniGameStepBtn"
+                onClick={() => adjustLevel(-1)}
+                disabled={level === 0 || animPhase !== 'READY'}
+                aria-label="Decrease barbell weight"
+                title="Remove weight"
+              >
+                −
+              </button>
+              <span className="miniGameStatValue">
+                {weightLbs}
+                <small> lb</small>
+              </span>
+              <button
+                type="button"
+                className="miniGameStepBtn"
+                onClick={() => adjustLevel(1)}
+                disabled={level >= 12 || animPhase !== 'READY'}
+                aria-label="Increase barbell weight"
+                title="Add weight"
+              >
+                +
+              </button>
+            </div>
           </div>
           <div className="miniGameStat">
             <span className="miniGameStatLabel">Streak</span>
-            <span className="miniGameStatValue">{streak}×</span>
+            <span className="miniGameStatValue">
+              {streak}×{isOnFire ? ' 🔥' : ''}
+            </span>
           </div>
           <div className="miniGameStat">
             <span className="miniGameStatLabel">Best PR</span>
             <span className="miniGameStatValue">
-              {Math.max(savedStats.bestWeightLbs, repCount > 0 ? tier.weightLbs : 0)}
+              {savedStats.bestPrLbs}
               <small> lbs</small>
             </span>
           </div>
         </div>
 
-        {/* Interactive 2D SVG Weightlifting Stage */}
+        {/* Interactive 2D Stage */}
         <div
-          className={`miniGameStage ${phase === 'LOCKOUT' ? 'is-lockout' : ''} ${overdriveActive ? 'is-overdrive' : ''} ${isHolding ? 'is-holding' : ''}`}
+          className={`miniGameStage ${isLockedOut ? 'is-lockout' : ''} ${isOnFire || isGrinding ? 'is-overdrive' : ''} ${isMissed ? 'is-miss' : ''}`}
           role="button"
           tabIndex={0}
-          aria-label={`Lift ${tier.weightLbs} pound barbell (${modeConfig.fullName}). Current height ${pct} percent.`}
-          onClick={triggerPump}
-          onPointerDown={() => {
-            stateRef.current.holding = true
-            setIsHolding(true)
-          }}
-          onPointerUp={() => {
-            stateRef.current.holding = false
-            setIsHolding(false)
-          }}
-          onPointerLeave={() => {
-            stateRef.current.holding = false
-            setIsHolding(false)
-          }}
+          aria-label={`Press ${weightLbs} pound barbell (${currentStyle.fullName}). Tap or press Space in the green zone.`}
+          onClick={handlePress}
           onKeyDown={(e) => {
             if (e.key === ' ' || e.key === 'Enter') {
               e.preventDefault()
-              triggerPump()
+              handlePress()
             }
           }}
         >
-          {/* Floating Popups Overlay */}
+          {/* Floating Popups */}
           <div className="miniGamePopups" aria-hidden="true">
             {popups.map((p) => (
               <div
                 key={p.id}
                 className="miniGamePopupItem"
-                style={{ left: `${(p.x / 380) * 100}%`, '--popup-color': p.color } as React.CSSProperties}
+                style={{ left: '50%', '--popup-color': p.color } as React.CSSProperties}
               >
                 <strong>{p.text}</strong>
                 {p.subtext ? <span>{p.subtext}</span> : null}
@@ -875,66 +698,36 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
             ))}
           </div>
 
-          <svg viewBox="0 0 380 232" className="miniGameSvg" aria-hidden="true">
+          <svg viewBox="0 0 360 220" className="miniGameSvg" aria-hidden="true">
             <defs>
               <linearGradient id="rackPostGrad" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor={theme === 'light' ? '#64748b' : '#334155'} />
                 <stop offset="50%" stopColor={theme === 'light' ? '#94a3b8' : '#64748b'} />
                 <stop offset="100%" stopColor={theme === 'light' ? '#475569' : '#1e293b'} />
               </linearGradient>
-              <linearGradient id="lockoutZoneGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="0%"
-                  stopColor={overdriveActive ? 'rgba(245, 158, 11, 0.36)' : 'rgba(13, 148, 136, 0.24)'}
-                />
-                <stop offset="100%" stopColor="rgba(13, 148, 136, 0.04)" />
-              </linearGradient>
               <linearGradient id="barSteelGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={overdriveActive ? '#fef08a' : theme === 'light' ? '#64748b' : '#f8fafc'} />
-                <stop offset="50%" stopColor={overdriveActive ? '#f59e0b' : theme === 'light' ? '#334155' : '#94a3b8'} />
+                <stop offset="0%" stopColor={isOnFire || isGrinding ? '#fef08a' : theme === 'light' ? '#64748b' : '#f8fafc'} />
+                <stop offset="50%" stopColor={isOnFire || isGrinding ? '#f59e0b' : theme === 'light' ? '#334155' : '#94a3b8'} />
                 <stop offset="100%" stopColor={theme === 'light' ? '#0f172a' : '#475569'} />
               </linearGradient>
             </defs>
 
-            {/* Target Lockout Zone Banner */}
-            <rect
-              x="28"
-              y={endY - 16}
-              width="290"
-              height="30"
-              rx="6"
-              fill="url(#lockoutZoneGrad)"
-              stroke={overdriveActive ? 'rgba(245, 158, 11, 0.75)' : theme === 'light' ? 'rgba(5, 150, 105, 0.55)' : 'rgba(45, 212, 191, 0.45)'}
-              strokeDasharray="4 4"
-            />
-            <text
-              x="173"
-              y={endY + 2}
-              textAnchor="middle"
-              fill={overdriveActive ? (theme === 'light' ? '#d97706' : '#fbbf24') : theme === 'light' ? '#059669' : 'rgba(45, 212, 191, 0.9)'}
-              fontSize="8.5"
-              fontWeight="800"
-              letterSpacing="1.6"
-            >
-              {overdriveActive ? '⚡ REACTOR OVERDRIVE LOCKOUT ⚡' : '▲ LOCKOUT ZONE ▲'}
-            </text>
-
             {/* Power Rack Uprights */}
-            <rect x="78" y="28" width="10" height="184" rx="3" fill="url(#rackPostGrad)" />
-            <rect x="272" y="28" width="10" height="184" rx="3" fill="url(#rackPostGrad)" />
+            <rect x="76" y="26" width="10" height="178" rx="3" fill="url(#rackPostGrad)" />
+            <rect x="274" y="26" width="10" height="178" rx="3" fill="url(#rackPostGrad)" />
 
-            {/* Rack J-Hooks (for Bench & OHP) */}
-            {liftMode !== 'deadlift' && (
+            {/* Rack J-Hooks (OHP & Bench) */}
+            {liftStyle !== 'deadlift' && (
               <>
                 <path
-                  d={`M 88 ${startY - 2} L 98 ${startY - 2} L 98 ${startY - 10}`}
+                  d={`M 86 ${startY - 2} L 96 ${startY - 2} L 96 ${startY - 10}`}
                   fill="none"
                   stroke="#38bdf8"
                   strokeWidth="3.5"
                   strokeLinecap="round"
                 />
                 <path
-                  d={`M 272 ${startY - 2} L 262 ${startY - 2} L 262 ${startY - 10}`}
+                  d={`M 274 ${startY - 2} L 264 ${startY - 2} L 264 ${startY - 10}`}
                   fill="none"
                   stroke="#38bdf8"
                   strokeWidth="3.5"
@@ -946,19 +739,43 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
             {/* Floor Platform */}
             <line
               x1="20"
-              y1="212"
-              x2="326"
-              y2="212"
-              stroke={phase === 'LOCKOUT' ? '#2dd4bf' : 'rgba(148, 163, 184, 0.45)'}
+              y1="204"
+              x2="340"
+              y2="204"
+              stroke={
+                isMissed
+                  ? '#fb7185'
+                  : isGrinding
+                    ? '#f59e0b'
+                    : isLockedOut
+                      ? lastHitPerfect
+                        ? '#fbbf24'
+                        : '#2dd4bf'
+                      : 'rgba(148, 163, 184, 0.45)'
+              }
               strokeWidth="4"
               strokeLinecap="round"
             />
 
-            {/* Lifter Lower Body / Bench depending on LiftMode */}
-            {liftMode === 'bench' ? (
+            {/* Fire Streak / Grind Aura */}
+            {(isOnFire || isGrinding) && (
+              <ellipse
+                cx="180"
+                cy="152"
+                rx="60"
+                ry="42"
+                fill="none"
+                stroke="rgba(245, 158, 11, 0.45)"
+                strokeWidth="2"
+                strokeDasharray="6 4"
+              />
+            )}
+
+            {/* Lower Body / Bench */}
+            {liftStyle === 'bench' ? (
               <rect
                 x="144"
-                y="186"
+                y="176"
                 width="72"
                 height="24"
                 rx="8"
@@ -967,32 +784,17 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
                 strokeWidth="1.5"
               />
             ) : (
-              /* Standing Legs for OHP & Deadlift */
-              <g stroke="#475569" strokeWidth="7" strokeLinecap="round">
-                <line x1="164" y1="176" x2="154" y2="210" />
-                <line x1="196" y1="176" x2="206" y2="210" />
+              <g stroke="#475569" strokeWidth="7.5" strokeLinecap="round">
+                <line x1="164" y1="172" x2="154" y2="202" />
+                <line x1="196" y1="172" x2="206" y2="202" />
               </g>
-            )}
-
-            {/* Overdrive / Chalk Aura */}
-            {(overdriveActive || chalkRemaining > 0) && (
-              <ellipse
-                cx="180"
-                cy="165"
-                rx="64"
-                ry="44"
-                fill="none"
-                stroke={overdriveActive ? 'rgba(245, 158, 11, 0.4)' : 'rgba(56, 189, 248, 0.3)'}
-                strokeWidth="2"
-                strokeDasharray="6 4"
-              />
             )}
 
             {/* Lifter Torso */}
             <path
-              d={`M ${shoulderLeftX} ${shoulderY} Q 180 ${shoulderY - 10} ${shoulderRightX} ${shoulderY} L 200 ${liftMode === 'bench' ? 208 : 180} L 160 ${liftMode === 'bench' ? 208 : 180} Z`}
+              d={`M ${shoulderLeftX} ${shoulderY} Q 180 ${shoulderY - 10} ${shoulderRightX} ${shoulderY} L 200 ${liftStyle === 'bench' ? 198 : 176} L 160 ${liftStyle === 'bench' ? 198 : 176} Z`}
               fill="#1e293b"
-              stroke={overdriveActive ? '#f59e0b' : '#334155'}
+              stroke={isMissed ? '#fb7185' : isOnFire || isGrinding ? '#f59e0b' : '#334155'}
               strokeWidth="2"
             />
 
@@ -1003,56 +805,80 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
               r="13.5"
               fill="#0f172a"
               stroke={
-                overdriveActive
-                  ? '#f59e0b'
-                  : phase === 'LOCKOUT'
-                    ? '#2dd4bf'
-                    : '#38bdf8'
+                isMissed
+                  ? '#fb7185'
+                  : isOnFire || isGrinding
+                    ? '#f59e0b'
+                    : isLockedOut
+                      ? '#2dd4bf'
+                      : '#38bdf8'
               }
               strokeWidth="2.5"
             />
-            {/* Eyes */}
-            <circle cx={175 + tremorX * 0.5} cy={headY - 2} r="1.6" fill="#f8fafc" />
-            <circle cx={185 + tremorX * 0.5} cy={headY - 2} r="1.6" fill="#f8fafc" />
-            {/* Mouth (grin on lockout, grit when grinding) */}
-            {phase === 'LOCKOUT' ? (
-              <path
-                d={`M ${175 + tremorX * 0.5} ${headY + 3} Q ${180 + tremorX * 0.5} ${headY + 8} ${185 + tremorX * 0.5} ${headY + 3}`}
-                fill="none"
-                stroke="#2dd4bf"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
+
+            {isMissed ? (
+              <>
+                <path d={`M 173 ${headY - 4} L 177 ${headY} M 177 ${headY - 4} L 173 ${headY}`} stroke="#fb7185" strokeWidth="1.6" strokeLinecap="round" />
+                <path d={`M 183 ${headY - 4} L 187 ${headY} M 187 ${headY - 4} L 183 ${headY}`} stroke="#fb7185" strokeWidth="1.6" strokeLinecap="round" />
+                <path d={`M 175 ${headY + 6} Q 180 ${headY + 2} 185 ${headY + 6}`} fill="none" stroke="#fb7185" strokeWidth="1.8" strokeLinecap="round" />
+              </>
             ) : (
-              <line
-                x1={176 + tremorX * 0.5}
-                y1={headY + 4}
-                x2={184 + tremorX * 0.5}
-                y2={headY + 4}
-                stroke="#94a3b8"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
+              <>
+                <circle cx={175 + tremorX * 0.5} cy={headY - 2} r="1.7" fill="#f8fafc" />
+                <circle cx={185 + tremorX * 0.5} cy={headY - 2} r="1.7" fill="#f8fafc" />
+                {isLockedOut ? (
+                  <path
+                    d={`M 174 ${headY + 3} Q 180 ${headY + 9} 186 ${headY + 3}`}
+                    fill="none"
+                    stroke={lastHitPerfect ? '#fbbf24' : '#2dd4bf'}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                ) : isGrinding ? (
+                  <rect
+                    x={175 + tremorX * 0.5}
+                    y={headY + 2}
+                    width="10"
+                    height="4.5"
+                    rx="2"
+                    fill="none"
+                    stroke="#fbbf24"
+                    strokeWidth="1.6"
+                  />
+                ) : (
+                  <line
+                    x1={176}
+                    y1={headY + 4}
+                    x2={184}
+                    y2={headY + 4}
+                    stroke="#94a3b8"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  />
+                )}
+              </>
             )}
 
-            {/* Sweat Drops when grinding */}
+            {/* Sweat Drops when Grinding */}
             {isGrinding && (
-              <g fill="#38bdf8" opacity="0.85">
-                <circle cx={160 + tremorX} cy={headY - 6} r="2.2" />
-                <circle cx={200 + tremorX} cy={headY - 4} r="1.8" />
+              <g fill="#38bdf8" opacity="0.9">
+                <circle cx={158 + tremorX} cy={headY - 6} r="2.4" />
+                <circle cx={202 + tremorX} cy={headY - 4} r="2" />
               </g>
             )}
 
-            {/* Lifter Arms (Upper & Forearms) */}
+            {/* Lifter Arms */}
             <polyline
               points={`${shoulderLeftX},${shoulderY} ${elbowLeftX},${elbowY} ${gripLeftX},${barY}`}
               fill="none"
               stroke={
-                overdriveActive
-                  ? '#f59e0b'
-                  : phase === 'LOCKOUT'
-                    ? '#2dd4bf'
-                    : '#38bdf8'
+                isMissed
+                  ? '#fb7185'
+                  : isOnFire || isGrinding
+                    ? '#f59e0b'
+                    : isLockedOut
+                      ? '#2dd4bf'
+                      : '#38bdf8'
               }
               strokeWidth="7.5"
               strokeLinecap="round"
@@ -1062,256 +888,159 @@ export function ThreeDemo({ theme = 'dark' }: { theme?: 'light' | 'dark' }) {
               points={`${shoulderRightX},${shoulderY} ${elbowRightX},${elbowY} ${gripRightX},${barY}`}
               fill="none"
               stroke={
-                overdriveActive
-                  ? '#f59e0b'
-                  : phase === 'LOCKOUT'
-                    ? '#2dd4bf'
-                    : '#38bdf8'
+                isMissed
+                  ? '#fb7185'
+                  : isOnFire || isGrinding
+                    ? '#f59e0b'
+                    : isLockedOut
+                      ? '#2dd4bf'
+                      : '#38bdf8'
               }
               strokeWidth="7.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
 
-            {/* Lockout Burst Ring */}
-            {phase === 'LOCKOUT' && (
+            {/* Lockout Celebration Ring & Sparks */}
+            {isLockedOut && (
               <ellipse
                 cx="180"
                 cy={barY}
-                rx="130"
-                ry="16"
+                rx="126"
+                ry="15"
                 fill="none"
-                stroke={lastRepCrit ? '#fbbf24' : '#2dd4bf'}
+                stroke={lastHitPerfect ? '#fbbf24' : '#2dd4bf'}
                 strokeWidth="2.5"
                 strokeDasharray="8 6"
               />
             )}
 
-            {/* Olympic Barbell Shaft (with dynamic flex under load) */}
+            {sparks.map((s) => (
+              <circle
+                key={s.id}
+                cx={s.x + s.dx}
+                cy={s.y + s.dy}
+                r="3.2"
+                fill={s.color}
+                className="miniGameSpark"
+              />
+            ))}
+
+            {/* Olympic Barbell Shaft */}
             <path
-              d={`M 22 ${barY + strainBend} Q 180 ${barY - strainBend} 338 ${barY + strainBend}`}
+              d={`M 20 ${barY + barFlex} Q 180 ${barY - barFlex} 340 ${barY + barFlex}`}
               fill="none"
               stroke="url(#barSteelGrad)"
               strokeWidth="5.5"
               strokeLinecap="round"
             />
 
-            {/* Grip Hands (with Chalk glow when active) */}
-            <circle
-              cx={gripLeftX}
-              cy={barY}
-              r="5.5"
-              fill={chalkRemaining > 0 ? '#e0f2fe' : '#f8fafc'}
-              stroke={chalkRemaining > 0 ? '#38bdf8' : '#0f172a'}
-              strokeWidth="2"
-            />
-            <circle
-              cx={gripRightX}
-              cy={barY}
-              r="5.5"
-              fill={chalkRemaining > 0 ? '#e0f2fe' : '#f8fafc'}
-              stroke={chalkRemaining > 0 ? '#38bdf8' : '#0f172a'}
-              strokeWidth="2"
-            />
+            {/* Hands */}
+            <circle cx={gripLeftX} cy={barY} r="5.5" fill="#f8fafc" stroke="#0f172a" strokeWidth="2" />
+            <circle cx={gripRightX} cy={barY} r="5.5" fill="#f8fafc" stroke="#0f172a" strokeWidth="2" />
 
-            {/* Left & Right Bumper Plates */}
-            {Array.from({ length: tier.platesPerSide }).map((_, idx) => {
-              const color = tier.plateColors[idx] ?? '#2dd4bf'
-              const offset = idx * 9
-              const plateH = 54 - idx * 2.5
+            {/* Bumper Plates (clickable on left to unload, right to add weight!) */}
+            {plates.map((plate, idx) => {
+              const offset = idx * 8.5
+              const plateH = plate.is25 ? 36 : 54 - idx * 2
+              const plateW = plate.is25 ? 6 : 7.5
               const leftX = 64 - offset + tremorX * 0.4
               const rightX = 288 + offset + tremorX * 0.4
-              const plateY = barY + strainBend * 0.65 - plateH / 2
+              const plateY = barY + barFlex * 0.65 - plateH / 2
               return (
                 <g key={idx}>
                   <rect
                     x={leftX}
                     y={plateY}
-                    width="7.5"
+                    width={plateW}
                     height={plateH}
                     rx="3"
-                    fill={color}
+                    fill={plate.color}
                     stroke="#0f172a"
                     strokeWidth="1.1"
                   />
                   <rect
                     x={rightX}
                     y={plateY}
-                    width="7.5"
+                    width={plateW}
                     height={plateH}
                     rx="3"
-                    fill={color}
+                    fill={plate.color}
                     stroke="#0f172a"
                     strokeWidth="1.1"
                   />
                 </g>
               )
             })}
-
-            {/* Right-side Vertical Power Gauge */}
-            <g transform="translate(342, 34)">
-              <rect
-                x="0"
-                y="0"
-                width="16"
-                height="174"
-                rx="8"
-                fill={theme === 'light' ? 'rgba(15, 23, 42, 0.10)' : 'rgba(15, 23, 42, 0.78)'}
-                stroke={theme === 'light' ? 'rgba(15, 23, 42, 0.22)' : 'rgba(148, 163, 184, 0.3)'}
-              />
-              <rect x="2" y="2" width="12" height="24" rx="6" fill="rgba(16, 185, 129, 0.25)" />
-              <rect
-                x="3"
-                y={171 - Math.max(6, liftHeight * 168)}
-                width="10"
-                height={Math.max(6, liftHeight * 168)}
-                rx="5"
-                fill={
-                  overdriveActive
-                    ? '#f59e0b'
-                    : phase === 'LOCKOUT'
-                      ? theme === 'light'
-                        ? '#059669'
-                        : '#2dd4bf'
-                      : theme === 'light'
-                        ? '#0284c7'
-                        : '#38bdf8'
-                }
-              />
-            </g>
           </svg>
 
-          {/* Sweet-Spot Timing Bar & Stamina Strip inside stage footer */}
-          <div className="miniGameMetersRow" aria-hidden="true">
-            <div className="miniGameMeterCol">
-              <div className="miniGameMeterHeader">
-                <span>Stamina</span>
-                <span>{stamina}%</span>
-              </div>
-              <div className="miniGameMeterTrack">
+          {/* Dynamic Timing Bar (transforms into Grind Meter during a Sticking Point!) */}
+          <div className="miniGameTimingWrap" aria-hidden="true">
+            {isGrinding ? (
+              <div className="miniGameTimingTrack miniGameTimingTrack--grind">
                 <div
-                  className={`miniGameMeterFill ${stamina < 25 ? 'is-low' : ''}`}
-                  style={{ width: `${stamina}%` }}
+                  className="miniGameGrindFill"
+                  style={{ width: `${Math.round(liftHeight * 100)}%` }}
                 />
-              </div>
-            </div>
-
-            <div className="miniGameMeterCol">
-              <div className="miniGameMeterHeader">
-                <span>Crit Pulse (2× XP)</span>
-                <span className={isSweetSpotNow ? 'miniGameSweetText' : ''}>
-                  {isSweetSpotNow ? 'SWEET SPOT!' : 'SYNC'}
+                <span className="miniGameGrindLabel">
+                  🔥 TAP FAST! {Math.round(liftHeight * 100)}%
                 </span>
               </div>
-              <div className="miniGamePulseTrack">
-                <div className="miniGamePulseZone" />
+            ) : (
+              <div className="miniGameTimingTrack">
                 <div
-                  className={`miniGamePulseCursor ${isSweetSpotNow ? 'is-sweet' : ''}`}
-                  style={{ left: `${pulsePos * 100}%` }}
+                  className="miniGameTimingGrind"
+                  style={{
+                    left: `${zone.grindStart * 100}%`,
+                    width: `${(zone.grindEnd - zone.grindStart) * 100}%`,
+                  }}
+                />
+                <div
+                  className="miniGameTimingGood"
+                  style={{
+                    left: `${zone.goodStart * 100}%`,
+                    width: `${(zone.goodEnd - zone.goodStart) * 100}%`,
+                  }}
+                />
+                <div
+                  className="miniGameTimingPerfect"
+                  style={{
+                    left: `${zone.perfectStart * 100}%`,
+                    width: `${(zone.perfectEnd - zone.perfectStart) * 100}%`,
+                  }}
+                />
+                <div
+                  className={`miniGameTimingNeedle ${
+                    needleInPerfect
+                      ? 'is-perfect'
+                      : needleInGood
+                        ? 'is-good'
+                        : needleInGrind
+                          ? 'is-grind'
+                          : ''
+                  }`}
+                  style={{ left: `${needlePos * 100}%` }}
                 />
               </div>
+            )}
+            <div className="miniGameStageFooter">
+              <span
+                className={`miniGameStatusText ${isLockedOut ? 'is-lockout' : ''} ${isGrinding ? 'is-grind' : ''} ${isMissed ? 'is-miss' : ''}`}
+              >
+                {statusHint}
+              </span>
             </div>
-          </div>
-
-          <div className="miniGameStageFooter">
-            <span className={`miniGameStatusText ${phase === 'LOCKOUT' ? 'is-lockout' : ''}`}>
-              {statusMessage}
-            </span>
-            <span className="miniGamePctBadge">{pct}%</span>
           </div>
         </div>
 
-        {/* Power-Ups & Weight Controls */}
-        <div className="miniGameControls">
-          {/* Gym Buffs / Power-Up Row */}
-          <div className="miniGameBuffRow">
-            <button
-              type="button"
-              className={`miniGameBuffBtn ${chalkRemaining > 0 ? 'is-active' : ''}`}
-              onClick={handleActivateChalk}
-              title="Apply lifting chalk for +28% Grip Drive and +35% Stamina"
-            >
-              <span>✋ Chalk Up</span>
-              <small>{chalkRemaining > 0 ? `${chalkRemaining}s active` : '+28% Grip'}</small>
-            </button>
-
-            <button
-              type="button"
-              className={`miniGameBuffBtn miniGameBuffBtn--overdrive ${overdriveActive ? 'is-active' : ''} ${overdriveCharge >= 100 ? 'is-ready' : ''}`}
-              onClick={handleActivateOverdrive}
-              title={
-                overdriveCharge >= 100
-                  ? 'Trigger Reactor Overdrive (2× speed & auto-crit)'
-                  : 'Call Spotter for instant 100% Stamina boost'
-              }
-            >
-              <span>{overdriveActive ? '⚡ Overdrive!' : overdriveCharge >= 100 ? '⚡ Overdrive Ready!' : '🤝 Spotter Boost'}</span>
-              <small>{overdriveActive ? '2× CRIT ON' : `${overdriveCharge}% Charged`}</small>
-            </button>
-          </div>
-
-          <div className="miniGameWeightPicker" role="group" aria-label="Barbell plate load">
-            <button
-              type="button"
-              className="miniGamePlateBtn"
-              onClick={() => {
-                setTierIndex((i) => Math.max(0, i - 1))
-                playGymTone('plate', soundEnabled)
-              }}
-              disabled={tierIndex === 0}
-              aria-label="Decrease barbell weight"
-            >
-              − Plate
-            </button>
-            <div className="miniGameWeightLabel">
-              <strong>{tier.weightLbs} lbs</strong>
-              <span>{tier.label}</span>
-            </div>
-            <button
-              type="button"
-              className="miniGamePlateBtn"
-              onClick={() => {
-                setTierIndex((i) => Math.min(WEIGHT_TIERS.length - 1, i + 1))
-                playGymTone('plate', soundEnabled)
-              }}
-              disabled={tierIndex === WEIGHT_TIERS.length - 1}
-              aria-label="Increase barbell weight"
-            >
-              + Plate
-            </button>
-          </div>
-
-          <div className="miniGameActionRow">
-            <button
-              type="button"
-              className={`button primary miniGameLiftBtn ${overdriveActive ? 'is-overdrive' : ''}`}
-              onPointerDown={() => {
-                stateRef.current.holding = true
-                setIsHolding(true)
-              }}
-              onPointerUp={() => {
-                stateRef.current.holding = false
-                setIsHolding(false)
-              }}
-              onPointerLeave={() => {
-                stateRef.current.holding = false
-                setIsHolding(false)
-              }}
-              onClick={triggerPump}
-            >
-              ▲ LIFT {modeConfig.shortName.toUpperCase()} ({tier.weightLbs} LBS)
-            </button>
-            <button
-              type="button"
-              className="button secondary miniGameResetBtn"
-              onClick={handleReset}
-              aria-label="Reset mini-game stats"
-              title={`Total session volume: ${numberFormatter.format(totalVolume)} lbs`}
-            >
-              Reset
-            </button>
-          </div>
-        </div>
+        {/* One Big Action Button */}
+        <button
+          type="button"
+          className={`button primary miniGameLiftBtn ${isOnFire || isGrinding ? 'is-overdrive' : ''} ${isGrinding ? 'is-grinding' : ''}`}
+          onClick={handlePress}
+        >
+          {isGrinding ? `🔥 GRIND! TAP FAST!` : `▲ PRESS ${weightLbs} LBS`}
+        </button>
       </div>
     </div>
   )

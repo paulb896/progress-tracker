@@ -4595,6 +4595,10 @@
   gap: 8px;
 }
 
+.miniGameHud--simple {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .miniGameStat {
   display: flex;
   flex-direction: column;
@@ -5083,6 +5087,180 @@
 .miniGameLiftBtn.is-overdrive {
   background: linear-gradient(135deg, #f59e0b, #fbbf24);
   color: #090d16;
+}
+
+.miniGameTimingWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 4px 2px;
+}
+
+.miniGameTimingTrack {
+  position: relative;
+  height: 16px;
+  border-radius: 999px;
+  background: light-dark(rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0.88));
+  border: 1px solid var(--border-2);
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.miniGameTimingGood {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: color-mix(in srgb, #10b981 36%, transparent);
+  border-left: 1.5px solid #10b981;
+  border-right: 1.5px solid #10b981;
+}
+
+.miniGameTimingGrind {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: color-mix(in srgb, #f59e0b 24%, transparent);
+  border-left: 1px dashed rgba(245, 158, 11, 0.7);
+  border-right: 1px dashed rgba(245, 158, 11, 0.7);
+}
+
+.miniGameTimingPerfect {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: color-mix(in srgb, #fbbf24 55%, transparent);
+  border-left: 1px solid #fbbf24;
+  border-right: 1px solid #fbbf24;
+}
+
+.miniGameTimingNeedle {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  width: 6px;
+  margin-left: -3px;
+  border-radius: 999px;
+  background: var(--text);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.55);
+  transition: background-color 0.08s ease;
+}
+
+.miniGameTimingNeedle.is-grind {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.miniGameTimingNeedle.is-good {
+  background: #2dd4bf;
+  box-shadow: 0 0 10px #2dd4bf;
+}
+
+.miniGameTimingNeedle.is-perfect {
+  background: #fbbf24;
+  box-shadow: 0 0 12px #fbbf24;
+}
+
+.miniGameTimingTrack--grind {
+  border-color: rgba(245, 158, 11, 0.8);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.28);
+}
+
+.miniGameGrindFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24, #2dd4bf);
+  transition: width 0.06s linear;
+}
+
+.miniGameGrindLabel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+.miniGameStatusText.is-grind {
+  color: light-dark(#d97706, #fbbf24);
+}
+
+@keyframes miniGrindPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.025); }
+}
+
+.miniGameLiftBtn.is-grinding {
+  animation: miniGrindPulse 0.35s ease-in-out infinite;
+}
+
+.miniGameWeightStepRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.miniGameStepBtn {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid var(--border-2);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.miniGameStepBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.miniGameStepBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+@keyframes miniGameShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+.miniGameStage.is-miss {
+  border-color: #fb7185;
+  box-shadow: 0 0 22px rgba(251, 113, 133, 0.28);
+  animation: miniGameShake 0.34s ease;
+}
+
+.miniGameStatusText.is-miss {
+  color: #fb7185;
+}
+
+@keyframes miniSparkPop {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.2); }
+}
+
+.miniGameSpark {
+  animation: miniSparkPop 0.5s ease-out forwards;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 @media (max-width: 900px) {
